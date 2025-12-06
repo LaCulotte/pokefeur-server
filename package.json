@@ -1,0 +1,53 @@
+{
+  "name": "server",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
+  "scripts": {
+    "server": "npx tsx src/api/main.ts",
+    "bserver": "bun run src/api/main.ts",
+    "compile": "npx tsx src/compiler/main.ts",
+    "bcompile": "bun run src/compiler/main.ts",
+    "type-check": "npx tsc src/api/main.ts --noEmit --esModuleInterop -m esnext -t esnext --moduleResolution Bundler && echo Ok",
+    "type-check-watch": "npx tsc -w src/api/main.ts --noEmit --esModuleInterop -m esnext -t esnext --moduleResolution Bundler && echo Ok",
+    "dev": "vite",
+    "build": "run-p type-check \"build-only {@}\" --",
+    "preview": "vite preview",
+    "build-only": "vite build",
+    "vue-type-check": "vue-tsc --build",
+    "lint": "eslint . --fix --cache"
+  },
+  "dependencies": {
+    "@types/express": "^5.0.5",
+    "@types/express-session": "^1.18.2",
+    "@types/session-file-store": "^1.2.6",
+    "@types/uuid": "^11.0.0",
+    "express": "^5.1.0",
+    "express-session": "^1.18.2",
+    "express-validator": "^7.3.1",
+    "glob": "^11.0.3",
+    "session-file-store": "^1.5.0",
+    "uuid": "^13.0.0",
+    "vue": "^3.5.22",
+    "vue-router": "^4.6.3"
+  },
+  "devDependencies": {
+    "@tsconfig/node22": "^22.0.2",
+    "@types/node": "^24.10.1",
+    "@vitejs/plugin-vue": "^6.0.1",
+    "@vitejs/plugin-vue-jsx": "^5.1.1",
+    "@vue/eslint-config-typescript": "^14.6.0",
+    "@vue/tsconfig": "^0.8.1",
+    "eslint": "^9.37.0",
+    "eslint-plugin-vue": "~10.5.0",
+    "jiti": "^2.6.1",
+    "npm-run-all2": "^8.0.4",
+    "typescript": "~5.9.0",
+    "vite": "^7.1.11",
+    "vite-plugin-vue-devtools": "^8.0.3",
+    "vue-tsc": "^3.1.1"
+  }
+}
