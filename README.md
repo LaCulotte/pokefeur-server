@@ -1,5 +1,53 @@
 # server
 
+WIP
+
+Launch the dev setup : 
+```bash
+# Vite
+npm run dev
+
+# In a separate terminal
+# Backend
+bun run bserver
+```
+
+### vscode debug config : 
+```json
+{
+    "type": "node",
+    "request": "launch",
+    "name": "Launch api",
+    "program": "${workspaceFolder}/server/src/api/main.ts",
+    "runtimeExecutable": "/usr/bin/npx",
+    "runtimeArgs": [
+        "tsx"
+    ],
+    "cwd": "${workspaceFolder}/server",
+    "skipFiles": [
+        "<node_internals>/**"
+    ],
+    "console": "integratedTerminal"
+},
+{
+    "type": "node",
+    "request": "launch",
+    "name": "Launch compiler",
+    "program": "${workspaceFolder}/server/src/api/main.ts",
+    "runtimeExecutable": "/usr/bin/npx",
+    "runtimeArgs": [
+        "tsx"
+    ],
+    "cwd": "${workspaceFolder}/server",
+    "skipFiles": [
+        "<node_internals>/**"
+    ],
+    "console": "integratedTerminal"
+}
+```
+
+--- 
+
 This template should help get you started developing with Vue 3 in Vite.
 
 ## Recommended IDE Setup
