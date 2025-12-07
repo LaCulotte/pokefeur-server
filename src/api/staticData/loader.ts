@@ -1,5 +1,5 @@
 import type { CardData, CardLangData, SerieData, SerieLangData, SetData, SetLangData } from "../../compiler/interfaces";
-import type { SerieStaticData, SerieStaticLangData, SetStaticData, SetStaticLangData } from "./interfaces";
+import type { SerieStaticData, SerieStaticLangData, SetStaticData, SetStaticLangData, CardStaticLangData } from "./interfaces";
 
 import type { StaticData, StaticLangData } from "./interfaces";
 
@@ -28,11 +28,7 @@ export class StaticDataSingleton {
         cards: {},
     };
 
-    staticLangData: StaticLangData = {
-        series: {},
-        sets: {},
-        cards: {},
-    };
+    staticLangData: StaticLangData = {};
 
     private loaded: boolean = false;
 
@@ -124,21 +120,28 @@ export class StaticDataSingleton {
             sets: {},
             series: {}
         };
+
+        let langData = {
+            series: {} as Record<string, SerieStaticLangData>,
+            sets: {} as Record<string, SetStaticLangData>,
+            cards: {} as Record<string, CardStaticLangData>
+        };
         
         // Load lang cards
         let cards: Record<string, CardLangData> =
             // (await import(path.join(getImportRelativePath(__dirname), GENERATED_DIR, "lang", lang, "cards.json"))).default;
             await fs.readFile(path.join(GENERATED_DIR, "lang", lang, "cards.json"), "utf-8").then(data => JSON.parse(data));
 
-        this.staticLangData.cards[lang] = cards;
+        // this.staticLangData.cards[lang] = cards;
+        langData.cards = cards;
 
         // Load lang sets
         let sets: Record<string, SetLangData> =
             // (await import(path.join(getImportRelativePath(__dirname), GENERATED_DIR, "lang", lang, "sets.json"))).default;
             await fs.readFile(path.join(GENERATED_DIR, "lang", lang, "sets.json"), "utf-8").then(data => JSON.parse(data));
 
-        this.staticLangData.sets[lang] = {};
-        let langSets = this.staticLangData.sets[lang];
+        // this.staticLangData.sets[lang] = {};
+        // let langSets = this.staticLangData.sets[lang];
 
         for (let [id, set] of Object.entries(sets)) {
             let staticSet: SetStaticLangData = {
@@ -148,7 +151,7 @@ export class StaticDataSingleton {
 
             workingData.sets[id] = Object.entries(set.cards);
 
-            langSets[id] = staticSet;
+            langData.sets[id] = staticSet;
         }
 
 
@@ -157,8 +160,8 @@ export class StaticDataSingleton {
             // (await import(path.join(getImportRelativePath(__dirname), GENERATED_DIR, "lang", lang, "series.json"))).default;
             await fs.readFile(path.join(GENERATED_DIR, "lang", lang, "series.json"), "utf-8").then(data => JSON.parse(data));
 
-        this.staticLangData.series[lang] = {};
-        let langSeries = this.staticLangData.series[lang];
+        // this.staticLangData.series[lang] = {};
+        // let langSeries = this.staticLangData.series[lang];
 
         for (let [id, serie] of Object.entries(series)) {
             let staticSet: SerieStaticLangData = {
@@ -168,35 +171,32 @@ export class StaticDataSingleton {
 
             workingData.series[id] = Object.entries(serie.sets);
 
-            langSeries[id] = staticSet;
+            langData.series[id] = staticSet;
         }
+
+        this.staticLangData[lang] = langData;
 
         return workingData;
     }
 
     private async linkStaticLangData(lang: SupportedLanguages, workingData: WorkingLangData) {
-        let langCards = this.staticLangData.cards[lang];
-        if (langCards === undefined) {
-            console.warn(`No cards for lang ${lang} ?`)
+        let langData = this.staticLangData[lang];
+
+        if (langData === undefined) {
+            console.error(`No lang ${lang} ?`);
             return;
         }
 
         // Link cards in sets
-        let langSets = this.staticLangData.sets[lang];
-        if (langSets === undefined) {
-            console.warn(`No set for lang ${lang} ?`)
-            return;
-        }
-
         for (let [setId, cards] of Object.entries(workingData.sets)) {
-            let set = langSets[setId];
+            let set = langData.sets[setId];
             if (set === undefined) {
                 console.warn(`No set ${setId} for lang ${lang} !`)
                 continue;
             }
 
             for (let [cardId, cardLang] of cards) {
-                let currLangCards = this.staticLangData.cards[cardLang];
+                let currLangCards = this.staticLangData[cardLang]?.cards;
                 if (currLangCards === undefined) {
                     console.warn(`Unkown lang '${cardLang}' for cards`);
                     continue;
@@ -207,7 +207,7 @@ export class StaticDataSingleton {
                     set.cards[cardId] = card;
 
                     if (cardLang !== lang) {
-                        langCards[cardId] = card;
+                        langData.cards[cardId] = card;
                     }
 
                 } else {
@@ -218,21 +218,15 @@ export class StaticDataSingleton {
 
 
         // Link set in series
-        let langSeries = this.staticLangData.series[lang];
-        if (langSeries === undefined) {
-            console.warn(`No series for lang ${lang} ?`)
-            return;
-        }
-
         for (let [serieId, sets] of Object.entries(workingData.series)) {
-            let serie = langSeries[serieId];
+            let serie = langData.series[serieId];
             if (serie === undefined) {
                 console.warn(`No serie ${serieId} for lang ${lang} !`)
                 continue;  
             }
 
             for (let [setId, setLang] of sets) {
-                let currLangSets = this.staticLangData.sets[setLang];
+                let currLangSets = this.staticLangData[setLang]?.sets;
                 if (currLangSets === undefined) {
                     console.warn(`Unkown lang '${setLang}' for sets`);
                     continue;
@@ -243,10 +237,10 @@ export class StaticDataSingleton {
                     serie.sets[setId] = set;
 
                     if (setLang !== lang) {
-                        langSets[setId] = set;
+                        langData.sets[setId] = set;
 
                         for (let [cardId, card] of Object.entries(set.cards)) {
-                            langCards[cardId] = card;
+                            langData.cards[cardId] = card;
                         }
                     }
                 } else {

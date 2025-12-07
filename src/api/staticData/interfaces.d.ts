@@ -83,8 +83,8 @@ export interface SerieStaticLangData {
     sets: Record<string, SetStaticLangData>
 }
 
-export interface StaticLangData {
-    series: Partial<Record<SupportedLanguages, Record<string, SerieStaticLangData>>>
-    sets: Partial<Record<SupportedLanguages, Record<string, SetStaticLangData>>>
-    cards: Partial<Record<SupportedLanguages, Record<string, CardStaticLangData>>>
-}
+export type StaticLangData = Partial<Record<SupportedLanguages, {
+                                    series: Record<string, SerieStaticLangData>
+                                    sets: Record<string, SetStaticLangData>
+                                    cards: Record<string, CardStaticLangData>
+                                }>>;

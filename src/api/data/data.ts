@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid"
 
 import type { InventoryItem, ItemType, User, UserType } from "./interfaces"
 import { StaticDataSingleton } from "../staticData/loader";
+import { expected, unexpected, type Expected } from "../../common/utils";
 
 function logError(message: string) : string {
     console.error(message);
@@ -87,7 +88,10 @@ export class DataSingleton {
         };
 
         this.users[uid] = newUser;
+        this.inventories[uid] = {};
+        
         this.saveUsers();
+        this.saveUserInventory(uid, {});
 
         return newUser;
     }
@@ -118,25 +122,25 @@ export class DataSingleton {
         return {};
     }
 
-    addItemToInventory(userUid: string, type: ItemType, id: string) : string | undefined {
+    addItemToInventory(userUid: string, type: ItemType, id: string) : Expected<InventoryItem> {
         const staticData = StaticDataSingleton.getInstance();
 
         if (type == "booster") {
             if (!(id in staticData.staticData.sets)) {
-                return logError(`Unknown set of id ${id}`);
+                return unexpected(logError(`Unknown set of id ${id}`));
             }
         } else if (type == "card") {
             if (!(id in staticData.staticData.cards)) {
-                return logError(`Unknown card of id ${id}`);
+                return unexpected(logError(`Unknown card of id ${id}`));
             }
         } else {
-            return logError(`Unkown type of item : ${type}`);
+            return unexpected(logError(`Unkown type of item : ${type}`));
         }
 
         const inventory = this.inventories[userUid];
 
         if (inventory === undefined) {
-            return logError(`No inventory for user ${userUid}`);
+            return unexpected(logError(`No inventory for user ${userUid}`));
         }
 
         let itemUid = uuidv4();
@@ -145,13 +149,17 @@ export class DataSingleton {
             itemUid = uuidv4();
         }
 
-        inventory[itemUid] = {
+        let item: InventoryItem = {
             type,
             id,
             uid: itemUid
         }
 
+        inventory[itemUid] = item;
+
         this.saveUserInventory(userUid, inventory);
+
+        return expected(item);
     }
 
     removeItemFromInventory(userUid: string, uid: string) : string | undefined {

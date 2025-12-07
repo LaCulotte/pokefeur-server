@@ -1,11 +1,10 @@
 import type express from "express";
-import { check, matchedData, validationResult } from "express-validator";
+import { check } from "express-validator";
 
 import { execValidationMiddleware, loggedUserMiddleware } from "./middleware";
 import { DataSingleton } from "../data/data";
 
 import "../common"
-import type { User, UserWithInventory } from "../data/interfaces";
 
 
 function addItemToInventoryRequest(req: express.Request, res: express.Response) {
@@ -13,17 +12,17 @@ function addItemToInventoryRequest(req: express.Request, res: express.Response) 
         throw new Error("??");
     }
 
-    let err = DataSingleton.getInstance().addItemToInventory(req.session.userUid, req.body.type, req.body.id)
+    let expItem = DataSingleton.getInstance().addItemToInventory(req.session.userUid, req.body.type, req.body.id)
 
-    if (err === undefined) {
-        res.sendStatus(200);
+    if (expItem.has_value()) {
+        res.status(200).json(expItem.value());
     } else {
-        res.status(400).json({errors: [err]});
+        res.status(400).json({errors: [expItem.error()]});  // TODO : errors in the same format as "check"
     }
 }
 
 export function setupInventoryEndpoints(app: express.Express) {
-    app.post("/api/addItemToInventory", 
+    app.post("/api/addItemToInventory",
         loggedUserMiddleware,
         check("type").isString().isIn(["card", "booster"]),
         check("id").isString(),
