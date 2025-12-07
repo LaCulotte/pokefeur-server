@@ -51,7 +51,7 @@ function getUserWithInventory(req: express.Request, res: express.Response) {
         return;
     }
 
-    const userWithInventory = user as UserWithInventory;
+    const userWithInventory = structuredClone(user) as UserWithInventory;
     userWithInventory.inventory = DataSingleton.getInstance().getUserInventory(user.uid) ?? {};
 
     res.json({ user: userWithInventory });
@@ -72,6 +72,7 @@ export function setupLoginEnpoints(app: express.Express) {
     );
 
     app.get("/api/getUser", 
+        loggedUserMiddleware,
         getUserRequest
     );
 
