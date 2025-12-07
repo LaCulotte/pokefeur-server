@@ -1,6 +1,9 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
+import { staticDataStore, loadDataStore } from './data/static/vueStaticData';
 import type { User } from '../api/data/interfaces';
+
+import Inventory from './components/Inventory.vue';
 
 const username = ref("");
 
@@ -17,6 +20,9 @@ fetch("/api/getUser", {
         } else {
             window.location.href = "/src/ui/login/";
         }
+    })
+    .then(() => {
+        loadDataStore("fr");
     })
     .catch(err => {
         console.error("Error fetching user data:", err);
@@ -57,16 +63,24 @@ function easyFetch() {
         return res.text()
     })
     .then((t) => {
-        res.value = t.slice(0, 200);
+        res.value = t.slice(0, 1000);
     });
 }
-
 </script>
 
 <template>
     <h1>Hello {{ username }} !</h1>
     <div>
         <button @click="logout">Logout</button>
+    </div>
+
+    <div>{{ Object.keys(staticDataStore["fr"]?.sets ?? {}).length }} sets loaded !</div>
+    <div>{{ Object.keys(staticDataStore["fr"]?.sets["base1"]?.cards ?? {}).length }} cards in base1 loaded !</div>
+
+    <br></br>
+
+    <div>
+        <inventory/>
     </div>
 
     <br></br>
