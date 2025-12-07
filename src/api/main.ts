@@ -10,6 +10,7 @@ let FileStore = fileStore(session);
 import "./common"
 import { DataSingleton } from "./data/data";
 import { setupInventoryEndpoints } from "./endpoints/inventory";
+import { setupAdminEndpoints } from "./endpoints/admin";
 
 let a = Date.now();
 // console.log(a = Date.now())
@@ -82,53 +83,7 @@ app.use(session({
 
 setupLoginEnpoints(app);
 setupInventoryEndpoints(app);
-
-
-
-// app.get("/api/test/", (req, res) => {
-//     console.log(req.session);
-
-//     if (req.session.user === undefined) {
-//         console.log("No user in session");
-//         res.sendStatus(401);
-//         return;
-//     }
-
-//     res.json({ message: "API is working!" });
-// });
-
-// app.get("/api/getUser/", (req, res) => {    
-//     if (req.session.user === undefined) {
-//         console.log("No user in session");
-//         res.json({ user: null });
-//         return;
-//     }
-    
-//     res.json({ username: req.session.user });
-// });
-
-// app.post("/api/login/:username/", (req, res) => {
-//     console.log("Login attempt");
-//     console.log(req.params);
-
-//     const { username } = req.params;
-
-//     console.log("Logging in user:", username);
-
-//     // In a real application, you would verify the username and password here
-//     // For this example, we'll just create a user object with the provided username
-
-//     // const user = {
-//     //     id: '1',
-//     //     username: username,
-//     //     type: 'user' as const
-//     // };
-
-//     // Store user information in session
-//     req.session.user = username;
-
-//     res.json({ message: "Login successful", username: username });
-// });
+setupAdminEndpoints(app);
 
 app.listen(3000, () => {
     console.log("Server is running on http://localhost:3000");
