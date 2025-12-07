@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { staticDataStore, loadDataStore } from './data/static/vueStaticData';
 import type { User } from '../api/data/interfaces';
+import { lang } from './controller/lang';
 
 import Inventory from './components/Inventory.vue';
+import type { SupportedLanguages } from '../../resources/interfaces';
 
 const username = ref("");
 
@@ -20,9 +22,6 @@ fetch("/api/getUser", {
         } else {
             window.location.href = "/src/ui/login/";
         }
-    })
-    .then(() => {
-        loadDataStore("fr");
     })
     .catch(err => {
         console.error("Error fetching user data:", err);
@@ -69,6 +68,12 @@ function easyFetch() {
 </script>
 
 <template>
+    <div>
+        <select v-model="lang">
+            <option value="fr">fr</option>
+            <option value="en">en</option>
+        </select>
+    </div>
     <h1>Hello {{ username }} !</h1>
     <div>
         <button @click="logout">Logout</button>
@@ -79,7 +84,7 @@ function easyFetch() {
 
     <br></br>
 
-    <div>
+    <div v-if="staticDataStore[lang] !== undefined">
         <inventory/>
     </div>
 

@@ -39,4 +39,28 @@ export class UserData {
             console.error(`Cannot add card : ${err}`);
         });
     }
+
+    removeItem(itemUid: string) {
+        fetch("/api/removeItemFromInventory",
+            {
+                method: "POST",
+                body: JSON.stringify({itemUid}),
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            }
+        ).then((res) => {
+            if (res.status == 200) {
+                return;
+            } else if (res.status == 400) {
+                return res.json().then((err) => { throw JSON.stringify(err["errors"]); });
+            } else if (res.status == 401) {
+                return res.json().then((err) => { throw err["message"]; });
+            }
+        }).then(() => {
+            delete this.data.inventory[itemUid];
+        }).catch((err) => {
+            console.error(`Cannot add card : ${err}`);
+        });
+    }
 }

@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from "uuid"
 
 import type { InventoryItem, ItemType, User, UserType } from "./interfaces"
 import { StaticDataSingleton } from "../staticData/loader";
-import { expected, unexpected, type Expected } from "../../common/utils";
+import { Expected, expected, unexpected } from "../../common/utils";
 
 function logError(message: string) : string {
     console.error(message);
@@ -162,31 +162,34 @@ export class DataSingleton {
         return expected(item);
     }
 
-    removeItemFromInventory(userUid: string, uid: string) : string | undefined {
+    removeItemFromInventory(userUid: string, uid: string) : Expected<InventoryItem> {
         const inventory = this.inventories[userUid];
 
         if (inventory === undefined) {
-            return logError(`No inventory for user ${userUid}`);
+            return unexpected(logError(`No inventory for user ${userUid}`));
         }
 
-        if (!(uid in inventory)) {
-            return logError(`No item of uid ${uid} in the inventory of user ${userUid}`);
+        if (inventory[uid] === undefined) {
+            return unexpected(logError(`No item of uid ${uid} in the inventory of user ${userUid}`));
         }
 
+        let item = structuredClone(inventory[uid]);
         delete inventory[uid];
 
         this.saveUserInventory(userUid, inventory);
+
+        return expected(item);
     }
 
-    removeItemFromInventoryById(userUid: string, type: ItemType, id: string, n: number = -1) : string | undefined {
+    removeItemFromInventoryById(userUid: string, type: ItemType, id: string, n: number = -1) : Expected<Array<InventoryItem>> {
         if (n == 0) {
-            return;
+            return expected([]);
         }
 
         const inventory = this.inventories[userUid];
 
         if (inventory === undefined) {
-            return logError(`No inventory for user ${userUid}`);
+            return unexpected(logError(`No inventory for user ${userUid}`));
         }
 
         let uidsToDelete = []
@@ -201,10 +204,14 @@ export class DataSingleton {
             }
         }
 
+        let deleted: Array<InventoryItem> = [];
         for (let uid of uidsToDelete) {
+            deleted.push(structuredClone(inventory[uid]) as InventoryItem);
             delete inventory[uid];
         }
 
         this.saveUserInventory(userUid, inventory);
+
+        return expected(deleted);
     }
 };

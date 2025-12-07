@@ -9,10 +9,24 @@ import "../common"
 
 function addItemToInventoryRequest(req: express.Request, res: express.Response) {
     if (req.session.userUid == undefined) {
-        throw new Error("??");
+        throw new Error("No userUid on add item request ?");
     }
 
     let expItem = DataSingleton.getInstance().addItemToInventory(req.session.userUid, req.body.type, req.body.id)
+
+    if (expItem.has_value()) {
+        res.status(200).json(expItem.value());
+    } else {
+        res.status(400).json({errors: [expItem.error()]});  // TODO : errors in the same format as "check"
+    }
+}
+
+function removeItemFromInventoryRequest(req: express.Request, res: express.Response) {
+    if (req.session.userUid == undefined) {
+        throw new Error("No userUid on remove item request ?");
+    }
+
+    let expItem = DataSingleton.getInstance().removeItemFromInventory(req.session.userUid, req.body.itemUid);
 
     if (expItem.has_value()) {
         res.status(200).json(expItem.value());
@@ -28,5 +42,12 @@ export function setupInventoryEndpoints(app: express.Express) {
         check("id").isString(),
         execValidationMiddleware,
         addItemToInventoryRequest
+    );
+
+    app.post("/api/removeItemFromInventory",
+        loggedUserMiddleware,
+        check("itemUid").isString(),
+        execValidationMiddleware,
+        removeItemFromInventoryRequest
     );
 }
