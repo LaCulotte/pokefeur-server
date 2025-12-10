@@ -20,7 +20,7 @@ fetch("/api/getUser", {
         if (data.user) {
             username.value = data.user.username;
         } else {
-            window.location.href = "/src/ui/login/";
+            window.location.href = "/login/";
         }
     })
     .catch(err => {
@@ -33,7 +33,7 @@ function logout() {
             method: "POST",
         })
         .then(() => {
-            window.location.href = "/src/ui/login/";
+            window.location.href = "/login/";
         })
         .catch(err => {
             console.error("Error fetching user data:", err);

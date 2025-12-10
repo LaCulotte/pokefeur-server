@@ -33,7 +33,7 @@ function login() {
         )
         .then((res) => {
             if (res.status == 200) {
-                window.location.href = "/src/ui/";
+                window.location.href = "/";
             } else if (res.status == 400) {
                 return res.json().then((data) => {
                     errorMessage.value = data.errors;

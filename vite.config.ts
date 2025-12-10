@@ -14,7 +14,7 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src/ui', import.meta.url)),
+      '@': fileURLToPath(new URL('/', import.meta.url)),
     },
   },
   server: {
@@ -25,5 +25,5 @@ export default defineConfig({
     },
   },
 
-  
+  root: "src/ui"
 })
