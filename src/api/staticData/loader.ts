@@ -17,8 +17,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 interface WorkingLangData {
-    sets: Record<string, Array<[string, SupportedLanguages]>>
-    series: Record<string, Array<[string, SupportedLanguages]>>
+    sets: Record<string, Array<[string, SupportedLanguages]>>       // set id => [card id, lang]
+    series: Record<string, Array<[string, SupportedLanguages]>>     // serie id => [set id, lang]
+    missingSeriesList: Array<[string, SupportedLanguages]>                 // [serie id, lang]
 };
 
 export class StaticDataSingleton {
@@ -39,12 +40,39 @@ export class StaticDataSingleton {
 
         let workingData: Partial<Record<SupportedLanguages, WorkingLangData>> = {}
         for (let lang of LANGS) {
-            // TODO : promise.all
+            // TODO : promise.all to 'semi-parallelize'
             workingData[lang] = await this.data.loadStaticLangData(lang);
         }
 
+        let series: Array<string> = Object.keys(this.data.staticData.series);
+        let seriesLangs: Array<[string, SupportedLanguages]> = series.map((id) => { 
+            if (this.data.staticLangData.en?.series[id] !== undefined) {
+                return [id, "en"];
+            }
+
+            for (let [lang, sdata] of Object.entries(this.data.staticLangData)) {
+                if (sdata.series[id] !== undefined)
+                    return [id, lang as SupportedLanguages];
+            }
+
+            console.warn(`Serie ${id} does not have any langage ?`);
+            return [id, "en"];
+        });
+
         for (let [lang, wdata] of Object.entries(workingData)) {
-            await this.data.linkStaticLangData(lang as SupportedLanguages, wdata);
+            await this.data.linkSetsLangData(lang as SupportedLanguages, wdata);
+        }
+
+        for (let [lang, wdata] of Object.entries(workingData)) {
+            await this.data.linkSeriesLangData(lang as SupportedLanguages, wdata);
+        }
+
+        for (let [wlang, wdata] of Object.entries(workingData)) {
+            for (let [id, lang] of seriesLangs) {
+                if (!(id in wdata.series)) {
+                    await this.data.linkMissingSeriesLangData(wlang as SupportedLanguages, id, lang); 
+                }
+            }
         }
 
         this.data.loaded = true;
@@ -118,7 +146,8 @@ export class StaticDataSingleton {
     private async loadStaticLangData(lang: SupportedLanguages) : Promise<WorkingLangData> {
         let workingData: WorkingLangData = {
             sets: {},
-            series: {}
+            series: {},
+            missingSeriesList: []
         };
 
         let langData = {
@@ -179,7 +208,7 @@ export class StaticDataSingleton {
         return workingData;
     }
 
-    private async linkStaticLangData(lang: SupportedLanguages, workingData: WorkingLangData) {
+    private async linkSetsLangData(lang: SupportedLanguages, workingData: WorkingLangData) {
         let langData = this.staticLangData[lang];
 
         if (langData === undefined) {
@@ -187,7 +216,6 @@ export class StaticDataSingleton {
             return;
         }
 
-        // Link cards in sets
         for (let [setId, cards] of Object.entries(workingData.sets)) {
             let set = langData.sets[setId];
             if (set === undefined) {
@@ -215,9 +243,16 @@ export class StaticDataSingleton {
                 }
             }
         }
+    }
 
+    private async linkSeriesLangData(lang: SupportedLanguages, workingData: WorkingLangData) {
+        let langData = this.staticLangData[lang];
 
-        // Link set in series
+        if (langData === undefined) {
+            console.error(`No lang ${lang} ?`);
+            return;
+        }
+
         for (let [serieId, sets] of Object.entries(workingData.series)) {
             let serie = langData.series[serieId];
             if (serie === undefined) {
@@ -242,10 +277,39 @@ export class StaticDataSingleton {
                         for (let [cardId, card] of Object.entries(set.cards)) {
                             langData.cards[cardId] = card;
                         }
+
+                        // Technically this could work, but only if linkSeriesLangData is called BEFORE loadStaticLangData
+                        //      Not done to avoid mistakes, but kept as relic
+                        // workingData.sets[setId] = Object.keys(set.cards).map((key) => [key, setLang])
                     }
                 } else {
                     console.warn(`Unkown set of id '${setId}'`);
                 }
+            }
+        }
+    }
+
+    private async linkMissingSeriesLangData(lang: SupportedLanguages, serieId: string, destLang: SupportedLanguages) {
+        let langData = this.staticLangData[lang];
+
+        if (langData === undefined) {
+            console.error(`No lang ${lang} ?`);
+            return;
+        }
+
+        let destSerie = this.staticLangData[destLang]?.series[serieId];
+        if (destSerie === undefined) {
+            console.error(`No serie ${serieId} or lang ${destLang}`);
+            return;
+        }
+
+        langData.series[serieId] = destSerie;
+
+        for (let [setId, set] of Object.entries(destSerie.sets)) {
+            langData.sets[setId] = set;
+
+            for (let [cardId, card] of Object.entries(set.cards)) {
+                langData.cards[cardId] = card;
             }
         }
     }
