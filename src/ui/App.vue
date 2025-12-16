@@ -79,12 +79,17 @@ function easyFetch() {
         <button @click="logout">Logout</button>
     </div>
 
-    <div>{{ Object.keys(staticDataStore["fr"]?.sets ?? {}).length }} sets loaded !</div>
-    <div>{{ Object.keys(staticDataStore["fr"]?.sets["base1"]?.cards ?? {}).length }} cards in base1 loaded !</div>
-
     <br></br>
 
     <div v-if="staticDataStore[lang] !== undefined">
+        <div>{{ Object.keys(staticDataStore[lang]?.series ?? {}).length }} series loaded !</div>
+        <div>{{ Object.keys(staticDataStore[lang]?.sets ?? {}).length }} sets loaded !</div>
+        <div>{{ Object.keys(staticDataStore[lang]?.cards ?? {}).length }} cards loaded !</div>
+
+        <div v-if="staticDataStore['fr'] && staticDataStore['en']">
+            {{ Object.keys(staticDataStore["en"]?.series ?? {}).filter((k) => !(k in (staticDataStore["fr"]?.series ?? {}))) }}
+        </div>
+
         <inventory/>
     </div>
 

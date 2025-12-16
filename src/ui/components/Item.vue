@@ -9,9 +9,6 @@ const props = defineProps<{
     item: InventoryItem
 }>();
 
-// function removeItem() {
-//     user.removeItem()
-// }
 </script>
 
 <template>

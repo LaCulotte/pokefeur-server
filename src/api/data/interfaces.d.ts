@@ -14,13 +14,11 @@ export interface BoosterItem {
     uid: string,
 }
 
-// export interface InventoryItem {
-//     type: ItemType,
-//     id: string,
-//     uid: string
-// }
-
 export type InventoryItem = CardItem | BoosterItem;
+export type InventoryItemT<T> = 
+                T extends "card" ? CardItem : 
+                T extends "booster" ? BoosterItem :
+                never;
 
 export interface User {
     uid: string

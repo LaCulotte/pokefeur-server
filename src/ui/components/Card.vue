@@ -2,20 +2,43 @@
 import type { CardItem } from '@/api/data/interfaces';
 import { staticDataStore } from '../data/static/vueStaticData';
 import { lang } from '../controller/lang';
-import { computed } from 'vue';
+import { computed, type ComputedRef } from 'vue';
+import type { CardLangData } from '@/compiler/interfaces';
+import { Category, Rarity } from '../../common/constants';
 
 const props = defineProps<{
     item: CardItem
 }>();
 
+let unknownCard: ComputedRef<CardLangData> = computed(() => {
+    return {
+        lang: lang.value,
+        id: "0",
+        name: "Weird Card",
+        setId: "0",
+        localId: "0",
+        image: "",
+        category: Category.UNDEFINED,
+        rarity: Rarity.UNDEFINED
+    }
+});
+
 let itemStaticData = computed(() => {
-        return staticDataStore[lang.value]?.cards[props.item.id]
+        return staticDataStore[lang.value]?.cards[props.item.id] ?? unknownCard.value
     });
 
-// let itemStaticData = staticDataStore["fr"]?.cards[props.item.id];
+let image = computed(() => {
+        return itemStaticData.value.image?.length > 0 
+            ? `${itemStaticData.value.image}/low.webp`
+            : "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/MissingNo.svg/960px-MissingNo.svg.png";
+    });
+
+let name = computed(() => {
+        return itemStaticData.value.name?.length > 0 ? itemStaticData.value.name : "No data";
+    });
 </script>
 
 <template>
-    card : {{ item.id }}; {{ itemStaticData?.name }}
-    <img :src="`${itemStaticData?.image}/low.webp`" style="width: 150px;"></img>
+    card : {{ item.id }}; {{ name }}
+    <img :src="image" style="width: 150px; max-height: 200px;"></img>
 </template>

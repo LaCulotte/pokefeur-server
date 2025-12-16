@@ -43,7 +43,11 @@ export class Expected<T> {
     }
 }
 
-export function unexpected(error: string) : Expected<any>{
+export function unexpected(error: string, log: boolean = false) : Expected<any>{
+    if (log) {
+        console.error(error);
+    }
+
     return Expected.makeUnxpected(error);
 }
 

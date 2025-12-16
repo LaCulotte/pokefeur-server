@@ -9,6 +9,22 @@ import Item from './Item.vue';
 const type = ref("card");
 const id = ref("")
 
+const counts = computed(() => {
+    let count = {
+        cards: 0,
+        boosters: 0
+    }
+
+    Object.values(user.data.inventory).forEach((item) => {
+        if (item.type == "booster")
+            count.boosters ++
+        else
+            count.cards ++
+    });
+
+    return count;
+});
+
 </script>
 
 <template>
@@ -30,6 +46,9 @@ const id = ref("")
         </div>
 
         Inventaire :
+        <div>
+            Cartes : {{ counts.cards }}; Boosters : {{ counts.boosters }}
+        </div>
         <div v-for="obj of Object.values(user.data.inventory)">
             <item :item="obj" :key="obj.uid"></item>
              <!-- <card v-if="obj.type == 'card'" :item="obj" :key="`c-${obj.uid}`"></card>

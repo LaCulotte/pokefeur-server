@@ -5,6 +5,7 @@ import { execValidationMiddleware, loggedUserMiddleware } from "./middleware";
 import { DataSingleton } from "../data/data";
 
 import "../common"
+import { openBooster } from "../controller/booster";
 
 
 function addItemToInventoryRequest(req: express.Request, res: express.Response) {
@@ -35,6 +36,20 @@ function removeItemFromInventoryRequest(req: express.Request, res: express.Respo
     }
 }
 
+function openBoosterRequest(req: express.Request, res: express.Response) {
+    if (req.session.userUid == undefined) {
+        throw new Error("No userUid on remove item request ?");
+    }
+
+    let expOpenedCards = openBooster(req.session.userUid, req.body.itemUid);
+
+    if (expOpenedCards.has_value()) {
+        res.status(200).json(expOpenedCards.value());
+    } else {
+        res.status(400).json({errors: [expOpenedCards.error()]});  // TODO : errors in the same format as "check"
+    }
+}
+
 export function setupInventoryEndpoints(app: express.Express) {
     app.post("/api/addItemToInventory",
         loggedUserMiddleware,
@@ -49,5 +64,12 @@ export function setupInventoryEndpoints(app: express.Express) {
         check("itemUid").isString(),
         execValidationMiddleware,
         removeItemFromInventoryRequest
+    );
+
+    app.post("/api/openBooster",
+        loggedUserMiddleware,
+        check("itemUid").isString(),
+        execValidationMiddleware,
+        openBoosterRequest
     );
 }

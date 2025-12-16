@@ -1,14 +1,9 @@
 import fs from "fs/promises"
 import { v4 as uuidv4 } from "uuid"
 
-import type { InventoryItem, ItemType, User, UserType } from "./interfaces"
+import type { InventoryItem, InventoryItemT, ItemType, User, UserType } from "./interfaces"
 import { StaticDataSingleton } from "../staticData/loader";
 import { Expected, expected, unexpected } from "../../common/utils";
-
-function logError(message: string) : string {
-    console.error(message);
-    return message;
-}
 
 export class DataSingleton {
     users: Record<string, User> = {}
@@ -122,25 +117,25 @@ export class DataSingleton {
         return {};
     }
 
-    addItemToInventory(userUid: string, type: ItemType, id: string) : Expected<InventoryItem> {
+    addItemToInventory<T extends ItemType>(userUid: string, type: T, id: string) : Expected<InventoryItemT<T>> {
         const staticData = StaticDataSingleton.getInstance();
 
         if (type == "booster") {
             if (!(id in staticData.staticData.sets)) {
-                return unexpected(logError(`Unknown set of id ${id}`));
+                return unexpected(`Unknown set of id ${id}`, true);
             }
         } else if (type == "card") {
             if (!(id in staticData.staticData.cards)) {
-                return unexpected(logError(`Unknown card of id ${id}`));
+                return unexpected(`Unknown card of id ${id}`, true);
             }
         } else {
-            return unexpected(logError(`Unkown type of item : ${type}`));
+            return unexpected(`Unkown type of item : ${type}`, true);
         }
 
         const inventory = this.inventories[userUid];
 
         if (inventory === undefined) {
-            return unexpected(logError(`No inventory for user ${userUid}`));
+            return unexpected(`No inventory for user ${userUid}`, true);
         }
 
         let itemUid = uuidv4();
@@ -159,18 +154,18 @@ export class DataSingleton {
 
         this.saveUserInventory(userUid, inventory);
 
-        return expected(item);
+        return expected(item as InventoryItemT<T>);
     }
 
     removeItemFromInventory(userUid: string, uid: string) : Expected<InventoryItem> {
         const inventory = this.inventories[userUid];
 
         if (inventory === undefined) {
-            return unexpected(logError(`No inventory for user ${userUid}`));
+            return unexpected(`No inventory for user ${userUid}`, true);
         }
 
         if (inventory[uid] === undefined) {
-            return unexpected(logError(`No item of uid ${uid} in the inventory of user ${userUid}`));
+            return unexpected(`No item of uid ${uid} in the inventory of user ${userUid}`, true);
         }
 
         let item = structuredClone(inventory[uid]);
@@ -189,7 +184,7 @@ export class DataSingleton {
         const inventory = this.inventories[userUid];
 
         if (inventory === undefined) {
-            return unexpected(logError(`No inventory for user ${userUid}`));
+            return unexpected(`No inventory for user ${userUid}`, true);
         }
 
         let uidsToDelete = []

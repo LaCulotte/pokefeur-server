@@ -1,4 +1,4 @@
-import type { InventoryItem, ItemType, UserWithInventory } from "@/api/data/interfaces";
+import type { CardItem, InventoryItem, ItemType, UserWithInventory } from "@/api/data/interfaces";
 
 export class UserData {
     data: UserWithInventory = {
@@ -27,7 +27,7 @@ export class UserData {
             }
         ).then((res) => {
             if (res.status == 200) {
-                return res.json()
+                return res.json();
             } else if (res.status == 400) {
                 return res.json().then((err) => { throw JSON.stringify(err["errors"]); });
             } else if (res.status == 401) {
@@ -59,6 +59,38 @@ export class UserData {
             }
         }).then(() => {
             delete this.data.inventory[itemUid];
+        }).catch((err) => {
+            console.error(`Cannot add card : ${err}`);
+        });
+    }
+
+    openBooster(itemUid: string) {
+        if (!(itemUid in this.data.inventory)) {
+            return;
+        }
+
+        fetch("/api/openBooster",
+            {
+                method: "POST",
+                body: JSON.stringify({itemUid}),
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            }
+        ).then((res) => {
+            if (res.status == 200) {
+                return res.json();
+            } else if (res.status == 400) {
+                return res.json().then((err) => { throw JSON.stringify(err["errors"]); });
+            } else if (res.status == 401) {
+                return res.json().then((err) => { throw err["message"]; });
+            }
+        }).then((data: Array<CardItem>) => {
+            delete this.data.inventory[itemUid];
+
+            for (let card of data.values()) {
+                this.data.inventory[card.uid] = card;
+            }
         }).catch((err) => {
             console.error(`Cannot add card : ${err}`);
         });
