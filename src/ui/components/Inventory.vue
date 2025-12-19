@@ -28,31 +28,20 @@ const counts = computed(() => {
 </script>
 
 <template>
+    <!-- <div v-for="obj of Object.values(user.data.inventory)">
+        <item :item="obj" :key="obj.uid"></item>
+    </div> -->
 
-    <h1>salut {{ user.data.username }} !</h1>
     <div>
-        <div>
-            <form @submit.prevent="user.addItem(type as ItemType, id)">
-                <label for="type">type</label>
-                <select name="type" v-model="type">
-                    <option value="card">card</option>
-                    <option value="booster">booster</option>
-                </select>
-
-                <label for="id">id</label>
-                <input name="id" v-model="id"></input>
-                <input type="submit" :value="`add`"></input>
-            </form>
-        </div>
-
-        Inventaire :
-        <div>
-            Cartes : {{ counts.cards }}; Boosters : {{ counts.boosters }}
-        </div>
-        <div v-for="obj of Object.values(user.data.inventory)">
-            <item :item="obj" :key="obj.uid"></item>
-             <!-- <card v-if="obj.type == 'card'" :item="obj" :key="`c-${obj.uid}`"></card>
-             <booster v-else :item="obj" :key="`b-${obj.uid}`"></booster> -->
-        </div>
+        <v-row class="h-100 align-content-start">
+            <v-col
+            v-for="[i, obj] of Object.values(user.data.inventory).entries()"
+            cols="4"
+            class="h-25"
+            :key="i"
+            >
+                <item :item="obj" :key="obj.uid" class=""></item>
+            </v-col>
+        </v-row>
     </div>
 </template>

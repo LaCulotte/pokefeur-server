@@ -4,7 +4,7 @@ import { staticDataStore, loadDataStore } from './data/static/vueStaticData';
 import type { User } from '../api/data/interfaces';
 import { lang } from './controller/lang';
 
-import Inventory from './components/Inventory.vue';
+import Inventory from './components.old/Inventory.vue';
 import type { SupportedLanguages } from '../../resources/interfaces';
 
 const username = ref("");
@@ -95,22 +95,22 @@ function easyFetch() {
 
     <br></br>
 
-    <form @submit.prevent="easyFetch">
+    <v-form @submit.prevent="easyFetch">
+        <v-row>
+            <v-text-field type="text" v-model="url"></v-text-field>
+            <v-select 
+                v-model="method"
+                :items="['GET', 'POST', 'PUT']"
+            >
+            </v-select>
+        </v-row>
         <div>
-            <input type="text" v-model="url"></input>
-            <select v-model="method">
-                <option>GET</option>
-                <option>POST</option>
-                <option>PUT</option>
-            </select>
+            <v-textarea type="text" v-model="body"></v-textarea>
         </div>
         <div>
-            <textarea type="text" v-model="body"></textarea>
+            <v-btn type="submit">SEND</v-btn>
         </div>
-        <div>
-            <input type="submit" value="send"></input>
-        </div>
-    </form>
+    </v-form>
     <div v-if="!!res">
         <div>Result :</div>
         <div v-html="res"></div>

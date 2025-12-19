@@ -12,11 +12,13 @@ const props = defineProps<{
 </script>
 
 <template>
-    <span>
-        <button @click="user.removeItem(item.uid)">x</button>
-    </span>
-    <span style="margin-right: 10px;">
-        <card v-if="item.type == 'card'" :item="item"></card>
-        <booster v-else :item="item"></booster>
-    </span>
+    <!-- <span>
+        <v-btn @click="user.removeItem(item.uid)">x</v-btn>
+    </span> -->
+    <card v-if="item.type == 'card'" :item="item" class="">
+        <v-btn @click="user.removeItem(item.uid)" color="error" density="compact" size="small" :icon="`mdi-cross`">x</v-btn>
+    </card>
+    <booster v-else :item="item" class="">
+        <v-btn @click="user.removeItem(item.uid)" color="error" density="compact" size="small" :icon="`mdi-cross`">x</v-btn>
+    </booster>
 </template>

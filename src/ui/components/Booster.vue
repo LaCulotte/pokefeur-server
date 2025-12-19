@@ -45,7 +45,12 @@ let name = computed(() => {
 </script>
 
 <template>
-    <button @click="user.openBooster(item.uid)">Open</button>
-    booster : {{ item.id }} :  {{ name }}
-    <img :src="`${logo}.webp`" style="width: 150px; max-height: 200px;"></img>
+    <v-img class="h-100" :src="`${logo}.webp`">
+        <div class="position-absolute top-0 d-flex justify-center align-center w-100 h-100">
+            <v-btn class="ma-2 pa-2" @click="user.openBooster(item.uid)">Caca</v-btn>
+        </div>
+        <div class="position-absolute top-0 d-flex">
+             <slot></slot>
+        </div>
+    </v-img>
 </template>
