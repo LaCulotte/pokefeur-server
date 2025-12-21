@@ -5,6 +5,8 @@ import Card from "./Card.vue"
 import Booster from "./Booster.vue"
 import { user } from "../data/user/vueUserData";
 
+import { ref, onMounted, nextTick } from "vue";
+
 const props = defineProps<{
     item: InventoryItem
 }>();
@@ -12,13 +14,40 @@ const props = defineProps<{
 </script>
 
 <template>
-    <!-- <span>
-        <v-btn @click="user.removeItem(item.uid)">x</v-btn>
-    </span> -->
-    <card v-if="item.type == 'card'" :item="item" class="">
-        <v-btn @click="user.removeItem(item.uid)" color="error" density="compact" size="small" :icon="`mdi-cross`">x</v-btn>
-    </card>
-    <booster v-else :item="item" class="">
-        <v-btn @click="user.removeItem(item.uid)" color="error" density="compact" size="small" :icon="`mdi-cross`">x</v-btn>
-    </booster>
+    <div class="d-flex align-center justify-center w-100 h-100" style="aspect-ratio: 245/337;">
+        <div class="h-100" style="aspect-ratio: 245/337;">
+            <card v-if="item.type == 'card'" :item="item">
+                <v-btn
+                class="position-absolute close-btn-pos"
+                @click="user.removeItem(item.uid)"
+                color="error"
+                density="compact"
+                size="small"
+                :icon="`mdi-cross`"
+                >
+                    x
+                </v-btn>
+            </card>
+            <booster v-else :item="item">
+                <v-btn
+                class="position-absolute close-btn-pos"
+                @click="user.removeItem(item.uid)"
+                color="error"
+                density="compact"
+                size="small"
+                :icon="`mdi-cross`"
+                >
+                    x
+                </v-btn>
+            </booster>
+        </div>
+    </div>
 </template>
+
+<style lang="css">
+.close-btn-pos {
+    --pos: 2%;
+    left: var(--pos); 
+    top: calc(var(--pos) * 245 / 337)
+}
+</style>

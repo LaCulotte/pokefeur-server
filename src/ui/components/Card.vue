@@ -39,12 +39,9 @@ let name = computed(() => {
 </script>
 
 <template>
-    <!-- card : {{ item.id }}; {{ name }} -->
-    <!-- <v-img :src="image"></v-img> -->
-
-    <v-img class="h-100" :src="`${image}`">
-        <div class="position-absolute top-0 d-flex">
-             <slot></slot>
-        </div>
-    </v-img>
+    <v-responsive class="w-100 h-100">
+        <v-img class="position-absolute top-0 w-100 h-100" :src="`${image}`">
+        </v-img>
+        <slot></slot>
+    </v-responsive>
 </template>

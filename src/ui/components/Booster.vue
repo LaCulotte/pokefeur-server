@@ -45,12 +45,12 @@ let name = computed(() => {
 </script>
 
 <template>
-    <v-img class="h-100" :src="`${logo}.webp`">
-        <div class="position-absolute top-0 d-flex justify-center align-center w-100 h-100">
-            <v-btn class="ma-2 pa-2" @click="user.openBooster(item.uid)">Caca</v-btn>
-        </div>
-        <div class="position-absolute top-0 d-flex">
-             <slot></slot>
-        </div>
-    </v-img>
+    <v-responsive class="w-100 h-100">
+        <v-sheet class="position-absolute top-0 w-100 h-100 pa-2" elevation="4" color="grey">
+            <v-img class="w-100 h-100" style="overflow: visible;" :src="`${logo}.webp`">
+            </v-img>
+        </v-sheet>
+        <v-btn class="pa-2 position-absolute" style="top: 66%; left: 50%; transform: translate(-50%, -50%);" @click="user.openBooster(item.uid)">Open</v-btn>
+        <slot></slot>
+    </v-responsive>
 </template>

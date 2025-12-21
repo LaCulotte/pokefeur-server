@@ -5,6 +5,7 @@ import type { ItemType } from '@/api/data/interfaces';
 import Card from './Card.vue';
 import Booster from './Booster.vue';
 import Item from './Item.vue';
+  import { useDisplay } from 'vuetify'
 
 const type = ref("card");
 const id = ref("")
@@ -25,22 +26,27 @@ const counts = computed(() => {
     return count;
 });
 
+const { xlAndUp, lgAndUp, smAndDown } = useDisplay()
+const colsSize = computed(() => {
+    return xlAndUp.value ? 2
+        : lgAndUp.value ? 2
+        : smAndDown.value ? 4
+        : 3
+})
+
 </script>
 
 <template>
-    <!-- <div v-for="obj of Object.values(user.data.inventory)">
-        <item :item="obj" :key="obj.uid"></item>
-    </div> -->
-
     <div>
-        <v-row class="h-100 align-content-start">
+        <v-row class="h-100 w-100 align-content-start ma-0">
             <v-col
             v-for="[i, obj] of Object.values(user.data.inventory).entries()"
-            cols="4"
-            class="h-25"
-            :key="i"
+            :cols="colsSize"
+            class="w-100 d-flex justify-center align-center"
+            style="max-height: 30%; padding: 4px;"
+            :key="obj.uid"
             >
-                <item :item="obj" :key="obj.uid" class=""></item>
+                <item :item="obj" :key="obj.uid"></item>
             </v-col>
         </v-row>
     </div>
