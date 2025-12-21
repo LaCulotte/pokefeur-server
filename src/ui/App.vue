@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch, computed } from 'vue';
 import { staticDataStore, loadDataStore } from './data/static/vueStaticData';
-import type { User } from '../api/data/interfaces';
+import type { User, ItemType } from '../api/data/interfaces';
 import { lang } from './controller/lang';
-
-import Inventory from './components.old/Inventory.vue';
-import type { SupportedLanguages } from '../../resources/interfaces';
+import { user } from './data/user/vueUserData';
 
 const username = ref("");
 
@@ -39,6 +37,26 @@ function logout() {
             console.error("Error fetching user data:", err);
         });
 }
+
+const type = ref("card");
+const id = ref("")
+
+const counts = computed(() => {
+    let count = {
+        cards: 0,
+        boosters: 0
+    }
+
+    Object.values(user.data.inventory).forEach((item) => {
+        if (item.type == "booster")
+            count.boosters ++
+        else
+            count.cards ++
+    });
+
+    return count;
+});
+
 
 const url = ref("/api/");
 const method = ref("GET");
@@ -81,6 +99,22 @@ function easyFetch() {
 
     <br></br>
 
+    <v-form @submit.prevent="user.addItem(type as ItemType, id)">
+        <v-row>
+            <v-select 
+                v-model="type"
+                :items="['card', 'booster']"
+            >
+            </v-select>
+
+            <v-text-field type="text" v-model="id"></v-text-field>
+        </v-row>
+        <v-btn type="submit" :value="`add`">ADD</v-btn>
+        <div>{{ counts.boosters }} boosters; {{ counts.cards }} cards</div>
+    </v-form>
+    
+    <br></br>
+
     <div v-if="staticDataStore[lang] !== undefined">
         <div>{{ Object.keys(staticDataStore[lang]?.series ?? {}).length }} series loaded !</div>
         <div>{{ Object.keys(staticDataStore[lang]?.sets ?? {}).length }} sets loaded !</div>
@@ -90,7 +124,7 @@ function easyFetch() {
             {{ Object.keys(staticDataStore["en"]?.series ?? {}).filter((k) => !(k in (staticDataStore["fr"]?.series ?? {}))) }}
         </div>
 
-        <inventory/>
+        <!-- <inventory/> -->
     </div>
 
     <br></br>
