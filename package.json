@@ -21,6 +21,7 @@
     "lint": "eslint . --fix --cache"
   },
   "dependencies": {
+    "@mdi/font": "^7.4.47",
     "@types/express": "^5.0.5",
     "@types/express-session": "^1.18.2",
     "@types/session-file-store": "^1.2.6",
