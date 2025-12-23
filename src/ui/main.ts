@@ -1,5 +1,6 @@
 import { createApp } from 'vue';
 import App from './App.vue';
+import Main from './views/Main.vue';
 import Collection from './views/Collection.vue';
 import Login from './views/Login.vue';
 
@@ -15,6 +16,7 @@ import { createWebHistory, createRouter } from 'vue-router';
 import { user } from './data/user/vueUserData';
 
 const routes = [
+  { path: '/', component: Main },
   { path: '/collection', component: Collection },
   { path: '/login', component: Login },
 ];
