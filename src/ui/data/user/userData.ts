@@ -1,4 +1,5 @@
 import type { CardItem, InventoryItem, ItemType, UserWithInventory } from "@/api/data/interfaces";
+import type { User } from "@/api/data/interfaces";
 
 export class UserData {
     data: UserWithInventory = {
@@ -9,11 +10,98 @@ export class UserData {
         inventory: {}
     };
 
+    lastAuthenticated: number = -1;
+    isAuthenticatedFlag: boolean = false;
+
     async load() {
+        if (!(await this.isAuthenticated())) {
+            throw new Error("User is not authenticated");
+        }
+        
         this.data = (await fetch("/api/getUserWithInventory")
             .then((res) => res.json()))["user"];
 
         console.log(this.data);
+    }
+
+    async login(username: string) {
+        return fetch(`/api/login`, {
+                method: "POST",
+                body: JSON.stringify({ username: username }),
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            }
+        )
+        .then(async (res) => {
+            if (res.status == 200) {
+                this.lastAuthenticated = Date.now();
+                await this.load();
+            } else if (res.status == 400) {
+                return res.json().then((data) => {
+                    throw new Error(JSON.stringify(data.errors));
+                });
+            } else {
+                return res.json().then((data) => {
+                    throw new Error(data.message);
+                });
+            }
+        })
+        .catch((err) => {
+            throw new Error(`On login : ${err}`);
+        });
+    }
+
+    async logout() {
+        return fetch(`/api/logout`, {
+                method: "POST",
+                // body: JSON.stringify({ username: username.value }),
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            }
+        )
+        .then((res) => {
+            if (res.status == 200) {
+                this.isAuthenticatedFlag = false;
+            } else if (res.status == 400) {
+                return res.json().then((data) => {
+                    throw new Error(data.errors);
+                });
+            } else {
+                return res.json().then((data) => {
+                    throw new Error(data.message);
+                });
+            }
+        })
+        .catch((err) => {
+            throw new Error(`Error on logout : ${err}`);
+        });
+    }
+
+    async isAuthenticated(): Promise<boolean> {
+        if (Date.now() - this.lastAuthenticated < 5 * 60 * 1000) { // 5 minutes
+            this.lastAuthenticated = Date.now();
+            this.isAuthenticatedFlag = true;
+            return true;
+        }
+    
+        return fetch("/api/getUser", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        })
+        .then((res) => res.json())
+        .then((data: {user: User}) => {
+            this.isAuthenticatedFlag = !!data.user;
+            return !!data.user;
+        })
+        .catch(err => {
+            console.error("Error fetching user data:", err);
+            this.isAuthenticatedFlag = true;
+            return false;
+        });
     }
 
     addItem(type: ItemType, id: string) {

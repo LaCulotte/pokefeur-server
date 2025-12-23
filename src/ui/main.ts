@@ -1,22 +1,43 @@
-import { createApp } from 'vue'
-import App from './App.vue'
+import { createApp } from 'vue';
+import App from './App.vue';
+import Collection from './views/Collection.vue';
+import Login from './views/Login.vue';
 
 // Vuetify
-import 'vuetify/styles'
-import { createVuetify } from 'vuetify'
-import * as components from 'vuetify/components'
-import * as directives from 'vuetify/directives'
+import '@mdi/font/css/materialdesignicons.css';
+import 'vuetify/styles';
+import { createVuetify } from 'vuetify';
+import * as components from 'vuetify/components';
+import * as directives from 'vuetify/directives';
 
-const app = createApp(App)
+// Router
+import { createWebHistory, createRouter } from 'vue-router';
+import { user } from './data/user/vueUserData';
+
+const routes = [
+  { path: '/collection', component: Collection },
+  { path: '/login', component: Login },
+];
+
+export const router = createRouter({
+  history: createWebHistory(),
+  routes,
+});
+
+router.beforeEach(async (to, from) => {
+    if (!(await user.isAuthenticated()) && to.path !== '/login') {
+        return { path: '/login' }
+    }
+});
 
 const vuetify = createVuetify({
     components,
     directives,
-    // theme: {
-    //     defaultTheme: 'dark', // 'light' | 'dark' | 'system'
-    // },
 });
 
-app.use(vuetify);
+const collectionApp = createApp(App);
 
-app.mount('#app')
+collectionApp.use(vuetify);
+collectionApp.use(router);
+
+collectionApp.mount('#app');
