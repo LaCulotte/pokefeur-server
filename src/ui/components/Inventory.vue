@@ -1,30 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { user } from '../data/user/vueUserData';
-import type { ItemType } from '@/api/data/interfaces';
-import Card from './Card.vue';
-import Booster from './Booster.vue';
 import Item from './Item.vue';
-  import { useDisplay } from 'vuetify'
-
-const type = ref("card");
-const id = ref("")
-
-const counts = computed(() => {
-    let count = {
-        cards: 0,
-        boosters: 0
-    }
-
-    Object.values(user.data.inventory).forEach((item) => {
-        if (item.type == "booster")
-            count.boosters ++
-        else
-            count.cards ++
-    });
-
-    return count;
-});
+import { useDisplay } from 'vuetify'
 
 const { xlAndUp, lgAndUp, smAndDown } = useDisplay()
 const colsSize = computed(() => {
