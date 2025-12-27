@@ -17,7 +17,7 @@ import Inventory from "../components/Inventory.vue"
             </v-expansion-panels>
         </div>
 
-        <div class="position-absolute d-flex flex-column top-0 w-100 h-100">
+        <div class="position-absolute d-flex flex-column top-0 w-100 h-100 inventory-scroll">
             <div class="sticky-header pa-2" style="z-index: -10; visibility: hidden;">
                 <v-expansion-panels style="background: none;">
                     <v-expansion-panel
@@ -41,5 +41,17 @@ import Inventory from "../components/Inventory.vue"
     top: 0;
     z-index: 10;
     background: none;
+}
+
+.inventory-scroll {
+    flex: 1 1 auto;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.inventory-scroll::-webkit-scrollbar {
+  display: none;
 }
 </style>
