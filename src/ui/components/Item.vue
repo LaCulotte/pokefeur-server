@@ -5,8 +5,6 @@ import Card from "./Card.vue"
 import Booster from "./Booster.vue"
 import { user } from "../data/user/vueUserData";
 
-import { ref, onMounted, nextTick } from "vue";
-
 const props = defineProps<{
     item: InventoryItem
 }>();
@@ -45,6 +43,8 @@ const props = defineProps<{
 </template>
 
 <style lang="css">
+/** Item aspect ratio is 245:337 */
+
 .close-btn-pos {
     --pos: 2%;
     left: var(--pos); 

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import AdminDashboard from "../components/AdminDashboard.vue";
 import Inventory from "../components/Inventory.vue"
+
+document.title = "Collection";
 </script>
 
 <template>

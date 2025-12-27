@@ -3,6 +3,8 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router'
 import { user } from '../data/user/vueUserData';
 
+document.title = "Login";
+
 const username = ref("");
 const errorMessage = ref("");
 const router = useRouter()
