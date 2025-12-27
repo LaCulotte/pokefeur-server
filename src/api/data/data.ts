@@ -1,30 +1,29 @@
 import fs from "fs/promises"
 import { v4 as uuidv4 } from "uuid"
 
-import type { InventoryItem, InventoryItemT, ItemType, User, UserType } from "./interfaces"
+import type { FullUser, InventoryItem, InventoryItemT, ItemType, User, UserType } from "./interfaces"
 import { StaticDataSingleton } from "../staticData/loader";
 import { Expected, expected, unexpected } from "../../common/utils";
 
 export class DataSingleton {
-    users: Record<string, User> = {}
+    users: Record<string, FullUser> = {}
     nameToUid: Record<string, string> = {}
-    inventories: Record<string, Record<string, InventoryItem>> = {}
 
     private loaded: boolean = false
     private static data: DataSingleton = new DataSingleton();
 
 
     // --- Load functions ---
-    async loadUserInventory(user: User) {
+    async loadUserInventory(user: FullUser) {
         try {
-            this.inventories[user.uid] = await fs.readFile(`./data/inventories/${user.uid}.json`, "utf-8").then((data) => { return JSON.parse(data) });
+            user.inventory = await fs.readFile(`./data/inventories/${user.uid}.json`, "utf-8").then((data) => { return JSON.parse(data) });
 
             // TODO : sanatize inventories ?
         } catch (e) {
             console.warn(`Could not load inventory for user ${user.username} (uid: ${user.uid})`);
-            this.inventories[user.uid] = {};
+            user.inventory = {};
 
-            this.saveUserInventory(user.uid, {});
+            this.saveUserInventory(user);
         }
     }
 
@@ -59,39 +58,55 @@ export class DataSingleton {
     }
 
     // --- Save functions ---
-    private async saveUserInventory(userUid: string, inventory?: Record<string, InventoryItem>) {
+    private async saveUserInventory(user: FullUser) {
         // TODO : We probably should await previous calls to this function. Should no longer be a problem when using proper databases
-        await fs.writeFile(`./data/inventories/${userUid}.json`, JSON.stringify(inventory ?? this.inventories[userUid] ?? {}), "utf-8");
+        await fs.writeFile(`./data/inventories/${user.uid}.json`, JSON.stringify(user.inventory ?? {}), "utf-8");
     }
 
     private async saveUsers() {
+        function replacer(key: string, value: FullUser | Record<string, FullUser>) {
+            if (key === "" || (typeof value) === "string") {
+                return value;
+            }
+            return DataSingleton.trimFullUser(value as FullUser);
+        }
+
         // TODO : We probably should await previous calls to this function. Should no longer be a problem when using proper databases
-        await fs.writeFile("./data/users.json", JSON.stringify(this.users), "utf-8");
+        await fs.writeFile("./data/users.json", JSON.stringify(this.users, replacer), "utf-8");
     };
 
     // --- Endpoints ---
-    createUser(username: string, type: UserType) : User {
+    createUser(username: string, type: UserType) : FullUser {
         let uid = uuidv4();
         while (uid in this.users) {
             uid = uuidv4();
         }
 
-        let newUser: User = {
+        let newUser: FullUser = {
             uid,
             username,
             type,
+            inventory: {}
         };
 
         this.users[uid] = newUser;
-        this.inventories[uid] = {};
         
         this.saveUsers();
-        this.saveUserInventory(uid, {});
+        this.saveUserInventory(newUser);
 
         return newUser;
     }
 
-    getUserByName(username: string) : User | null {
+    static trimFullUser(fullUser: FullUser) : User {
+        return  {
+            uid: fullUser.uid,
+            username: fullUser.username,
+
+            type: fullUser.type,
+        };
+    }
+
+    getUserByName(username: string) : FullUser | null {
         for (let [_, user] of Object.entries(this.users)) {
             if (user.username === username) {
                 return user;
@@ -101,20 +116,12 @@ export class DataSingleton {
         return null;
     }
 
-    getUser(uid: string) : User | null {
+    getUser(uid: string) : FullUser | null {
         if (this.users[uid] !== undefined) {
             return this.users[uid];
         }
 
         return null;
-    }
-
-    getUserInventory(uid: string) : Record<string, InventoryItem> {
-        if (this.inventories[uid] !== undefined) {
-            return this.inventories[uid];
-        }
-
-        return {};
     }
 
     addItemToInventory<T extends ItemType>(userUid: string, type: T, id: string) : Expected<InventoryItemT<T>> {
@@ -132,15 +139,15 @@ export class DataSingleton {
             return unexpected(`Unkown type of item : ${type}`, true);
         }
 
-        const inventory = this.inventories[userUid];
+        const user = this.users[userUid];
 
-        if (inventory === undefined) {
+        if (user === undefined) {
             return unexpected(`No inventory for user ${userUid}`, true);
         }
 
         let itemUid = uuidv4();
 
-        while (itemUid in inventory) {
+        while (itemUid in user.inventory) {
             itemUid = uuidv4();
         }
 
@@ -150,19 +157,20 @@ export class DataSingleton {
             uid: itemUid
         }
 
-        inventory[itemUid] = item;
+        user.inventory[itemUid] = item;
 
-        this.saveUserInventory(userUid, inventory);
+        this.saveUserInventory(user);
 
         return expected(item as InventoryItemT<T>);
     }
 
     removeItemFromInventory(userUid: string, uid: string) : Expected<InventoryItem> {
-        const inventory = this.inventories[userUid];
-
-        if (inventory === undefined) {
+        const user = this.users[userUid];
+        if (user === undefined) {
             return unexpected(`No inventory for user ${userUid}`, true);
         }
+
+        const inventory = user.inventory;
 
         if (inventory[uid] === undefined) {
             return unexpected(`No item of uid ${uid} in the inventory of user ${userUid}`, true);
@@ -171,7 +179,7 @@ export class DataSingleton {
         let item = structuredClone(inventory[uid]);
         delete inventory[uid];
 
-        this.saveUserInventory(userUid, inventory);
+        this.saveUserInventory(user);
 
         return expected(item);
     }
@@ -181,12 +189,12 @@ export class DataSingleton {
             return expected([]);
         }
 
-        const inventory = this.inventories[userUid];
-
-        if (inventory === undefined) {
+        const user = this.users[userUid];
+        if (user === undefined) {
             return unexpected(`No inventory for user ${userUid}`, true);
         }
 
+        const inventory = user.inventory;
         let uidsToDelete = []
 
         for (let [currUid, item] of Object.entries(inventory)) {
@@ -205,7 +213,7 @@ export class DataSingleton {
             delete inventory[uid];
         }
 
-        this.saveUserInventory(userUid, inventory);
+        this.saveUserInventory(user);
 
         return expected(deleted);
     }

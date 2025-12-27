@@ -27,6 +27,6 @@ export interface User {
     type: UserType
 }
 
-export interface UserWithInventory extends User {
+export interface FullUser extends User {
     inventory: Record<string, InventoryItem>
 }

@@ -1,8 +1,8 @@
-import type { CardItem, InventoryItem, ItemType, UserWithInventory } from "@/api/data/interfaces";
+import type { CardItem, InventoryItem, ItemType, FullUser } from "@/api/data/interfaces";
 import type { User } from "@/api/data/interfaces";
 
 export class UserData {
-    data: UserWithInventory = {
+    data: FullUser = {
         uid: "",
         username: "",
         type: "guest",
@@ -80,9 +80,7 @@ export class UserData {
     }
 
     async isAuthenticated(): Promise<boolean> {
-        if (Date.now() - this.lastAuthenticated < 5 * 60 * 1000) { // 5 minutes
-            this.lastAuthenticated = Date.now();
-            this.isAuthenticatedFlag = true;
+        if (this.isAuthenticatedFlag && Date.now() - this.lastAuthenticated < 5 * 60 * 1000) { // 5 minutes
             return true;
         }
     
@@ -95,11 +93,16 @@ export class UserData {
         .then((res) => res.json())
         .then((data: {user: User}) => {
             this.isAuthenticatedFlag = !!data.user;
+            if (this.isAuthenticatedFlag) {
+                this.lastAuthenticated = Date.now();
+            }
+
             return !!data.user;
         })
         .catch(err => {
             console.error("Error fetching user data:", err);
-            this.isAuthenticatedFlag = true;
+            this.isAuthenticatedFlag = false;
+            this.lastAuthenticated = 0;
             return false;
         });
     }

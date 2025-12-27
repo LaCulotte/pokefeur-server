@@ -7,11 +7,16 @@ export function openBooster(userUid: string, boosterUid: string) : Expected<Arra
     const dataInstance = DataSingleton.getInstance();
     const staticDataInstance = StaticDataSingleton.getInstance();
 
-    const inventory = dataInstance.getUserInventory(userUid);
+    const user = dataInstance.getUser(userUid);
+    if (user === null) {
+        return unexpected(`No user of uid ${userUid}`, true);
+    }
+
+    const inventory = user.inventory;
     const boosterItem = inventory[boosterUid];
 
     if (boosterItem === undefined || boosterItem.type !== "booster") {
-        return unexpected("No item of uid ", true);
+        return unexpected(`No item of uid ${boosterUid}`, true);
     }
 
     let expRemoved = dataInstance.removeItemFromInventory(userUid, boosterUid);

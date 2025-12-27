@@ -5,7 +5,7 @@ import { execValidationMiddleware, loggedUserMiddleware } from "./middleware";
 import { DataSingleton } from "../data/data";
 
 import "../common"
-import type { User, UserWithInventory } from "../data/interfaces";
+import type { User, FullUser } from "../data/interfaces";
 
 function login(req: express.Request, res: express.Response) {
     if (req.session.userUid !== undefined) {
@@ -35,8 +35,14 @@ function getUserRequest(req: express.Request, res: express.Response) {
         return;
     }
 
-    const user: User | null = DataSingleton.getInstance().getUser(req.session.userUid);
-    res.json({ user: user });
+    const fullUser: FullUser | null = DataSingleton.getInstance().getUser(req.session.userUid);
+    if (fullUser === null) {
+        req.session.userUid = undefined;
+        res.json({ user: null });
+        return;
+    }
+
+    res.json({ user: DataSingleton.trimFullUser(fullUser) });
 }
 
 function getUserWithInventory(req: express.Request, res: express.Response) {
@@ -44,17 +50,8 @@ function getUserWithInventory(req: express.Request, res: express.Response) {
         throw new Error("Logged state not validated !");
     }
 
-    const user: User | null = DataSingleton.getInstance().getUser(req.session.userUid);
-
-    if (user === null) {
-        res.json({ user: null });
-        return;
-    }
-
-    const userWithInventory = structuredClone(user) as UserWithInventory;
-    userWithInventory.inventory = DataSingleton.getInstance().getUserInventory(user.uid) ?? {};
-
-    res.json({ user: userWithInventory });
+    const user: FullUser | null = DataSingleton.getInstance().getUser(req.session.userUid);
+    res.json({ user: user });
 }
 
 
