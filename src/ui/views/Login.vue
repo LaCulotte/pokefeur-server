@@ -12,7 +12,12 @@ async function action() {
         user.logout();
     } else {
         await user.login(username.value);
-        router.go(-2);
+        let dest = localStorage.getItem("login-dest");
+        if (dest !== null) {
+            router.push(dest);
+        } else {
+            router.push("/");
+        }
     }
 }
 

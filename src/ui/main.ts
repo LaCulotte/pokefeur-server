@@ -16,19 +16,22 @@ import { createWebHistory, createRouter } from 'vue-router';
 import { user } from './data/user/vueUserData';
 
 const routes = [
-  { path: '/', component: Room },
-  { path: '/collection', component: Collection },
-  { path: '/login', component: Login },
+    { path: '/', component: Room },
+    { path: '/collection', component: Collection },
+    { path: '/login', component: Login },
 ];
 
 export const router = createRouter({
-  history: createWebHistory(),
-  routes,
+    history: createWebHistory(),
+    routes,
 });
 
 router.beforeEach(async (to, from) => {
     if (!(await user.isAuthenticated()) && to.path !== '/login') {
+        localStorage.setItem("login-dest", to.path);
         return { path: '/login' }
+    } else if (to.path !== '/login') {
+        localStorage.removeItem("login-dest");
     }
 });
 
