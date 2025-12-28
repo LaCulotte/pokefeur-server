@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, type Ref, watch } from 'vue';
 import { user } from '../data/user/vueUserData';
-import type { ItemType } from '@/api/data/interfaces';
+import type { ItemType } from '@/api/model/interfaces';
 
 import { staticDataStore } from '../data/static/vueStaticData';
 import { lang } from '../controller/lang';

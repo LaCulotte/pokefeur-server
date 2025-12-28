@@ -2,18 +2,25 @@ import type express from "express";
 import { check } from "express-validator";
 
 import { execValidationMiddleware, loggedUserMiddleware } from "./middleware";
-import { DataSingleton } from "../data/data";
+import { DataModel } from "../model/DataModel";
 
 import "../common"
 import { openBooster } from "../controller/booster";
+import { InventoryModel } from "../model/InventoryModel";
 
 
-function addItemToInventoryRequest(req: express.Request, res: express.Response) {
+async function addItemToInventoryRequest(req: express.Request, res: express.Response) {
     if (req.session.userUid == undefined) {
         throw new Error("No userUid on add item request ?");
     }
 
-    let expItem = DataSingleton.getInstance().addItemToInventory(req.session.userUid, req.body.type, req.body.id)
+    let user = DataModel.getUser(req.session.userUid);
+    if (user === null) {
+        res.status(400).json({errors: [`Unknown user ${user}`]});
+        return;
+    }
+    
+    let expItem = await user.inventory.addItemToInventory(req.body.type, req.body.id)
 
     if (expItem.has_value()) {
         res.status(200).json(expItem.value());
@@ -22,12 +29,18 @@ function addItemToInventoryRequest(req: express.Request, res: express.Response) 
     }
 }
 
-function removeItemFromInventoryRequest(req: express.Request, res: express.Response) {
+async function removeItemFromInventoryRequest(req: express.Request, res: express.Response) {
     if (req.session.userUid == undefined) {
         throw new Error("No userUid on remove item request ?");
     }
 
-    let expItem = DataSingleton.getInstance().removeItemFromInventory(req.session.userUid, req.body.itemUid);
+    let user = DataModel.getUser(req.session.userUid);
+    if (user === null) {
+        res.status(400).json({errors: [`Unknown user ${user}`]});
+        return;
+    }
+
+    let expItem = await user.inventory.removeItemFromInventory(req.body.itemUid);
 
     if (expItem.has_value()) {
         res.status(200).json(expItem.value());
@@ -36,12 +49,12 @@ function removeItemFromInventoryRequest(req: express.Request, res: express.Respo
     }
 }
 
-function openBoosterRequest(req: express.Request, res: express.Response) {
+async function openBoosterRequest(req: express.Request, res: express.Response) {
     if (req.session.userUid == undefined) {
         throw new Error("No userUid on remove item request ?");
     }
 
-    let expOpenedCards = openBooster(req.session.userUid, req.body.itemUid);
+    let expOpenedCards = await openBooster(req.session.userUid, req.body.itemUid);
 
     if (expOpenedCards.has_value()) {
         res.status(200).json(expOpenedCards.value());

@@ -1,7 +1,7 @@
 import type express from "express"
 import { validationResult } from "express-validator";
 
-import { DataSingleton } from "../data/data";
+import { DataModel } from "../model/DataModel";
 
 export function loggedUserMiddleware(req: express.Request, res: express.Response, next: express.NextFunction) {
     if (req.session.userUid === undefined) {
@@ -18,8 +18,8 @@ export function adminUserMiddleware(req: express.Request, res: express.Response,
         return;
     }
 
-    const user = DataSingleton.getInstance().getUser(req.session.userUid);
-    if (user === null || user.type !== "admin") {
+    const user = DataModel.getUser(req.session.userUid);
+    if (user === null || user.data.type !== "admin") {
         res.status(403).json({ message: "Not an admin" });
         return;
     }

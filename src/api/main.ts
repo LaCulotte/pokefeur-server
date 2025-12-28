@@ -8,14 +8,14 @@ import fileStore from "session-file-store";
 let FileStore = fileStore(session);
 
 import "./common"
-import { DataSingleton } from "./data/data";
+import { DataModel } from "./model/DataModel";
 import { setupInventoryEndpoints } from "./endpoints/inventory";
 import { setupAdminEndpoints } from "./endpoints/admin";
 
 let a = Date.now();
 // console.log(a = Date.now())
 await StaticDataSingleton.load();
-await DataSingleton.load();
+await DataModel.load();
 console.log(`Loaded static data in ${Date.now() - a} ms`)
 
 

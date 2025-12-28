@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { CardItem } from '@/api/data/interfaces';
+import type { CardItem } from '@/api/model/interfaces';
 import { staticDataStore } from '../data/static/vueStaticData';
 import { lang } from '../controller/lang';
 import { computed, type ComputedRef } from 'vue';

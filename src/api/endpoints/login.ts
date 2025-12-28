@@ -2,10 +2,11 @@ import type express from "express";
 import { body, check, matchedData, validationResult } from "express-validator";
 
 import { execValidationMiddleware, loggedUserMiddleware } from "./middleware";
-import { DataSingleton } from "../data/data";
+import { DataModel } from "../model/DataModel";
+import { UserModel } from "../model/UserModel";
 
 import "../common"
-import type { User, FullUser } from "../data/interfaces";
+import type { User, FullUser } from "../model/interfaces";
 
 function login(req: express.Request, res: express.Response) {
     if (req.session.userUid !== undefined) {
@@ -15,12 +16,12 @@ function login(req: express.Request, res: express.Response) {
 
     let username: string = req.body.username;
 
-    let user: User | null = DataSingleton.getInstance().getUserByName(username);
+    let user: UserModel | null = DataModel.getUserByName(username);
     if (user === null) {
-        user = DataSingleton.getInstance().createUser(username, "admin");
+        user = DataModel.getInstance().createUser(username, "admin");
     }
 
-    req.session.userUid = user.uid;
+    req.session.userUid = user.data.uid;
     res.json({ user });
 }
 
@@ -35,14 +36,14 @@ function getUserRequest(req: express.Request, res: express.Response) {
         return;
     }
 
-    const fullUser: FullUser | null = DataSingleton.getInstance().getUser(req.session.userUid);
-    if (fullUser === null) {
+    const user: UserModel | null = DataModel.getUser(req.session.userUid);
+    if (user === null) {
         req.session.userUid = undefined;
         res.json({ user: null });
         return;
     }
 
-    res.json({ user: DataSingleton.trimFullUser(fullUser) });
+    res.json({ user: user.data });
 }
 
 function getUserWithInventory(req: express.Request, res: express.Response) {
@@ -50,8 +51,19 @@ function getUserWithInventory(req: express.Request, res: express.Response) {
         throw new Error("Logged state not validated !");
     }
 
-    const user: FullUser | null = DataSingleton.getInstance().getUser(req.session.userUid);
-    res.json({ user: user });
+    const user: UserModel | null = DataModel.getUser(req.session.userUid);
+    if (user === null) {
+        req.session.userUid = undefined;
+        res.json({ user: null });
+        return;
+    }
+
+    // TODO : function UserModel.getFullData ?
+    let ret: FullUser = {
+        ...structuredClone(user.data),
+        inventory: structuredClone(user.inventory.data)
+    };
+    res.json({ user: ret });
 }
 
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { BoosterItem } from '@/api/data/interfaces';
+import type { BoosterItem } from '@/api/model/interfaces';
 import { staticDataStore } from '../data/static/vueStaticData';
 import { computed, type ComputedRef } from 'vue';
 import { lang } from '../controller/lang';

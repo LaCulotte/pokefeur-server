@@ -1,10 +1,11 @@
 import { expected, unexpected, type Expected } from "../../common/utils";
-import { DataSingleton } from "../data/data";
-import type { BoosterItem, CardItem } from "../data/interfaces";
+import { DataModel } from "../model/DataModel";
+import type { BoosterItem, CardItem } from "../model/interfaces";
 import { StaticDataSingleton } from "../staticData/loader";
+import { InventoryModel } from "../model/InventoryModel";
 
-export function openBooster(userUid: string, boosterUid: string) : Expected<Array<CardItem>> {
-    const dataInstance = DataSingleton.getInstance();
+export async function openBooster(userUid: string, boosterUid: string) : Promise<Expected<Array<CardItem>>> {
+    const dataInstance = DataModel.getInstance();
     const staticDataInstance = StaticDataSingleton.getInstance();
 
     const user = dataInstance.getUser(userUid);
@@ -12,14 +13,13 @@ export function openBooster(userUid: string, boosterUid: string) : Expected<Arra
         return unexpected(`No user of uid ${userUid}`, true);
     }
 
-    const inventory = user.inventory;
-    const boosterItem = inventory[boosterUid];
+    const boosterItem = user.inventory.data[boosterUid];
 
     if (boosterItem === undefined || boosterItem.type !== "booster") {
         return unexpected(`No item of uid ${boosterUid}`, true);
     }
 
-    let expRemoved = dataInstance.removeItemFromInventory(userUid, boosterUid);
+    let expRemoved = await user.inventory.removeItemFromInventory(boosterUid);
     if (!expRemoved.has_value()) {
         return unexpected(`Cannot open booster : ${expRemoved.error()}`, true);
     }
@@ -48,7 +48,7 @@ export function openBooster(userUid: string, boosterUid: string) : Expected<Arra
 
     let ret: Array<CardItem> = [];
     for (let id of generatedIds) {
-        let generatedCard = dataInstance.addItemToInventory(userUid, "card", id);
+        let generatedCard = await user.inventory.addItemToInventory("card", id);
 
         if (generatedCard.has_value()) {
             ret.push(generatedCard.value());

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import type { User } from '../../api/data/interfaces';
+import type { User } from '../../api/model/interfaces';
 
 const username = ref("");
 const errorMessage = ref("");

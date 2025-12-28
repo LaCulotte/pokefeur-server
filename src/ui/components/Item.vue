@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { InventoryItem } from "@/api/data/interfaces";
+import type { InventoryItem } from "@/api/model/interfaces";
 
 import Card from "./Card.vue"
 import Booster from "./Booster.vue"

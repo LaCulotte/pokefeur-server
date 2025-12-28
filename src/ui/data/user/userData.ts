@@ -1,5 +1,4 @@
-import type { CardItem, InventoryItem, ItemType, FullUser } from "@/api/data/interfaces";
-import type { User } from "@/api/data/interfaces";
+import type { CardItem, InventoryItem, ItemType, FullUser, User } from "@/api/model/interfaces";
 
 export class UserData {
     data: FullUser = {
@@ -36,6 +35,7 @@ export class UserData {
         .then(async (res) => {
             if (res.status == 200) {
                 this.lastAuthenticated = Date.now();
+                this.isAuthenticatedFlag = true;
                 await this.load();
             } else if (res.status == 400) {
                 return res.json().then((data) => {
