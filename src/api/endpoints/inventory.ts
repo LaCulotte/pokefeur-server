@@ -6,7 +6,6 @@ import { DataModel } from "../model/DataModel";
 
 import "../common"
 import { openBooster } from "../controller/booster";
-import { InventoryModel } from "../model/InventoryModel";
 
 
 async function addItemToInventoryRequest(req: express.Request, res: express.Response) {

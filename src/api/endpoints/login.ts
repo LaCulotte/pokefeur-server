@@ -6,7 +6,7 @@ import { DataModel } from "../model/DataModel";
 import { UserModel } from "../model/UserModel";
 
 import "../common"
-import type { User, FullUser } from "../model/interfaces";
+import type { FullUser } from "../model/interfaces";
 
 function login(req: express.Request, res: express.Response) {
     if (req.session.userUid !== undefined) {

@@ -1,9 +1,4 @@
-import fs from "fs/promises"
-import { v4 as uuidv4 } from "uuid"
-
-import type { FullUser, InventoryItem, InventoryItemT, ItemType, User, UserType } from "./interfaces"
-import { StaticDataSingleton } from "../staticData/loader";
-import { Expected, expected, unexpected } from "../../common/utils";
+import type { User } from "./interfaces"
 import { InventoryModel } from "./InventoryModel";
 
 export class UserModel {

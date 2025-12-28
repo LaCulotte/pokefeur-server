@@ -1,8 +1,8 @@
 import { expected, unexpected, type Expected } from "../../common/utils";
 import { DataModel } from "../model/DataModel";
-import type { BoosterItem, CardItem } from "../model/interfaces";
 import { StaticDataSingleton } from "../staticData/loader";
-import { InventoryModel } from "../model/InventoryModel";
+
+import type { CardItem } from "../model/interfaces";
 
 export async function openBooster(userUid: string, boosterUid: string) : Promise<Expected<Array<CardItem>>> {
     const dataInstance = DataModel.getInstance();

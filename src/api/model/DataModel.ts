@@ -1,10 +1,7 @@
 import fs from "fs/promises"
 import { v4 as uuidv4 } from "uuid"
 
-import type { FullUser, InventoryItem, InventoryItemT, ItemType, User, UserType } from "./interfaces"
-import { StaticDataSingleton } from "../staticData/loader";
-import { Expected, expected, unexpected } from "../../common/utils";
-import { InventoryModel } from "./InventoryModel";
+import type { User, UserType } from "./interfaces"
 import { UserModel } from "./UserModel";
 
 export class DataModel {
@@ -36,15 +33,15 @@ export class DataModel {
         await this.createDirs();
 
         try {
-            let users: Record<string, FullUser> = {}
-            users = await fs.readFile("./data/users.json", "utf-8").then((jdata) => { return JSON.parse(jdata) });
+            let users: Record<string, User> = await fs.readFile("./data/users.json", "utf-8")
+                                                .then((jdata) => { return JSON.parse(jdata) });
 
             for (let [uid, user] of Object.entries(users)) {
                 this.instance.users[uid] = new UserModel(user);
             }
         } catch (e) {
-            console.warn("Could not load users data !");
-
+            console.warn(`Could not load users data ! Error : ${e}`);
+            
             await this.instance.saveUsers();
         }
         
