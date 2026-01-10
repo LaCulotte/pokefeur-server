@@ -25,7 +25,7 @@ export class Expected<T> {
     }
 
     has_value(): boolean {
-        return this.expected
+        return this.expected;
     }
 
     error(): string {

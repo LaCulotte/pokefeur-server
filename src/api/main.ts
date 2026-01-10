@@ -11,6 +11,7 @@ import "./common"
 import { DataModel } from "./model/DataModel";
 import { setupInventoryEndpoints } from "./endpoints/inventory";
 import { setupAdminEndpoints } from "./endpoints/admin";
+import { setupDealershipEndpoints } from "./endpoints/dealership";
 
 let a = Date.now();
 // console.log(a = Date.now())
@@ -84,6 +85,7 @@ app.use(session({
 setupLoginEnpoints(app);
 setupInventoryEndpoints(app);
 setupAdminEndpoints(app);
+setupDealershipEndpoints(app);
 
 app.listen(3000, () => {
     console.log("Server is running on http://localhost:3000");

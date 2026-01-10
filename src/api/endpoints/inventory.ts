@@ -50,7 +50,7 @@ async function removeItemFromInventoryRequest(req: express.Request, res: express
 
 async function openBoosterRequest(req: express.Request, res: express.Response) {
     if (req.session.userUid == undefined) {
-        throw new Error("No userUid on remove item request ?");
+        throw new Error("No userUid on open booster request ?");
     }
 
     let expOpenedCards = await openBooster(req.session.userUid, req.body.itemUid);

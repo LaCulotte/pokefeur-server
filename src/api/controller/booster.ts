@@ -14,7 +14,6 @@ export async function openBooster(userUid: string, boosterUid: string) : Promise
     }
 
     const boosterItem = user.inventory.data[boosterUid];
-
     if (boosterItem === undefined || boosterItem.type !== "booster") {
         return unexpected(`No item of uid ${boosterUid}`, true);
     }
@@ -31,7 +30,7 @@ export async function openBooster(userUid: string, boosterUid: string) : Promise
 
     let cardsKeys = Object.keys(set.cards);
     if (cardsKeys.length == 0) {
-        return unexpected(`No card in set ${set.id} ! (cards : ${set.cards})`);
+        return unexpected(`No card in set ${set.id} ! (cards : ${set.cards})`, true);
     }
     
     let generatedIds: Array<string> = [];
@@ -40,11 +39,13 @@ export async function openBooster(userUid: string, boosterUid: string) : Promise
         let cardId = cardsKeys[i];
 
         if (cardId === undefined) {
-            return unexpected(`Got undefined card when opening booster of ${set.id}`);
+            return unexpected(`Got undefined card when opening booster of ${set.id}`, true);
         }
 
         generatedIds.push(cardId);
     }
+
+    // TODO : remove Item from inventory here !!
 
     let ret: Array<CardItem> = [];
     for (let id of generatedIds) {
@@ -53,7 +54,7 @@ export async function openBooster(userUid: string, boosterUid: string) : Promise
         if (generatedCard.has_value()) {
             ret.push(generatedCard.value());
         } else {
-            return unexpected(`Got error while trying to add cards to inventory : ${generatedCard.error()}`);   // TODO : continue generating cards ?
+            return unexpected(`Got error while trying to add cards to inventory : ${generatedCard.error()}`, true);   // TODO : continue generating cards ?
         }
     }
 

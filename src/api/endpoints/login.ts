@@ -46,7 +46,7 @@ function getUserRequest(req: express.Request, res: express.Response) {
     res.json({ user: user.data });
 }
 
-function getUserWithInventory(req: express.Request, res: express.Response) {
+function getFullUser(req: express.Request, res: express.Response) {
     if (req.session.userUid === undefined) {
         throw new Error("Logged state not validated !");
     }
@@ -61,7 +61,8 @@ function getUserWithInventory(req: express.Request, res: express.Response) {
     // TODO : function UserModel.getFullData ?
     let ret: FullUser = {
         ...structuredClone(user.data),
-        inventory: structuredClone(user.inventory.data)
+        inventory: structuredClone(user.inventory.data),
+        deals: structuredClone(user.deals.getReducedData())
     };
     res.json({ user: ret });
 }
@@ -80,13 +81,13 @@ export function setupLoginEnpoints(app: express.Express) {
         logout
     );
 
-    app.get("/api/getUser", 
+    app.get("/api/getUser",
         loggedUserMiddleware,
         getUserRequest
     );
 
-    app.get("/api/getUserWithInventory", 
+    app.get("/api/getFullUser", 
         loggedUserMiddleware,
-        getUserWithInventory
+        getFullUser
     );
 }

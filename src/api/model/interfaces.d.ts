@@ -3,15 +3,15 @@ export type UserType = "guest" | "user" | "admin" | "moderator" | "banned";
 export type ItemType = "card" | "booster"
 
 export interface CardItem {
-    type: "card",
-    id: string,
-    uid: string,
+    type: "card"
+    id: string
+    uid: string
 }
 
 export interface BoosterItem {
-    type: "booster",
-    id: string,
-    uid: string,
+    type: "booster"
+    id: string
+    uid: string
 }
 
 export type InventoryItem = CardItem | BoosterItem;
@@ -19,6 +19,18 @@ export type InventoryItemT<T> =
                 T extends "card" ? CardItem : 
                 T extends "booster" ? BoosterItem :
                 never;
+
+export interface Deal {
+    uid: string
+
+    totalWaitTime: number   // In seconds
+    startDate: number       // Date.now in seconds
+}
+
+export interface FullDeal extends Deal {
+    itemType: ItemType
+    itemId: string
+}
 
 export interface User {
     uid: string
@@ -29,4 +41,5 @@ export interface User {
 
 export interface FullUser extends User {
     inventory: Record<string, InventoryItem>
+    deals: Record<string, Deal>
 }
