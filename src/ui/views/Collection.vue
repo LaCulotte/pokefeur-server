@@ -19,7 +19,7 @@ document.title = "Collection";
             </v-expansion-panels>
         </div>
 
-        <div class="position-absolute d-flex flex-column top-0 w-100 h-100 inventory-scroll">
+        <div class="position-absolute d-flex flex-column top-0 w-100 h-100 inventory-scroll" style="background-color: rgba(95, 158, 160, 0.4);">
             <div class="sticky-header pa-2" style="z-index: -10; visibility: hidden;">
                 <v-expansion-panels style="background: none;">
                     <v-expansion-panel

@@ -6,7 +6,8 @@ export class UserData {
         username: "",
         type: "guest",
 
-        inventory: {}
+        inventory: {},
+        deals: {}
     };
 
     lastAuthenticated: number = -1;
@@ -17,7 +18,7 @@ export class UserData {
             throw new Error("User is not authenticated");
         }
         
-        this.data = (await fetch("/api/getUserWithInventory")
+        this.data = (await fetch("/api/getFullUser")
             .then((res) => res.json()))["user"];
 
         console.log(this.data);

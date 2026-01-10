@@ -3,6 +3,7 @@ import App from './App.vue';
 import Room from './views/Room.vue';
 import Collection from './views/Collection.vue';
 import Login from './views/Login.vue';
+import Dealership from './views/Dealership.vue';
 
 // Vuetify
 import '@mdi/font/css/materialdesignicons.css';
@@ -19,6 +20,7 @@ const routes = [
     { path: '/', component: Room },
     { path: '/collection', component: Collection },
     { path: '/login', component: Login },
+    { path: '/dealership', component: Dealership },
 ];
 
 export const router = createRouter({
