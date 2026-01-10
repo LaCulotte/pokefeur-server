@@ -39,7 +39,7 @@ let name = computed(() => {
 </script>
 
 <template>
-    <v-responsive class="w-100 h-100">
+    <v-responsive class="w-100 h-100" style="aspect-ratio: 245/337;">
         <v-img class="position-absolute top-0 w-100 h-100" :src="`${image}`">
         </v-img>
         <slot></slot>

@@ -24,8 +24,40 @@ const colsSize = computed(() => {
             style="max-height: 30%; padding: 4px;"
             :key="obj.uid"
             >
-                <item :item="obj" :key="obj.uid"></item>
+                <item :item="obj" :key="obj.uid">
+                    <template v-slot:common-content="{ item }">
+                        <v-btn
+                        class="position-absolute close-btn-pos"
+                        @click="user.removeItem(item.uid)"
+                        color="error"
+                        density="compact"
+                        size="small"
+                        :icon="`mdi-cross`"
+                        >
+                            x
+                        </v-btn>
+                    </template>
+
+                    <template v-slot:booster-content="{ booster }">
+                        <v-btn 
+                        class="pa-2 position-absolute"
+                        style="top: 75%; left: 50%; transform: translate(-50%, -50%);"
+                        @click="user.openBooster(booster.uid)">
+                            Open
+                        </v-btn>
+                    </template>
+                </item>
             </v-col>
         </v-row>
     </div>
 </template>
+
+<style lang="css">
+/** Item aspect ratio is 245:337 */
+
+.close-btn-pos {
+    --pos: 2%;
+    left: var(--pos); 
+    top: calc(var(--pos) * 245 / 337)
+}
+</style>

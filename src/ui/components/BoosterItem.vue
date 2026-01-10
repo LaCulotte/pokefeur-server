@@ -3,15 +3,17 @@ import type { BoosterItem } from '@/api/model/interfaces';
 import { staticDataStore } from '../data/static/vueStaticData';
 import { computed, type ComputedRef } from 'vue';
 import { lang } from '../controller/lang';
-import { user } from '../data/user/vueUserData';
 import type { SetLangData } from '@/compiler/interfaces';
 
+import BoosterBase from './BoosterBase.vue';
+
 const props = defineProps<{
-    item: BoosterItem
+    item: BoosterItem,
+    setData?: Partial<SetLangData>
 }>();
 
 let unknownSet: ComputedRef<SetLangData> = computed(() => {
-    return {
+    let defaultSet: SetLangData = {
         lang: lang.value,
         id: "0",
         serieId: "0",
@@ -25,7 +27,12 @@ let unknownSet: ComputedRef<SetLangData> = computed(() => {
         cards: {},
         logo: "",
         symbol: ""
-    }
+    };
+    
+    return {
+        ...defaultSet,
+        ...props.setData ?? {}
+    };
 });
 
 let itemStaticData = computed(() => {
@@ -33,8 +40,8 @@ let itemStaticData = computed(() => {
     });
 
 let logo = computed(() => {
-        return itemStaticData.value.logo?.length > 0 
-            ? itemStaticData.value.logo 
+        return itemStaticData.value.logo?.length > 0
+            ? `${itemStaticData.value.logo}.webp`
             : "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/MissingNo.svg/960px-MissingNo.svg.png";
     });
 
@@ -45,12 +52,7 @@ let name = computed(() => {
 </script>
 
 <template>
-    <v-responsive class="w-100 h-100">
-        <v-sheet class="position-absolute top-0 w-100 h-100 pa-1" elevation="4" border="opacity-50 xl" color="grey">
-            <v-img class="w-100 h-100" style="overflow: visible;" :src="`${logo}.webp`">
-            </v-img>
-        </v-sheet>
-        <v-btn class="pa-2 position-absolute" style="top: 75%; left: 50%; transform: translate(-50%, -50%);" @click="user.openBooster(item.uid)">Open</v-btn>
+    <booster-base :logo="logo" :name="name">
         <slot></slot>
-    </v-responsive>
+    </booster-base>
 </template>
