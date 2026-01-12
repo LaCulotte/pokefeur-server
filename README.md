@@ -1,96 +1,51 @@
-# server
+# Pokefeur
 
-WIP
+Repo for pokefeur server and web-client
 
-Launch the dev setup : 
+## Requirements
+
+- NodeJS > 20.19+ or 22.12+.
+
+## Setup
+
+Clone repo **with submodules** :
+
 ```bash
-# Vite
-npm run dev
-
-# In a separate terminal
-# Backend
-bun run bserver
+git clone git@github.com:LaCulotte/pokefeur-server.git --recursive
 ```
 
-### vscode debug config : 
-```json
-{
-    "type": "node",
-    "request": "launch",
-    "name": "Launch api",
-    "program": "${workspaceFolder}/server/src/api/main.ts",
-    "runtimeExecutable": "/usr/bin/npx",
-    "runtimeArgs": [
-        "tsx"
-    ],
-    "cwd": "${workspaceFolder}/server",
-    "skipFiles": [
-        "<node_internals>/**"
-    ],
-    "console": "integratedTerminal"
-},
-{
-    "type": "node",
-    "request": "launch",
-    "name": "Launch compiler",
-    "program": "${workspaceFolder}/server/src/api/main.ts",
-    "runtimeExecutable": "/usr/bin/npx",
-    "runtimeArgs": [
-        "tsx"
-    ],
-    "cwd": "${workspaceFolder}/server",
-    "skipFiles": [
-        "<node_internals>/**"
-    ],
-    "console": "integratedTerminal"
-}
-```
+Initialize with `npm` or `bun` :
 
---- 
-
-This template should help get you started developing with Vue 3 in Vite.
-
-## Recommended IDE Setup
-
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
-
-## Recommended Browser Setup
-
-- Chromium-based browsers (Chrome, Edge, Brave, etc.) :
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd) 
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
-
-## Type Support for `.vue` Imports in TS
-
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
+```bash
+cd pokefeur-server
 bun install
 ```
 
-### Compile and Hot-Reload for Development
+Run compiler to process tcgdex's database :
 
-```sh
-bun dev
+```bash
+npm run compile
+# or
+bun run bcompile
 ```
 
-### Type-Check, Compile and Minify for Production
+## Launch
 
-```sh
-bun run build
+In two separate terminals, run the api server and vite
+```bash 
+# api server
+npm run server
+# or
+bun run bserver
+
+# vite
+npm run dev
+# or
+bun run dev
 ```
 
-### Lint with [ESLint](https://eslint.org/)
+Go to [localhost:5173](http://localhost:5173)
 
-```sh
-bun lint
-```
+## Dependencies
+
+[TcgDex's Cards database](https://github.com/tcgdex/cards-database) via git submodules
