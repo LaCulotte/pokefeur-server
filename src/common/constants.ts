@@ -211,3 +211,13 @@ export const TrainerTypeMap: Record<NonNullable<Card["trainerType"]>, TrainerTyp
     "Technical Machine": TrainerType.TECHNICAL_MACHINE,
     "Tool": TrainerType.TOOL,
 }
+
+export const SUPPORTED_ENERGY_TYPES: Array<Type> = [
+    Type.COLORLESS,
+    Type.FIGHTING,
+    Type.FIRE,
+    Type.GRASS,
+    Type.LIGHTNING,
+    Type.PSYCHIC,
+    Type.WATER,
+]

@@ -14,14 +14,41 @@ export interface BoosterItem {
     uid: string
 }
 
-export type InventoryItem = CardItem | BoosterItem;
+export type InventoryItem = CardItem | BoosterItem
 export type InventoryItemT<T> = 
                 T extends "card" ? CardItem : 
                 T extends "booster" ? BoosterItem :
-                never;
+                never
+
+export interface DealCostCard {
+    type: "card"
+    id: string
+}
+
+export interface DealCostEnergy {
+    type: "energy"
+    id: Type
+}
+
+export type DealCostUnit = CardItem | BoosterItem
+export type DealCostUnitT<T> = 
+                T extends "card" ? DealCostCard : 
+                T extends "energy" ? DealCostEnergy :
+                never
+
+// TODO : rename in smth better
+export type DealType = "simple" | "specific"
+
+export interface ProposedDeal {
+    type: DealType
+
+    cost: Array<DealCostUnit>
+    totalWaitTime: number   // In seconds
+}
 
 export interface Deal {
     uid: string
+    type: DealType
 
     totalWaitTime: number   // In seconds
     startDate: number       // Date.now in seconds

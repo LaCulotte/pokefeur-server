@@ -58,7 +58,7 @@ export async function addDeal(userUid: string, itemUidsToPay: Array<string>) : P
         }
     }
 
-    let deal = await user.deals.addDeal(dealItemType, dealItemId, waitTime);
+    let deal = await user.deals.addDeal("simple", dealItemType, dealItemId, waitTime);
     if (!deal.has_value()) {
         return unexpected(`The deal could not be made : ${deal.error()}`, true);
     }

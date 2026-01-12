@@ -1,13 +1,18 @@
 import fs from "fs/promises"
 import { v4 as uuidv4 } from "uuid"
 
-import type { ItemType, Deal, User, FullDeal } from "./interfaces"
+import type { ItemType, Deal, User, FullDeal, ProposedDeal, DealType } from "./interfaces"
 import { StaticDataSingleton } from "../staticData/loader";
 import { Expected, expected, unexpected } from "../../common/utils";
 
 export class DealsModel {
     user: User
     data: Record<string, FullDeal>
+    // data: {
+    //     active: Record<string, FullDeal>,
+    //     proposed: Record<string, ProposedDeal>,
+    //     expired
+    // }
 
     constructor(user: User) {
         this.user = user;
@@ -25,6 +30,7 @@ export class DealsModel {
             this.data = await fs.readFile(`./data/deals/${this.user.uid}.json`, "utf-8").then((data) => { return JSON.parse(data) });
 
             // TODO : sanatize deals ?
+            // TODO : reset deal data 
         } catch (e) {
             console.warn(`Could not load deals for user ${this.user.username} (uid: ${this.user.uid})`);
 
@@ -41,6 +47,8 @@ export class DealsModel {
     reduceDeal(deal: FullDeal) : Deal {
         return {
             uid: deal.uid,
+            type: deal.type,
+
             startDate: deal.startDate,
             totalWaitTime: deal.totalWaitTime
         }
@@ -56,7 +64,7 @@ export class DealsModel {
         return ret;
     }
 
-    async addDeal(itemType: ItemType, itemId: string, totalWaitTime: number) : Promise<Expected<Deal>> {
+    async addDeal(dealType: DealType, itemType: ItemType, itemId: string, totalWaitTime: number) : Promise<Expected<Deal>> {
         if (Object.keys(this.data).length > 0) {
             return unexpected(`${this.user.uid} (${this.user.username}) already has the maximum number of deals`);
         }
@@ -69,6 +77,7 @@ export class DealsModel {
         
         let newDeal: FullDeal = {
             uid,
+            type: dealType,
             startDate: Math.floor(Date.now() / 1000),
             totalWaitTime,
             itemType,
