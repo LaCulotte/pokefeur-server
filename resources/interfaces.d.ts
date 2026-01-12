@@ -1,0 +1,1 @@
+../dependencies/cards-database/interfaces.d.ts

@@ -44,6 +44,6 @@ __screenshots__/
 /data
 /resources/generated
 # For now, to be replaced in the futurea
-/resources/*
+/resources/generated/*
 
 *.lock
