@@ -12,12 +12,12 @@
     "compile": "npx tsx src/compiler/main.ts",
     "bcompile": "bun run src/compiler/main.ts",
     "type-check": "npx tsc src/api/main.ts --noEmit --esModuleInterop -m esnext -t esnext --moduleResolution Bundler && echo Ok",
-    "type-check-watch": "npx tsc -w src/api/main.ts --noEmit --esModuleInterop -m esnext -t esnext --moduleResolution Bundler && echo Ok",
+    "type-check-watch": "npx tsc -w src/api/main.ts --noEmit --esModuleInterop -m esnext -t esnext --moduleResolution Bundler",
     "dev": "vite",
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
     "build-only": "vite build",
-    "vue-type-check": "vue-tsc --build",
+    "vue-type-check": "vue-tsc --build && echo Ok",
     "lint": "eslint . --fix --cache"
   },
   "dependencies": {
