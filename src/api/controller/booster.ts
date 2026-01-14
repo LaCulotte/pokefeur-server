@@ -13,9 +13,9 @@ export async function openBooster(userUid: string, boosterUid: string) : Promise
         return unexpected(`No user of uid ${userUid}`, true);
     }
 
-    const boosterItem = user.inventory.data[boosterUid];
+    const boosterItem = user.inventory.data.items[boosterUid];
     if (boosterItem === undefined || boosterItem.type !== "booster") {
-        return unexpected(`No item of uid ${boosterUid}`, true);
+        return unexpected(`No booster of uid ${boosterUid} for user of uid ${userUid}`, true);
     }
 
     let expRemoved = await user.inventory.removeItemFromInventory(boosterUid);

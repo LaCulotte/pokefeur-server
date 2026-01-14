@@ -36,11 +36,17 @@ let image = computed(() => {
 let name = computed(() => {
         return itemStaticData.value.name?.length > 0 ? itemStaticData.value.name : "No data";
     });
+
+
+function temp_replace(url: string): string {
+    return url.replace("https://assets.tcgdex.net", "http://localhost:8000");
+}
+
 </script>
 
 <template>
     <v-responsive class="w-100 h-100" style="aspect-ratio: 245/337;">
-        <v-img class="position-absolute top-0 w-100 h-100" :src="`${image}`">
+        <v-img class="position-absolute top-0 w-100 h-100" :src="temp_replace(image)" :title="name">
         </v-img>
         <slot></slot>
     </v-responsive>

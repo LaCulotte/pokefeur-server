@@ -1,4 +1,5 @@
 import type { CardItem, InventoryItem, ItemType, FullUser, User } from "@/api/model/interfaces";
+import type { Type } from "../../../common/constants";
 
 export class UserData {
     data: FullUser = {
@@ -6,7 +7,10 @@ export class UserData {
         username: "",
         type: "guest",
 
-        inventory: {},
+        inventory: {
+            items: {},
+            energies: {}
+        },
         deals: {}
     };
 
@@ -126,7 +130,7 @@ export class UserData {
                 return res.json().then((err) => { throw err["message"]; });
             }
         }).then((item: InventoryItem) => {
-            this.data.inventory[item.uid] = item;
+            this.data.inventory.items[item.uid] = item;
         }).catch((err) => {
             console.error(`Cannot add card : ${err}`);
         });
@@ -150,14 +154,14 @@ export class UserData {
                 return res.json().then((err) => { throw err["message"]; });
             }
         }).then(() => {
-            delete this.data.inventory[itemUid];
+            delete this.data.inventory.items[itemUid];
         }).catch((err) => {
             console.error(`Cannot add card : ${err}`);
         });
     }
 
     openBooster(itemUid: string) {
-        if (!(itemUid in this.data.inventory)) {
+        if (!(itemUid in this.data.inventory.items)) {
             return;
         }
 
@@ -178,13 +182,49 @@ export class UserData {
                 return res.json().then((err) => { throw err["message"]; });
             }
         }).then((data: Array<CardItem>) => {
-            delete this.data.inventory[itemUid];
+            delete this.data.inventory.items[itemUid];
 
             for (let card of data.values()) {
-                this.data.inventory[card.uid] = card;
+                this.data.inventory.items[card.uid] = card;
             }
         }).catch((err) => {
-            console.error(`Cannot add card : ${err}`);
+            console.error(`Cannot open booster : ${err}`);
+        });
+    }
+
+    recycleCard(itemUid: string) {
+        if (!(itemUid in this.data.inventory.items)) {
+            return;
+        }
+
+        fetch("/api/recycleCards",
+            {
+                method: "POST",
+                body: JSON.stringify({cardUids: [itemUid]}),
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            }
+        ).then((res) => {
+            if (res.status == 200) {
+                return res.json();
+            } else if (res.status == 400) {
+                return res.json().then((err) => { throw JSON.stringify(err["errors"]); });
+            } else if (res.status == 401) {
+                return res.json().then((err) => { throw err["message"]; });
+            }
+        }).then((data: Array<Type>) => {
+            delete this.data.inventory.items[itemUid];
+
+            for (let energy of data.values()) {
+                if (this.data.inventory.energies[energy] === undefined) {
+                    this.data.inventory.energies[energy] = 0;
+                }
+
+                this.data.inventory.energies[energy] += 1;
+            }
+        }).catch((err) => {
+            console.error(`Cannot recycle card : ${err}`);
         });
     }
 }

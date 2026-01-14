@@ -6,6 +6,7 @@ import { DataModel } from "../model/DataModel";
 
 import "../common"
 import { openBooster } from "../controller/booster";
+import { recycleCards } from "../controller/energy";
 
 
 async function addItemToInventoryRequest(req: express.Request, res: express.Response) {
@@ -62,6 +63,20 @@ async function openBoosterRequest(req: express.Request, res: express.Response) {
     }
 }
 
+async function recycleCardsRequest(req: express.Request, res: express.Response) {
+    if (req.session.userUid == undefined) {
+        throw new Error("No userUid on recycle cards request ?");
+    }
+
+    let expEnergies = await recycleCards(req.session.userUid, req.body.cardUids);
+
+    if (expEnergies.has_value()) {
+        res.status(200).json(expEnergies.value());
+    } else {
+        res.status(400).json({errors: [expEnergies.error()]});  // TODO : errors in the same format as "check"
+    }
+}
+
 export function setupInventoryEndpoints(app: express.Express) {
     app.post("/api/addItemToInventory",
         loggedUserMiddleware,
@@ -83,5 +98,13 @@ export function setupInventoryEndpoints(app: express.Express) {
         check("itemUid").isString(),
         execValidationMiddleware,
         openBoosterRequest
+    );
+
+    app.post("/api/recycleCards",
+        loggedUserMiddleware,
+        check("cardUids").isArray(),
+        check("cardUids.*").isString(),
+        execValidationMiddleware,
+        recycleCardsRequest
     );
 }

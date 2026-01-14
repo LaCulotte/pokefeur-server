@@ -48,4 +48,5 @@ Go to [localhost:5173](http://localhost:5173)
 
 ## Dependencies
 
-[TcgDex's Cards database](https://github.com/tcgdex/cards-database) via git submodules
+[TcgDex's Cards database](https://github.com/tcgdex/cards-database) for card data + card illustrations
+[TcgDex energy asset](https://www.tcgdex.fr/assets/energies.png) + [Pokemon TCG Energy Types](https://www.deviantart.com/xtuart/art/Energy-Types-Pokemon-TCG-Outdated-v2-908706380) for energy icons

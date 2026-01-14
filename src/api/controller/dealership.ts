@@ -23,7 +23,7 @@ export async function addDeal(userUid: string, itemUidsToPay: Array<string>) : P
     let paidItemUids: Array<string> = [];
 
     for (let itemUid of itemUidsToPaySet) {
-        let item = user.inventory.data[itemUid];
+        let item = user.inventory.data.items[itemUid];
         if (item === undefined) {
             continue;
         }
@@ -58,7 +58,7 @@ export async function addDeal(userUid: string, itemUidsToPay: Array<string>) : P
         }
     }
 
-    let deal = await user.deals.addDeal("simple", dealItemType, dealItemId, waitTime);
+    let deal = await user.deals.addDeal("items", dealItemType, dealItemId, waitTime);
     if (!deal.has_value()) {
         return unexpected(`The deal could not be made : ${deal.error()}`, true);
     }

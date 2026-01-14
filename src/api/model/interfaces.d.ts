@@ -1,3 +1,5 @@
+import type { Type } from "../../common/constants";
+
 // TODO : use enum ?
 export type UserType = "guest" | "user" | "admin" | "moderator" | "banned";
 export type ItemType = "card" | "booster"
@@ -37,7 +39,9 @@ export type DealCostUnitT<T> =
                 never
 
 // TODO : rename in smth better
-export type DealType = "simple" | "specific"
+// TODO : make it dynamic
+//      => json mapping dealtype to types of unit costs and types of rewards ?
+export type DealType = "energies" | "items"
 
 export interface ProposedDeal {
     type: DealType
@@ -67,6 +71,9 @@ export interface User {
 }
 
 export interface FullUser extends User {
-    inventory: Record<string, InventoryItem>
+    inventory: {
+        items: Record<string, InventoryItem>
+        energies: Partial<Record<Type, number>>
+    }
     deals: Record<string, Deal>
 }
