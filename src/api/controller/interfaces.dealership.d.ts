@@ -1,8 +1,8 @@
-import type { Deal, InventoryItem } from "../model/interfaces";
+import type { Deal, DealCostUnit, InventoryItem } from "../model/interfaces";
 
-export interface AddDealSummary {
-    deal: Deal
-    paidItemUids: Array<string>
+export interface AcceptDealSummary {
+    acceptedDeal: Deal & { itemType?: never; itemId?: never }
+    paidCost: Payment
 }
 
 export interface RedeemDealSummary {

@@ -9,16 +9,22 @@ let FileStore = fileStore(session);
 
 import "./common"
 import { DataModel } from "./model/DataModel";
+import { initUserDeals } from "./controller/dealership";
+
 import { setupInventoryEndpoints } from "./endpoints/inventory";
 import { setupAdminEndpoints } from "./endpoints/admin";
 import { setupDealershipEndpoints } from "./endpoints/dealership";
 
 let a = Date.now();
-// console.log(a = Date.now())
 await StaticDataSingleton.load();
 await DataModel.load();
-console.log(`Loaded static data in ${Date.now() - a} ms`)
+console.log(`Loaded data in ${Date.now() - a} ms`)
 
+// TODO : more generic ?
+for (let user of Object.values(DataModel.getInstance().users)) {
+    initUserDeals(user);    // TODO : Do it on create as well !!
+}
+console.log(`Loaded controllers in ${Date.now() - a} ms`)
 
 const app = express();
 app.use(express.json())

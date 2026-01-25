@@ -4,6 +4,7 @@ import { body, check, matchedData, validationResult } from "express-validator";
 import { execValidationMiddleware, loggedUserMiddleware } from "./middleware";
 import { DataModel } from "../model/DataModel";
 import { UserModel } from "../model/UserModel";
+import { initUserDeals } from "../controller/dealership";
 
 import "../common"
 import type { FullUser } from "../model/interfaces";
@@ -19,6 +20,7 @@ function login(req: express.Request, res: express.Response) {
     let user: UserModel | null = DataModel.getUserByName(username);
     if (user === null) {
         user = DataModel.getInstance().createUser(username, "admin");
+        initUserDeals(user);
     }
 
     req.session.userUid = user.data.uid;

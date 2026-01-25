@@ -27,40 +27,54 @@ export interface DealCostCard {
     id: string
 }
 
+export interface DealCostBooster {
+    type: "booster"
+    id: string
+}
+
 export interface DealCostEnergy {
     type: "energy"
     id: Type
+    count: number
 }
 
-export type DealCostUnit = CardItem | BoosterItem
+export type DealCostUnit = DealCostCard | DealCostBooster | DealCostEnergy
 export type DealCostUnitT<T> = 
                 T extends "card" ? DealCostCard : 
+                T extends "booster" ? DealCostCard : 
                 T extends "energy" ? DealCostEnergy :
                 never
 
-// TODO : rename in smth better
 // TODO : make it dynamic
 //      => json mapping dealtype to types of unit costs and types of rewards ?
 export type DealType = "energies" | "items"
 
-export interface ProposedDeal {
-    type: DealType
 
-    cost: Array<DealCostUnit>
-    totalWaitTime: number   // In seconds
-}
+export type DealState = "proposed" | "accepted" | "redeemed";
 
 export interface Deal {
+    state: DealState
+
     uid: string
-    type: DealType
+    type: string
+
+    cost: Array<DealCostUnit>
 
     totalWaitTime: number   // In seconds
-    startDate: number       // Date.now in seconds
+    timeoutDuration: number // In seconds
+    
+    proposedDate: number
+    startDate: number | undefined   // Date.now in seconds
 }
 
 export interface FullDeal extends Deal {
     itemType: ItemType
     itemId: string
+}
+
+export interface Payment {
+    energies: Partial<Record<Type, number>>   
+    items: Array<string>,   // item uids
 }
 
 export interface User {

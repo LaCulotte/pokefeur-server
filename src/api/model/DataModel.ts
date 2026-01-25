@@ -46,7 +46,7 @@ export class DataModel {
         }
         
         for (let [uid, user] of Object.entries(this.instance.users)) {
-            user.loadUserData();
+            await user.loadUserData();
             this.instance.nameToUid[user.data.username] = uid;
         }
 
@@ -86,6 +86,8 @@ export class DataModel {
         
         this.saveUsers();
         newUserModel.saveUserData();
+
+        // TODO : init controllers
 
         return newUserModel;
     }

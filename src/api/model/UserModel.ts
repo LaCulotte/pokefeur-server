@@ -19,12 +19,12 @@ export class UserModel {
     }
 
     async loadUserData() {
-        this.inventory.loadUserInventory();
-        this.deals.loadDeals();
+        await this.inventory.loadUserInventory();
+        await this.deals.loadDeals();
     }
 
     async saveUserData() {
-        this.inventory.saveInventory();
-        this.deals.saveDeals();
+        await this.inventory.saveInventory();
+        await this.deals.saveDeals();
     }
 }

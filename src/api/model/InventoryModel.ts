@@ -44,7 +44,7 @@ export class InventoryModel {
             console.warn(`Could not load inventory for user ${this.user.username} (uid: ${this.user.uid})`);
             this.data = structuredClone(DEFAULT_INVENTORY);
 
-            this.saveInventory();
+            await this.saveInventory();
         }
     }
 
@@ -70,7 +70,7 @@ export class InventoryModel {
 
         let itemUid = uuidv4();
 
-        while (itemUid in this.data) {
+        while (itemUid in this.data.items) {
             itemUid = uuidv4();
         }
 
@@ -130,14 +130,30 @@ export class InventoryModel {
 
     async addEnergy(energyType: Type, n: number = 1): Promise<Expected<Type>> {
         if (!SUPPORTED_ENERGY_TYPES.includes(energyType)) {
-            return unexpected(`Energy type ${energyType}`);
+            return unexpected(`Energy type ${energyType} is not currently supported`);
         }
 
         if (this.data.energies[energyType] === undefined) {
             this.data.energies[energyType] = 0;
         }
 
-        this.data.energies[energyType] += 1;
+        this.data.energies[energyType] += n;
+
+        await this.saveInventory();
+
+        return expected(energyType);
+    }
+
+    async removeEnergy(energyType: Type, n: number = 1): Promise<Expected<Type>> {
+        if (!SUPPORTED_ENERGY_TYPES.includes(energyType)) {
+            return unexpected(`Energy type ${energyType} is not currently supported`);
+        }
+
+        if (this.data.energies[energyType] === undefined || this.data.energies[energyType] < n) {
+            return unexpected(`Not enougth energy of type ${energyType} (expected ${n}; Got ${this.data.energies[energyType] ?? 0})`);
+        }
+
+        this.data.energies[energyType] -= n;
 
         await this.saveInventory();
 
