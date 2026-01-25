@@ -2,10 +2,10 @@ import { expected, unexpected, type Expected } from "../../common/utils";
 import { DataModel } from "../model/DataModel";
 import { StaticDataSingleton } from "../staticData/loader";
 
-import { Category, Type } from "../../common/constants";
+import { Category, SUPPORTED_ENERGY_TYPES, Type } from "../../common/constants";
 
 export async function recycleCards(userUid: string, cardUids: Array<string>) : Promise<Expected<Array<Type>>> {
-    if (cardUids.length == 0) {
+    if (cardUids.length == 0) {
         return unexpected(`List of cards to recycle is empty !`);
     }
     
@@ -27,24 +27,31 @@ export async function recycleCards(userUid: string, cardUids: Array<string>) : P
 
         const cardData = staticDataInstance.staticData.cards[item.id];
         if (cardData === undefined) {
-            return unexpected(`Id '${item.id} is not a valid card id !'`);
+            return unexpected(`Id '${item.id} is not a valid card id !'`, true);
         }
 
         if (![Category.POKEMON, Category.ENERGY].includes(cardData.category) || cardData.types === undefined) {
-            return unexpected(`Card of id ${item.id} is not recyclable (${cardData.name}).`)
+            return unexpected(`Card of id ${item.id} is not recyclable (${cardData.name}).`, true);
         }
 
         for (let energy of cardData.types) {
+            if (!SUPPORTED_ENERGY_TYPES.includes(energy)) {
+                return unexpected(`Card of id ${item.id} is not recyclable because it \
+would produce an energy of type ${energy} which is not currently supported.`, true);
+            }
             energies.push(energy);
         }
     }
 
     for (let cardUid of cardUids) {
-        user.inventory.removeItemFromInventory(cardUid);
+        await user.inventory.removeItemFromInventory(cardUid);
     }
 
     for (let energy of energies) {
-        await user.inventory.addEnergy(energy);
+        let expEnergy = await user.inventory.addEnergy(energy);
+        if (!expEnergy.has_value()) {
+            return unexpected(`Got error when recycling cards ${cardUids} : ${expEnergy.error()}`, true);
+        }
     }
 
     return expected(energies);
