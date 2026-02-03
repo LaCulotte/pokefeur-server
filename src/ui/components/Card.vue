@@ -7,7 +7,7 @@ import type { CardLangData } from '@/compiler/interfaces';
 import { Category, Rarity } from '../../common/constants';
 
 const props = defineProps<{
-    item: CardItem
+    cardId: string
 }>();
 
 let unknownCard: ComputedRef<CardLangData> = computed(() => {
@@ -24,7 +24,7 @@ let unknownCard: ComputedRef<CardLangData> = computed(() => {
 });
 
 let itemStaticData = computed(() => {
-        return staticDataStore[lang.value]?.cards[props.item.id] ?? unknownCard.value
+        return staticDataStore[lang.value]?.cards[props.cardId] ?? unknownCard.value
     });
 
 let image = computed(() => {
@@ -39,7 +39,7 @@ let name = computed(() => {
 
 
 function temp_replace(url: string): string {
-    return url.replace("https://assets.tcgdex.net", "http://localhost:8000");
+    return url.replace("https://assets.tcgdex.net", `http://${window.location.hostname}:8000`);
 }
 
 </script>

@@ -14,11 +14,11 @@ const props = defineProps<{
 <template>
     <div class="d-flex align-center justify-center w-100 h-100" style="aspect-ratio: 245/337;">
         <div class="h-100" style="aspect-ratio: 245/337;">
-            <card v-if="item.type == 'card'" :item="item">
+            <card v-if="item.type == 'card'" :card-id="item.id">
                 <slot name="card-content" :card="item"></slot>
                 <slot name="common-content" :item="(item as InventoryItem)"></slot>
             </card>
-            <booster-item v-else :item="item">
+            <booster-item v-else :booster-id="item.id">
                 <slot name="booster-content" :booster="item"></slot>
                 <slot name="common-content" :item="(item as InventoryItem)"></slot>
             </booster-item>

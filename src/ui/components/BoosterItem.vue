@@ -8,7 +8,7 @@ import type { SetLangData } from '@/compiler/interfaces';
 import BoosterBase from './BoosterBase.vue';
 
 const props = defineProps<{
-    item: BoosterItem,
+    boosterId: string,
     setData?: Partial<SetLangData>
 }>();
 
@@ -36,7 +36,7 @@ let unknownSet: ComputedRef<SetLangData> = computed(() => {
 });
 
 let itemStaticData = computed(() => {
-        return staticDataStore[lang.value]?.sets[props.item.id] ?? unknownSet.value
+        return staticDataStore[lang.value]?.sets[props.boosterId] ?? unknownSet.value
     });
 
 let logo = computed(() => {
@@ -50,7 +50,7 @@ let name = computed(() => {
     });
 
 function temp_replace(url: string): string {
-    return url.replace("https://assets.tcgdex.net", "http://localhost:8000");
+    return url.replace("https://assets.tcgdex.net", `http://${window.location.hostname}:8000`);
 }
 
 </script>
