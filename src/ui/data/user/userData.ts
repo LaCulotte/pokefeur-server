@@ -17,15 +17,21 @@ export class UserData {
     lastAuthenticated: number = -1;
     isAuthenticatedFlag: boolean = false;
 
-    async load() {
+    // TODO : not that
+    loadPromise: Promise<void> | null = null;
+
+    launchLoad(): Promise<void> {
+        this.loadPromise = this.load();
+        return this.loadPromise;
+    }
+
+    private async load() {
         if (!(await this.isAuthenticated())) {
             throw new Error("User is not authenticated");
         }
         
         this.data = (await fetch("/api/getFullUser")
             .then((res) => res.json()))["user"];
-
-        console.log(this.data);
     }
 
     async login(username: string) {
@@ -41,7 +47,7 @@ export class UserData {
             if (res.status == 200) {
                 this.lastAuthenticated = Date.now();
                 this.isAuthenticatedFlag = true;
-                await this.load();
+                return this.launchLoad();
             } else if (res.status == 400) {
                 return res.json().then((data) => {
                     throw new Error(JSON.stringify(data.errors));
