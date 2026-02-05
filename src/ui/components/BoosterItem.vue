@@ -6,43 +6,20 @@ import { lang } from '../controller/lang';
 import type { SetLangData } from '@/compiler/interfaces';
 
 import BoosterBase from './BoosterBase.vue';
+import { getSetLangData } from '../controller/staticDataHelper';
 
 const props = defineProps<{
-    boosterId: string,
-    setData?: Partial<SetLangData>
+    boosterId: string
 }>();
 
-let unknownSet: ComputedRef<SetLangData> = computed(() => {
-    let defaultSet: SetLangData = {
-        lang: lang.value,
-        id: "0",
-        serieId: "0",
-        name: `Weird Set`,
-        releaseDate: "1970-01-01",
-        releaseDateTs: 0,
-        cardCount: {
-            official: 0,
-            total: 0
-        },
-        cards: {},
-        logo: "",
-        symbol: ""
-    };
-    
-    return {
-        ...defaultSet,
-        ...props.setData ?? {}
-    };
-});
-
 let itemStaticData = computed(() => {
-        return staticDataStore[lang.value]?.sets[props.boosterId] ?? unknownSet.value
+        return getSetLangData(props.boosterId).value;
     });
 
 let logo = computed(() => {
         return itemStaticData.value.logo?.length > 0
             ? `${itemStaticData.value.logo}.webp`
-            : "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/MissingNo.svg/960px-MissingNo.svg.png";
+            : "/static/images/placeholders/missing_asset/logo.webp";
     });
 
 let name = computed(() => {

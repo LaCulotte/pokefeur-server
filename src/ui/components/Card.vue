@@ -5,32 +5,20 @@ import { lang } from '../controller/lang';
 import { computed, type ComputedRef } from 'vue';
 import type { CardLangData } from '@/compiler/interfaces';
 import { Category, Rarity } from '../../common/constants';
+import { getCardLangData } from '../controller/staticDataHelper';
 
 const props = defineProps<{
     cardId: string
 }>();
 
-let unknownCard: ComputedRef<CardLangData> = computed(() => {
-    return {
-        lang: lang.value,
-        id: "0",
-        name: "Weird Card",
-        setId: "0",
-        localId: "0",
-        image: "",
-        category: Category.UNDEFINED,
-        rarity: Rarity.UNDEFINED
-    }
-});
-
 let itemStaticData = computed(() => {
-        return staticDataStore[lang.value]?.cards[props.cardId] ?? unknownCard.value
+        return getCardLangData(props.cardId).value;
     });
 
 let image = computed(() => {
         return itemStaticData.value.image?.length > 0 
             ? `${itemStaticData.value.image}/low.webp`
-            : "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/MissingNo.svg/960px-MissingNo.svg.png";
+            : "/static/images/placeholders/missing_asset/card/low.webp";    // TODO : could make it depend on type of underlying card
     });
 
 let name = computed(() => {
