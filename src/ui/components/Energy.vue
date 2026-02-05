@@ -1,8 +1,14 @@
 <script setup lang="ts">
 import { Type } from '../../common/constants';
 
-const props = defineProps<{
-    type: Type
+const {
+    type,
+    height = 25,
+    text_proportion = 0.7
+} = defineProps<{
+    type: Type,
+    height?: number
+    text_proportion?: number
 }>();
 
 const energy_names: Record<Type, string> = {
@@ -38,11 +44,11 @@ const energy_class: Record<Type, string> = {
 
 <template>
 <div class="d-flex w-100 align-center">
-    <div class="d-flex justify-center" style="width: 30%;">
-        <span :class="`energy ${energy_class[props.type]}`" :title="energy_names[props.type]"></span>
+    <div class="d-flex justify-center" style="min-width: 25px;" :style="`transform: scale(${height / 25}); width: ${(1 - text_proportion) * 100}%;`">
+        <span :class="`energy ${energy_class[type]}`" :title="energy_names[type]"></span>
     </div>
-    <div class="" style="width: 70%;">
-        <div class="w-100 d-flex justify-end" style="padding-right: 10%;">
+    <div :style="`width: ${text_proportion * 100}%;`">
+        <div class="w-100 d-flex justify-center" style="padding-right: 10%;">
             <slot></slot>
         </div>
     </div>

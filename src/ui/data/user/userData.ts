@@ -1,5 +1,7 @@
-import type { CardItem, InventoryItem, ItemType, FullUser, User } from "@/api/model/interfaces";
+import type { CardItem, InventoryItem, ItemType, FullUser, User, Payment } from "@/api/model/interfaces";
 import type { Type } from "../../../common/constants";
+import type { AcceptDealSummary, RedeemDealSummary } from "@/api/controller/interfaces.dealership";
+import { expected, unexpected, type Expected } from "../../../common/utils";
 
 export class UserData {
     data: FullUser = {
@@ -231,6 +233,67 @@ export class UserData {
             }
         }).catch((err) => {
             console.error(`Cannot recycle card : ${err}`);
+        });
+    }
+
+    acceptDeal(dealUid: string, payment: Payment) {
+        if (!(dealUid in this.data.deals)) {
+            console.log("Why are you running ?")
+            return;
+        }
+
+        fetch("/api/deals/acceptDeal",
+            {
+                method: "POST",
+                body: JSON.stringify({dealUid, payment}),
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            }
+        ).then((res) => {
+            if (res.status == 200) {
+                return res.json();
+            } else if (res.status == 400) {
+                return res.json().then((err) => { throw JSON.stringify(err["errors"]); });
+            } else if (res.status == 401) {
+                return res.json().then((err) => { throw err["message"]; });
+            }
+        }).then((data: AcceptDealSummary) => {
+            this.data.deals[dealUid] = data.acceptedDeal;
+        }).catch((err) => {
+            console.error(`Cannot recycle card : ${err}`);
+        });
+    }
+
+    redeemDeal(dealUid: string): Promise<Expected<RedeemDealSummary>> {
+        if (!(dealUid in this.data.deals)) {
+            return (async () => unexpected("Why are you running ?", true))();
+        }
+
+        return fetch("/api/deals/redeemDeal",
+            {
+                method: "POST",
+                body: JSON.stringify({dealUid}),
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            }
+        ).then((res) => {
+            if (res.status == 200) {
+                return res.json();
+            } else if (res.status == 400) {
+                return res.json().then((err) => { throw JSON.stringify(err["errors"]); });
+            } else if (res.status == 401) {
+                return res.json().then((err) => { throw err["message"]; });
+            }
+        }).then((data: RedeemDealSummary) => {
+            // delete this.data.deals[data.redeemedDeal.uid];
+            this.data.deals[data.redeemedDeal.uid] = data.redeemedDeal;
+            this.data.inventory.items[data.newItem.uid] = data.newItem;
+
+            return expected(data);
+        }).catch((err) => {
+            return unexpected(`Cannot redeem deal : ${err}`, true);
         });
     }
 }

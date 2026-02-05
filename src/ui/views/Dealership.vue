@@ -1,22 +1,112 @@
 <script setup lang="ts">
-import Item from '../components/Item.vue';
 import BoosterBase from '../components/BoosterBase.vue';
-import type { BoosterItem } from '../../api/model/interfaces';
+import Item from '../components/Item.vue';
 
-import { ref, type Ref } from 'vue';
+import { user } from '../data/user/vueUserData';
+
+import { ref, type Ref, computed, onUnmounted, onMounted, type ComputedRef } from 'vue';
+import { useRouter } from 'vue-router'
+import { on } from 'events';
+import Energy from '../components/Energy.vue';
+import DealProposition from '../components/DealProposition.vue';
+import type { FullDeal, InventoryItem } from '@/api/model/interfaces';
+import { getItemLangData } from '../controller/staticDataHelper';
 
 document.title = "Dealership";
 
-let item: Ref<BoosterItem> = ref({
-    uid: "",
-    type: "booster",
-    id: "???"
+const toRedeem = computed(() => {
+    return Object.values(user.data.deals).filter((deal) => { return deal.state === "accepted";});
 });
+
+const toAccept = computed(() => {
+    return Object.values(user.data.deals).filter((deal) => { return deal.state === "proposed";});
+});
+
+const disabledDeals = computed(() => {
+    return Object.values(user.data.deals).filter((deal) => { return deal.state !== "proposed";});
+});
+
+const now = ref(0);
+const updating = ref(false);
+
+const nextDealUpdate: ComputedRef<number> = computed(() => {
+    let nextUpdate = Infinity;
+    
+    Object.values(user.data.deals).forEach((deal) => {
+        if (deal.state === "proposed" || deal.state === "redeemed") {
+            const dealExpiryTime = (deal.proposedDate ?? 0) + deal.timeoutDuration;
+            
+            if (dealExpiryTime < nextUpdate) {
+                nextUpdate = dealExpiryTime;
+            }
+        }
+    });
+
+    return nextUpdate;
+});
+
+async function tick() {
+    now.value = Math.floor(Date.now() / 1000);
+
+    if (!updating.value && now.value > nextDealUpdate.value) {
+        updating.value = true;
+        await user.launchLoad();
+        updating.value = false;
+    }
+}
+
+let tickInterval: NodeJS.Timeout | undefined = undefined;
+
+onMounted(async () => {
+    await user.loadPromise;
+    await tick();
+    tickInterval = setInterval(tick, 1000);
+});
+
+onUnmounted(() => {
+    clearInterval(tickInterval);
+});
+
+const router = useRouter();
+
+function goToCollection(itemId?: string) {
+    router.push({
+        path: "/collection",
+        // hash: hash
+        query: {
+            itemId
+        }
+    });
+}
+
+const showRedeemed = ref(false);
+const redeemed: Ref<InventoryItem | null> = ref(null);
+
+async function redeem(dealUid: string) {
+    let res = await user.redeemDeal(dealUid);
+
+    if (!res.has_value()) {
+        console.error("Oh no :(");
+        return;
+    }
+
+    redeemed.value = res.value().newItem;
+    showRedeemed.value = true;
+}
+
+async function testRedeem() {
+    redeemed.value = {
+        id: "base1-50",
+        type: "card",
+        uid: ""
+    };
+    showRedeemed.value = true;
+}
 </script>
 
 <template>
     <div class="main w-screen h-screen pa-2" style="background-color: #b0ceceaf;">
-        <v-responsive  v-for="i in [1, 1, 1, 1, 1, 1, 1, 1, ]" class="panel-main ma-2" style="overflow: visible;">
+        <v-responsive v-for="deal in toRedeem" class="panel-main ma-2" style="overflow: visible;">
             <v-sheet class="h-100 w-100 border"
                 rounded="xl"
                 color=""
@@ -62,6 +152,8 @@ let item: Ref<BoosterItem> = ref({
                     model-value="50"
                     rounded
                     style="background-color: rgba(0, 0, 0, 0.2);"
+
+                    v-if="(deal.startDate ?? 0) + deal.totalWaitTime > now"
                     >
                         <div class="box-child w-100 h-100" style="
                             box-shadow: inset 0 0 2px; position: absolute;
@@ -69,8 +161,14 @@ let item: Ref<BoosterItem> = ref({
                             top: 0;
                             left: 0;
                         "></div>
-                        <strong class="loading-text">Booster en cours; 69 mins restantes ...</strong>
+                        <strong class="loading-text">Booster en cours; {{ (deal.startDate ?? 0) + deal.totalWaitTime - now }}s restantes ...</strong>
                     </v-progress-linear>
+                    <v-btn
+                    v-else
+                    @click="redeem(deal.uid)"
+                    >
+                        Redeem
+                    </v-btn>
                 </div>
             </div>
         </v-responsive>
@@ -98,53 +196,94 @@ let item: Ref<BoosterItem> = ref({
                     </template>
                 </v-expansion-panel-title>
                 <v-expansion-panel-text
+                    class="no-padding"
                     style="height: 45vh;
                     overflow: scroll;
-                    overscroll-behavior: none;
-                    "
-
-                    class="text-panel"
+                    overscroll-behavior: none;"
                 >
-                    <v-responsive v-for="i in [1, 1, 1, 1, 1, 1, 1, 1, ]" 
-                        class="panel" 
-                        style="overflow: visible;
-                        height: 20%;
-                        min-height: 80px;
-                        margin-bottom: 3%;"
+                    <!-- <v-btn @click="testRedeem()">test</v-btn> -->
+                    <deal-proposition
+                    v-for="deal in toAccept"
+                    :key="deal.uid"
+                    :deal="deal"
+                    :now="now"
+                    class="flex-fill border-bottom"
+                    style="height: 33%; min-height: 120px;"
                     >
-                        <!-- Background : -->
-                        <v-sheet class="h-100 w-100 border"
-                            rounded="xl"
-                            color=""
-                            style="box-shadow: 0 3px 7px rgba(0, 0, 0, 0.5);"
-                            >
-                        </v-sheet>
-                        <!-- Content -->
-                        <div class="position-absolute top-0 h-100 w-100 d-flex">
-                            <div class="d-flex flex-column" style="flex: 2 2 100%;">
-                                <div class="flex-fill w-100 h-50 d-flex align-center">
-                                    <div style="padding-top: 10%; padding-left: 15%;">
-                                        <strong>Booster</strong>
-                                    </div>
-                                </div>
-                                <div class="flex-fill w-100 h-50 d-flex align-center">
-                                    <div style="padding-bottom: 0%; padding-left: 15%;">
-                                        5 cards
-                                    </div>
-                                </div>
-                            </div>
-                            <div style="flex: 3 3 100%;">
-                                <div class="h-100 w-100 pa-3 d-flex flex-column justify-center align-center ">
-                                    <v-btn color="success">Select</v-btn>
-                                </div>
-                            </div>
-                        </div>
-                    </v-responsive>
+                    </deal-proposition>
+
+                    <div class="mini-spacer"></div>
+                    
+                    <deal-proposition
+                    v-for="deal in disabledDeals"
+                    :key="deal.uid"
+                    :deal="deal"
+                    disabled
+                    :now="now"
+                    class="flex-fill border-bottom-faded"
+                    style="height: 33%; min-height: 120px; opacity: 0.5;"
+                    >
+                    </deal-proposition>
                     <div class="mini-spacer"></div>
                 </v-expansion-panel-text>
             </v-expansion-panel>
         </v-expansion-panels>
+        
+        <div class="position-absolute d-flex" style="bottom: 5%; left: 5%; z-index: 20;">
+            <v-btn class="collection-btn" rounded="xl" icon="mdi-view-grid-outline" @click="goToCollection()"></v-btn>
+            <!-- <div class="flex-shrink-0" style="flex: 2 2;"></div> -->
+        </div>
     </div>
+
+    <v-dialog
+    v-if="redeemed !== null"
+    v-model="showRedeemed"
+    >
+        <v-sheet style="overflow: hidden;">
+            <div class="w-100 pa-2" style="text-align: center; font-weight: 800; font-size: 20px;">
+                Got a new item : 
+            </div>
+            <v-divider></v-divider>
+            <v-row class="pa-2">
+                <v-col>
+                    <div style="text-align: end; font-weight: 600; font-size: 16px;">
+                        New {{ redeemed.type }}: 
+                    </div>
+                </v-col>
+                <v-col>
+                    <div style="text-align: start; font-size: 16px;">
+                    {{ getItemLangData(redeemed.type, redeemed.id).value.name }}
+                    </div>
+                </v-col>
+            </v-row>
+            <item
+            class="mb-3 flex-1-1"
+            :item="redeemed"
+            style="max-height: 20vh;"
+            >
+            </item>
+            <v-toolbar class="pl-2 pr-2">
+                <v-spacer></v-spacer>
+                <v-btn
+                class="mr-2"
+                color="success"
+                variant="flat"
+                @click="goToCollection(redeemed.uid)"
+                >
+                    Go >
+                </v-btn>
+
+                <v-btn
+                variant="outlined"
+                @click="showRedeemed = false"
+                >
+                    CLOSE
+                </v-btn>
+                
+            </v-toolbar>
+        </v-sheet>
+    </v-dialog>
+
 </template>
 
 <style scoped>
@@ -213,4 +352,17 @@ let item: Ref<BoosterItem> = ref({
     height: 1px;
 }
 
+:deep(.no-padding) .v-expansion-panel-text__wrapper {
+    padding: 0 !important;
+}
+
+.border-right {
+    border-right: 1px solid rgba(0,0,0,0.3);
+}
+.border-bottom {
+    border-bottom: 1px solid rgba(0,0,0,0.8);
+}
+.border-bottom-faded {
+    border-bottom: 1px solid rgba(0,0,0,0.5);
+}
 </style>

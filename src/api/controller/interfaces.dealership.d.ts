@@ -6,6 +6,6 @@ export interface AcceptDealSummary {
 }
 
 export interface RedeemDealSummary {
-    redeemedDeal: Deal
+    redeemedDeal: FullDeal
     newItem: InventoryItem
 }
