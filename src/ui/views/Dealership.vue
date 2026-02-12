@@ -149,7 +149,7 @@ async function testRedeem() {
                     <v-progress-linear
                     class="h-100"
                     color="light-green-darken-4"
-                    model-value="50"
+                    :model-value="(((deal.startDate ?? 0) + deal.totalWaitTime - now) / deal.totalWaitTime) * 100"
                     rounded
                     style="background-color: rgba(0, 0, 0, 0.2);"
 

@@ -10,7 +10,6 @@ import type { CardItem } from '@/api/model/interfaces';
 
 import { staticDataStore } from '../data/static/vueStaticData';
 import { lang } from '../controller/lang';
-import TempPadding from './TempPadding.vue';
 
 const props = defineProps<{
     maxItemHeight?: string,
@@ -55,13 +54,6 @@ function removeItem(uid: string) {
     user.removeItem(uid);
     emit("removeItem");
 }
-
-onMounted(() => {
-    console.log("---")
-    console.log(props.scrollElem);
-    console.log("---")
-})
-
 </script>
 
 <template>

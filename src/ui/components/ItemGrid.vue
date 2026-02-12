@@ -69,7 +69,6 @@ const translateMain = ref(0);
 // const 
 
 function scrollBehaviour() {
-    console.log("scroll")
     if (mainElem.value === null) {
         return;
     }

@@ -41,7 +41,6 @@ onMounted(() => {
     } else {
         document.addEventListener("scroll", scrollBehaviour);
     }
-    console.log(scrollElem.value)
     scrollBehaviour();
 });
 

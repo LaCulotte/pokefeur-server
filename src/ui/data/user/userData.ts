@@ -260,6 +260,17 @@ export class UserData {
             }
         }).then((data: AcceptDealSummary) => {
             this.data.deals[dealUid] = data.acceptedDeal;
+
+            for (const [energyStr, count] of Object.entries(data.paidCost.energies)) {
+                const energyType = parseInt(energyStr) as Type;
+                if (this.data.inventory.energies[energyType] !== undefined) {
+                    this.data.inventory.energies[energyType] -= count;
+                }
+            }
+
+            for (const itemUid of data.paidCost.items) {
+                delete this.data.inventory.items[itemUid];
+            }
         }).catch((err) => {
             console.error(`Cannot recycle card : ${err}`);
         });
