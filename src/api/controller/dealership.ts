@@ -10,13 +10,75 @@ import type { DealCostBooster,
     ItemType,
     Payment } from "../model/interfaces";
 import type { AcceptDealSummary, RedeemDealSummary } from "./interfaces.dealership"
-import { Type } from "../../common/constants";
+import { Type, SUPPORTED_ENERGY_TYPES } from "../../common/constants";
 import type { UserModel } from "../model/UserModel";
 import { DealsModel } from "../model/DealsModel";
+import type { DealSchema, DealershipSchema } from "../../../resources/dealership/dealership-data.interfaces"
+
+
+const DEAL_SCHEMAS: DealershipSchema = {
+    "card": {
+        "timeout": 30,
+        "waittime": 10,
+        "cost": {
+            "cards": {
+                "count": 1,
+                "sets": [
+                    "me01",
+                    "me02",
+                    "me02.5"
+                ]
+            },
+            "boosters": {
+                "count": 0,
+                "sets": []
+            },
+            "energies": {
+                "count": 0,
+                "types": []
+            }
+        },
+        "rewards": {
+            "cards": [],
+            "boosters": [
+                "me01",
+                "me02",
+                "me02.5"
+            ]
+        },
+    },
+    "energies": {
+        "timeout": 30,
+        "waittime": 10,
+        "cost": {
+            "cards": {
+                "count": 0,
+                "sets": []
+            },
+            "boosters": {
+                "count": 0,
+                "sets": []
+            },
+            "energies": {
+                "count": 3,
+                "types": SUPPORTED_ENERGY_TYPES
+            }
+        },
+        "rewards": {
+            "cards": [],
+            "boosters": [
+                "me01",
+                "me02",
+                "me02.5"
+            ]
+        },
+    },
+}
 
 
 class DealController {
     deals: DealsModel;
+    schema: DealSchema | undefined;
     
     type: string;
     dealUid: string | undefined;
@@ -26,6 +88,8 @@ class DealController {
     constructor(deals: DealsModel, type: string) {
         this.deals = deals;
         this.type = type;
+
+        this.schema = DEAL_SCHEMAS[this.type];
 
         this.dealUid = undefined;
         this.updateTimeout = undefined;
@@ -44,37 +108,89 @@ class DealController {
         return true;
     }
 
+    // TODO : detach 
+    //      => this will be called before the DealController's destruction and delete the associated deal if not in the 'proposed' state
+
     generateCost(): Array<DealCostUnit> {
-        // TODO : make it depend on an external json
-        // TODO : randomize
-        if (this.type === "energies") {
-            return [
-                {type: "energy", id: Type.COLORLESS, count: 1},
-                {type: "card", id: "base1-2"},
-                {type: "booster", id: "base1"},
-                {type: "energy", id: Type.FIGHTING, count: 1},
-            ];
-        } else if (this.type === "card") {
-            return [
-                {type: "card", id: "base1-1"}
-            ];
+        if (this.schema === undefined) {
+            return [];
         }
 
-        throw new Error(`Unkown deal type ${this.type}`)
+        const staticDataInstance = StaticDataSingleton.getInstance();
+
+        let cost: Array<DealCostUnit> = [];
+        for (let i = 0; i < this.schema.cost.energies.count; i++) {
+            const types = this.schema.cost.energies.types;
+            if (types.length === 0) {
+                throw new Error(`Error on generateCost for dealType ${this.type} : 'cost.energies.count != 0' while 'cost.energies.types.length == 0' !`)
+            }
+
+            const costType = types[Math.floor(Math.random() * types.length)]!;
+
+            const existingCost = cost.find((c) => { return c.type == "energy" && c.id == costType; }) as DealCostEnergy;
+            if (existingCost !== undefined) {
+                existingCost.count ++;
+            } else {
+                cost.push({type: "energy", id: costType, count: 1});
+            }
+        }
+
+        for (let i = 0; i < this.schema.cost.cards.count; i++) {
+            const sets = this.schema.cost.cards.sets;
+            if (sets.length === 0) {
+                throw new Error(`Error on generateCost for dealType ${this.type} : 'cost.cards.count != 0' while 'cost.cards.sets.length == 0' !`)
+            }
+
+            const costSetId = sets[Math.floor(Math.random() * sets.length)]!;
+
+            const set = staticDataInstance.staticData.sets[costSetId];
+            if (set === undefined) {
+                throw new Error(`Error on generateCost for dealType ${this.type} : cannot get set '${costSetId}' !`)
+            }
+
+            const cardsIds = Object.keys(set.cards);
+            if (cardsIds.length == 0) {
+                throw new Error(`Error on generateCost for dealType ${this.type} : no card in set '${costSetId}'! (cards : ${set.cards})`)
+            }
+
+            const costCardId = cardsIds[Math.floor(Math.random() * cardsIds.length)]!;
+            cost.push({type: "card", id: costCardId});
+        }
+
+        for (let i = 0; i < this.schema.cost.boosters.count; i++) {
+            const sets = this.schema.cost.boosters.sets;
+            if (sets.length === 0) {
+                throw new Error(`Error on generateCost for dealType ${this.type} : 'cost.boosters.count != 0' while 'cost.boosters.sets.length == 0' !`)
+            }
+
+            const costSetId = sets[Math.floor(Math.random() * sets.length)]!;
+            cost.push({type: "booster", id: costSetId});
+        }
+        
+        return cost;
     }
 
-    generateReward(): {type: ItemType, id: string} {
-        // TODO : make it depend on an external json
-        const staticDataInstance = StaticDataSingleton.getInstance();
-        const sets = Object.keys(staticDataInstance.staticData.sets);
-
-        let dealItemType: ItemType = "booster"
-        let dealItemId = sets[Math.floor(Math.random() * sets.length)]!;
-
-        return {
-            type: dealItemType,
-            id: dealItemId,
+    generateReward(): Expected<{type: ItemType, id: string}> {
+        if (this.schema === undefined) {
+            return unexpected(`No schema for deal of type ${this.type}!`);
         }
+
+        const rewardSchema = this.schema.rewards;
+        const reward: {type: ItemType, id: string} = {
+            type: "booster",
+            id: ""
+        }
+
+        const rewardSeed = Math.floor(Math.random() * (rewardSchema.boosters.length + rewardSchema.cards.length));
+        if (rewardSeed < rewardSchema.boosters.length) {
+            reward.type = "booster";
+            reward.id = rewardSchema.boosters[rewardSeed]!;
+        } else {
+            reward.type = "card";
+            reward.id = rewardSchema.cards[rewardSeed - rewardSchema.boosters.length]!;
+        }
+
+        return expected(reward);
     }
 
     getDeal(): Expected<FullDeal> {
@@ -91,8 +207,18 @@ class DealController {
     }
 
     async generateDeal() {
-        let reward = this.generateReward()
-        let expDeal = await this.deals.addDeal(this.type, this.generateCost(), reward.type, reward.id, 30, 20);
+        if (this.schema === undefined) {
+            throw new Error(`Cannot generate new deal : No associated schema !!`);
+        }
+
+        const timeout = this.schema.timeout;
+        const waitTime = this.schema.waittime;
+
+        const expReward = this.generateReward();
+        if (!expReward.has_value()) {
+            throw new Error(`Cannot generate reward ! Reason : ${expReward.error()}`);
+        }
+        const expDeal = await this.deals.addDeal(this.type, this.generateCost(), expReward.value().type, expReward.value().id, timeout, waitTime);
 
         if (!expDeal.has_value()) {
             // TODO : do not generate an error ?
@@ -130,7 +256,7 @@ class DealController {
     
     async handleExpired() {
         let dealExp = this.getDeal();
-        if (!dealExp.has_value()) {
+        if (!dealExp.has_value()) {
             await this.generateDeal();
             return;
         }
@@ -149,7 +275,7 @@ class DealController {
 
     async handleRedeemed() {
         let dealExp = this.getDeal();
-        if (!dealExp.has_value()) {
+        if (!dealExp.has_value()) {
             await this.generateDeal();
             // save
             return;
@@ -159,7 +285,6 @@ class DealController {
         let now = Math.floor(Date.now() / 1000);
 
         if (this.updateTimeout === undefined) {
-        // if (deal.proposedDate + deal.timeoutDuration < now) {
             delete this.deals.data[this.dealUid ?? ""];
 
             await this.generateDeal();
@@ -169,7 +294,7 @@ class DealController {
 
         if (deal.state !== "redeemed") {
             console.warn(`handleRedeemed called on a deal that is not in the 'redeemed' state ! This can cause a deal to be stuck and unobtainable !\
-Deal :  ${JSON.stringify(deal)}`);
+    Deal :  ${JSON.stringify(deal)}`);
         }
     }
 }
@@ -198,8 +323,9 @@ class UserDealsController {
 
     async generateDeals() {
         // Could be generated depending on user data
-        this.dealControllers.push(new DealController(this.user.deals, "energies"));
-        this.dealControllers.push(new DealController(this.user.deals, "card"));
+        for (let dealType of Object.keys(DEAL_SCHEMAS)) {
+            this.dealControllers.push(new DealController(this.user.deals, dealType));
+        }
     }
 
     async attachDeals() {
@@ -213,7 +339,7 @@ class UserDealsController {
                 }
             }
 
-            if (!attached && deal.state === "proposed") {
+            if (!attached && deal.state !== "accepted") {   // replace with deal.state !== "accepted" ? => make it a proper function ?
                 toRemove.push(deal.uid);
             }
         }
