@@ -1,3 +1,6 @@
 [submodule "dependencies/cards-database"]
 	path = dependencies/cards-database
 	url = git@github.com:tcgdex/cards-database.git
+[submodule "dependencies/pokeapi"]
+	path = dependencies/pokeapi
+	url = git@github.com:PokeAPI/pokeapi.git
