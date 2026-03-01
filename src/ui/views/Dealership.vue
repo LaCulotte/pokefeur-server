@@ -79,6 +79,16 @@ function goToCollection(itemId?: string) {
     });
 }
 
+
+function goToHome(itemId?: string) {
+    router.push({
+        path: "/",
+        query: {
+            itemId
+        }
+    });
+}
+
 const showRedeemed = ref(false);
 const redeemed: Ref<InventoryItem | null> = ref(null);
 
@@ -230,7 +240,7 @@ async function testRedeem() {
         </v-expansion-panels>
         
         <div class="position-absolute d-flex" style="bottom: 5%; left: 5%; z-index: 20;">
-            <v-btn class="collection-btn" rounded="xl" icon="mdi-view-grid-outline" @click="goToCollection()"></v-btn>
+            <v-btn class="collection-btn" rounded="xl" icon="mdi-home" @click="goToHome()"></v-btn>
             <!-- <div class="flex-shrink-0" style="flex: 2 2;"></div> -->
         </div>
     </div>

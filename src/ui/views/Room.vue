@@ -9,6 +9,10 @@ function goToCollection() {
     router.push("/collection")
 }
 
+function goToDealership() {
+    router.push("/dealership")
+}
+
 </script>
 
 <template>
@@ -39,6 +43,10 @@ function goToCollection() {
 
         <div class="position-absolute d-flex" style="bottom: 5%; left: 5%;">
             <v-btn class="collection-btn" rounded="xl" icon="mdi-view-grid-outline" @click="goToCollection"></v-btn>
+            <div class="flex-shrink-0" style="flex: 2 2;"></div>
+        </div>
+        <div class="position-absolute d-flex" style="bottom: 5%; right: 5%;">
+            <v-btn class="collection-btn" rounded="xl" icon="mdi-currency-usd" @click="goToDealership"></v-btn>
             <div class="flex-shrink-0" style="flex: 2 2;"></div>
         </div>
     </div>

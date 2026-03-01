@@ -13,6 +13,10 @@ function goToDealership() {
     router.push("/dealership")
 }
 
+function goToHome() {
+    router.push("/")
+}
+
 const lastElem = useTemplateRef("last-elem");
 const scrollElem = useTemplateRef("scroll-inventory");
 const resizedElem = useTemplateRef("inventory-parent");
@@ -69,7 +73,7 @@ onUnmounted(() => {
 
         <div class="position-absolute top-0 w-100 h-screen">
             <div class="position-absolute bottom-0 pa-5" style="z-index: 20;">
-                <v-btn class="collection-btn" rounded="xl" icon="mdi-currency-usd" @click="goToDealership"></v-btn>
+                <v-btn class="collection-btn" rounded="xl" icon="mdi-home" @click="goToHome"></v-btn>
             </div>
         </div>
 
