@@ -2,18 +2,18 @@ import { DataModel } from "../model/DataModel";
 import { StaticDataSingleton } from "../staticData/loader";
 
 import { expected, unexpected, type Expected } from "../../common/utils";
-import type { DealCostBooster,
-    DealCostCard,
-    DealCostEnergy,
-    DealCostUnit,
+import type {
+    Deal,
     FullDeal,
     ItemType,
     Payment } from "../model/interfaces";
 import type { AcceptDealSummary, RedeemDealSummary } from "./interfaces.dealership"
-import { Type, SUPPORTED_ENERGY_TYPES } from "../../common/constants";
+import { Type, parseType, SUPPORTED_ENERGY_TYPES } from "../../common/constants";
 import type { UserModel } from "../model/UserModel";
 import { DealsModel } from "../model/DealsModel";
 import type { DealSchema, DealershipSchema } from "../../../resources/dealership/dealership-data.interfaces"
+import { ItemCostController, EnergyCostController, costControllerFactory } from "./cost";
+import { UserItemsController, type BaseItemsController,  } from "./item";
 
 
 const DEAL_SCHEMAS: DealershipSchema = {
@@ -22,7 +22,7 @@ const DEAL_SCHEMAS: DealershipSchema = {
         "waittime": 10,
         "cost": {
             "cards": {
-                "count": 1,
+                "count": 0,
                 "sets": [
                     "me01",
                     "me02",
@@ -30,12 +30,40 @@ const DEAL_SCHEMAS: DealershipSchema = {
                 ]
             },
             "boosters": {
-                "count": 0,
-                "sets": []
+                "count": 1,
+                "sets": [
+                    "me01",
+                    "me02",
+                    "me02.5"
+                ]
             },
             "energies": {
                 "count": 0,
-                "types": []
+                "types": SUPPORTED_ENERGY_TYPES
+            },
+            "cards-of-type": {
+                "count": 1,
+                "types": [
+                    Type.COLORLESS,
+                    Type.GRASS,
+                    Type.FIRE,
+                    Type.WATER,
+                    Type.LIGHTNING,
+                    Type.PSYCHIC,
+                    Type.FIGHTING,
+                    Type.DARKNESS,
+                    Type.METAL,
+                    Type.FAIRY,
+                    Type.DRAGON
+                ]
+            },
+            "cards-of-set": {
+                "count": 1,
+                "sets": [
+                    "me01",
+                    "me02",
+                    "me02.5"
+                ]
             }
         },
         "rewards": {
@@ -51,14 +79,6 @@ const DEAL_SCHEMAS: DealershipSchema = {
         "timeout": 30,
         "waittime": 10,
         "cost": {
-            "cards": {
-                "count": 0,
-                "sets": []
-            },
-            "boosters": {
-                "count": 0,
-                "sets": []
-            },
             "energies": {
                 "count": 3,
                 "types": SUPPORTED_ENERGY_TYPES
@@ -85,6 +105,12 @@ class DealController {
 
     updateTimeout: NodeJS.Timeout | undefined;
 
+    cost: {
+        energies: Partial<Record<Type, EnergyCostController>>,
+        items: Array<ItemCostController>
+
+    }
+
     constructor(deals: DealsModel, type: string) {
         this.deals = deals;
         this.type = type;
@@ -93,6 +119,11 @@ class DealController {
 
         this.dealUid = undefined;
         this.updateTimeout = undefined;
+
+        this.cost = {
+            energies: {},
+            items: []
+        };
     }
 
     attach(deal: FullDeal): boolean {
@@ -105,37 +136,80 @@ class DealController {
         }
 
         this.dealUid = deal.uid;
+        
+        this.attachCost(deal.cost);
+
         return true;
+    }
+
+    attachCost(cost: Deal["cost"]) {
+        this.cost = {
+            energies: {},
+            items: []
+        };
+
+        for (let [typeStr, count] of Object.entries(cost.energies)) {
+            let type = parseType(typeStr);
+
+            if (type === undefined) {
+                console.error(`Undefined type '${typeStr}' in deal cost ??? (Cost: ${cost})`);
+                continue;
+            }
+
+             this.cost.energies[type] = new EnergyCostController(type, count);
+        }
+        
+        for (let unit of cost.items) {
+            this.cost.items.push(costControllerFactory(unit));
+        }
+
     }
 
     // TODO : detach 
     //      => this will be called before the DealController's destruction and delete the associated deal if not in the 'proposed' state
 
-    generateCost(): Array<DealCostUnit> {
+    generateCost(): Deal["cost"] {
+        let cost: Deal["cost"] = {
+            energies: {},
+            items: []
+        };
+
         if (this.schema === undefined) {
-            return [];
+            return cost;
         }
 
         const staticDataInstance = StaticDataSingleton.getInstance();
 
-        let cost: Array<DealCostUnit> = [];
-        for (let i = 0; i < this.schema.cost.energies.count; i++) {
-            const types = this.schema.cost.energies.types;
+       
+        // randomizeEnergies
+        for (let i = 0; this.schema.cost.energies !== undefined && i < this.schema.cost.energies.count; i++) {
+            const types: Array<Type> = this.schema.cost.energies.types;
             if (types.length === 0) {
                 throw new Error(`Error on generateCost for dealType ${this.type} : 'cost.energies.count != 0' while 'cost.energies.types.length == 0' !`)
             }
 
             const costType = types[Math.floor(Math.random() * types.length)]!;
 
-            const existingCost = cost.find((c) => { return c.type == "energy" && c.id == costType; }) as DealCostEnergy;
-            if (existingCost !== undefined) {
-                existingCost.count ++;
-            } else {
-                cost.push({type: "energy", id: costType, count: 1});
+            if (cost.energies[costType] === undefined) {
+                cost.energies[costType] = 0;
             }
+
+            cost.energies[costType] ++;
         }
 
-        for (let i = 0; i < this.schema.cost.cards.count; i++) {
+        // randomizeEnergies
+        for (let i = 0; this.schema.cost["cards-of-type"] !== undefined && i < this.schema.cost["cards-of-type"].count; i++) {
+            const types: Array<Type> = this.schema.cost["cards-of-type"].types;
+            if (types.length === 0) {
+                throw new Error(`Error on generateCost for dealType ${this.type} : 'cost.cards-of-type.count != 0' while 'cost.cards-of-type.types.length == 0' !`)
+            }
+
+            const costType = types[Math.floor(Math.random() * types.length)]!;
+            cost.items.push({type: "card-of-type", id: costType});
+        }
+
+        // randomizeCards
+        for (let i = 0; this.schema.cost.cards !== undefined && i < this.schema.cost.cards.count; i++) {
             const sets = this.schema.cost.cards.sets;
             if (sets.length === 0) {
                 throw new Error(`Error on generateCost for dealType ${this.type} : 'cost.cards.count != 0' while 'cost.cards.sets.length == 0' !`)
@@ -154,17 +228,30 @@ class DealController {
             }
 
             const costCardId = cardsIds[Math.floor(Math.random() * cardsIds.length)]!;
-            cost.push({type: "card", id: costCardId});
+            cost.items.push({type: "card", id: costCardId});
         }
 
-        for (let i = 0; i < this.schema.cost.boosters.count; i++) {
+        // randomizeSets
+        for (let i = 0; this.schema.cost.boosters !== undefined && i < this.schema.cost.boosters.count; i++) {
             const sets = this.schema.cost.boosters.sets;
             if (sets.length === 0) {
                 throw new Error(`Error on generateCost for dealType ${this.type} : 'cost.boosters.count != 0' while 'cost.boosters.sets.length == 0' !`)
             }
 
             const costSetId = sets[Math.floor(Math.random() * sets.length)]!;
-            cost.push({type: "booster", id: costSetId});
+
+            cost.items.push({type: "booster", id: costSetId});
+        }
+
+        for (let i = 0; this.schema.cost["cards-of-set"] !== undefined && i < this.schema.cost["cards-of-set"].count; i++) {
+            const sets = this.schema.cost["cards-of-set"].sets;
+            if (sets.length === 0) {
+                throw new Error(`Error on generateCost for dealType ${this.type} : 'cost.cards-of-set.count != 0' while 'cost.cards-of-set.sets.length == 0' !`)
+            }
+
+            const costSetId = sets[Math.floor(Math.random() * sets.length)]!;
+
+            cost.items.push({type: "card-of-set", id: costSetId});
         }
         
         return cost;
@@ -226,6 +313,7 @@ class DealController {
         }
 
         this.dealUid = expDeal.value().uid;
+        this.attachCost(expDeal.value().cost);
 
         if (this.updateTimeout !== undefined) {
             clearTimeout(this.updateTimeout);
@@ -234,7 +322,7 @@ class DealController {
         this.updateTimeout = setTimeout(() => { this.handleExpired(); }, expDeal.value().timeoutDuration * 1000);
     }
 
-    async update() {
+    async init() {
         let dealExp = this.getDeal();
         if (!dealExp.has_value()) {
             await this.generateDeal();
@@ -297,6 +385,77 @@ class DealController {
     Deal :  ${JSON.stringify(deal)}`);
         }
     }
+
+    checkItemCost(items: BaseItemsController, paymentItems: Payment["items"]): Expected<Payment["items"]> {
+        let paid: Payment["items"] = [];
+
+        let costItems = this.cost.items;
+
+        if (paymentItems.length != costItems.length) {
+            return unexpected(`Number of payment items is invalid. Expected ${costItems.length}, got ${paymentItems.length}`);
+        }
+
+        let seenIndexes = new Set<number>();
+        for (let unit of paymentItems) {
+            if (seenIndexes.has(unit.costIndex)) {
+                return unexpected(`Mutiple unitPayment for the same cost ! Cost index: ${unit.costIndex}`);
+            }
+
+            if (unit.costIndex < 0 || unit.costIndex > costItems.length) {
+                return unexpected(`Cost index ${unit.costIndex} is not in range ! Expected between 0 and ${costItems.length - 1}.`)
+            }
+
+            let cost = costItems[unit.costIndex]!;
+            let res = cost.checkPayment(items, unit, paid);
+
+            if (!res.has_value()) {
+                return unexpected(`Payment invalid for deal cost unit ${JSON.stringify(cost.getData())} : ${res.error()}; Payment: ${JSON.stringify(paymentItems)}`);
+            }
+
+            paid.push(res.value());
+            seenIndexes.add(unit.costIndex);
+        }
+
+        return expected(paid);
+    }
+
+    checkEnergyCost(items: BaseItemsController, paymentEnergies: Payment["energies"]): Expected<Payment["energies"]> {
+        let paid: Payment["energies"] = {};
+        let cost = this.cost.energies;
+
+        for (let [type, costController] of Object.entries(cost)) {
+            let parsedType = parseType(type);
+            if (parsedType === undefined || paymentEnergies[parsedType] === undefined) {
+                return unexpected(`Payment does include any energy of type ${type}, needs ${costController.count})`);
+            }
+
+            let ret = costController.checkPayment(items, paymentEnergies[parsedType], paid);
+            if (!ret.has_value()) {
+                return ret.as_error();
+            }
+
+            paid[parsedType] = ret.value();
+        }
+        return expected(paid);
+    }
+
+    checkCost(items: BaseItemsController, payment: Payment): Expected<Payment> {
+        // Items
+        let expItems = this.checkItemCost(items, payment["items"]);
+        if (!expItems.has_value()) {
+            return expItems.as_error();
+        }
+
+        let expEnergies = this.checkEnergyCost(items, payment["energies"]);
+        if (!expEnergies.has_value()) {
+            return expEnergies.as_error();
+        }
+
+        return expected({
+            energies: expEnergies.value(),
+            items: expItems.value()
+        });
+    }
 }
 
 class UserDealsController {
@@ -315,7 +474,7 @@ class UserDealsController {
         await controller.attachDeals();
 
         for (let dealController of controller.dealControllers) {
-            await dealController.update();
+            await dealController.init();
         }
 
         return controller;
@@ -365,80 +524,33 @@ export async function initUserDeals(user: UserModel) {
     singleton[user.data.uid] = await UserDealsController.create(user);
 }
 
-function checkDealCostItem(user: UserModel, cost: DealCostBooster | DealCostCard, payment: Payment, paid: Payment) : Expected<undefined> {
-    let itemIndex = payment.items.findIndex((itemUid) => {
-        return cost.id == user.inventory.data.items[itemUid]?.id;
-    });
+// function checkDealCost(user: UserModel, payment: Payment, deal: FullDeal): Expected<Payment> {
+//     let seenIds = new Set<string>();
+//     for (let itemUid of payment.items) {
+//         if (seenIds.has(itemUid)) {
+//             return unexpected(`Payment includes duplicate item uid ${itemUid}`);
+//         }
+//         seenIds.add(itemUid);
+//     }
 
-    if (itemIndex === -1) {
-        return unexpected(`Payment does not include item of id ${cost.id}.`);
-    }
+//     // let paymentCopy = structuredClone(payment);
 
-    let itemUid = payment.items[itemIndex]!;
-    paid.items.push(itemUid);
-    payment.items.splice(itemIndex, 1);
-    
-    return expected(undefined);
-}
+//     let paid: Payment = {
+//         energies: {},
+//         items: []
+//     }
 
-function checkDealCostEnergy(user: UserModel, cost: DealCostEnergy, payment: Payment, paid: Payment) : Expected<undefined> {
-    // Check if payment is ok
-    let paymentEnergy = payment.energies[cost.id];
-    if (paymentEnergy === undefined || paymentEnergy < cost.count) {
-        return unexpected(`Payment does include enough energy of type ${cost.id} (got ${paymentEnergy ?? 'none'}, needs ${cost.count})`);
-    }
-    
-    // Check if user has enough energies
-    let userEnergy = user.inventory.data.energies[cost.id];
-    if (userEnergy === undefined || userEnergy < cost.count) {
-        return unexpected(`User ${user.data.uid} (${user.data.username}) does not have enough energy of type ${cost.id} \
-(has ${userEnergy ?? 'none'}, needs ${cost.count})`);
-    }
+//     for (let costUnit of deal.cost) {
+//         let res = costControllerFactory(costUnit).checkPayment(user, payment, paid);
+//         if (!res.has_value()) {
+//             return unexpected(`Payment invalid for deal cost unit ${JSON.stringify(costUnit)} : ${res.error()}; Payment: ${payment}`);
+//         }
 
-    paid.energies[cost.id] = (paid.energies[cost.id] ?? 0) + cost.count;
-    return expected(undefined);
-}
+//         paid = res.value();
+//     }
 
-// TODO : in future, the Model class should manage much more data
-//      => Should have serialize/deserialize methods
-//      => Should class should be created depending on dealcostunit type
-function checkPayment(user: UserModel, cost: DealCostUnit, payment: Payment, paid: Payment) : Expected<undefined> {
-    switch (cost.type) {
-        case "card":
-        case "booster":
-            return checkDealCostItem(user, cost, payment, paid);
-        case "energy":
-            return checkDealCostEnergy(user, cost, payment, paid);
-        default:
-            return unexpected(`Unknown deal cost type ${(cost as DealCostUnit).type}`);
-    }
-}
-
-function checkDealCost(user: UserModel, payment: Payment, deal: FullDeal): Expected<Payment> {
-    let seenIds = new Set<string>();
-    for (let itemUid of payment.items) {
-        if (seenIds.has(itemUid)) {
-            return unexpected(`Payment includes duplicate item uid ${itemUid}`);
-        }
-        seenIds.add(itemUid);
-    }
-
-    let paymentCopy = structuredClone(payment);
-
-    let paid: Payment = {
-        energies: {},
-        items: []
-    }
-
-    for (let costUnit of deal.cost) {
-        let res = checkPayment(user, costUnit, paymentCopy, paid);
-        if (!res.has_value()) {
-            return unexpected(`Payment invalid for deal cost unit ${JSON.stringify(costUnit)} : ${res.error()}`);
-        }
-    }
-
-    return expected(paid);
-}
+//     return expected(paid);
+// }
 
 export async function acceptDeal(userUid: string, dealUid: string, payment: Payment): Promise<Expected<AcceptDealSummary>> {
     const dataInstance = DataModel.getInstance();
@@ -458,39 +570,43 @@ export async function acceptDeal(userUid: string, dealUid: string, payment: Paym
         return unexpected(`Could not get deal associated to uid ${dealUid} : ${dealExp.error()}`, true);
     }
 
+    // TODO: not here but in controller !
     let deal = dealExp.value();
     if (deal.state !== "proposed") {
         return unexpected(`Cannot accept deal that is not in 'proposed' state (current deal state : ${deal.state})`, true);
     }
 
     // check if payment is valid
-    let expPayment = checkDealCost(user, payment, deal);
-    if (!expPayment.has_value()) {
+    let expPaid = dealController.checkCost(new UserItemsController(user), payment);
+    if (!expPaid.has_value()) {
         // TODO : log cost and actual payment
-        return unexpected(`Payment invalid for proposed deal of type ${deal.type} : ${expPayment.error()}`, true);
+        return unexpected(`Payment invalid for proposed deal of type ${deal.type} : ${expPaid.error()}`, true);
     }
 
     // remove paid items / energies from user inventory
-    for (let itemUid of expPayment.value().items) {
-        let ret = await user.inventory.removeItemFromInventory(itemUid);
+    for (let unitPayment of expPaid.value().items) {
+        const ret = await user.inventory.removeItemFromInventory(unitPayment.itemUid);
         if (!ret.has_value()) {
             return unexpected(`An item could not be removed from inventory : ${ret.error()}. The deal acceptance is cancelled !`, true);
         }
     }
 
-    for (let [energyType, count] of Object.entries(expPayment.value().energies)) {
-        await user.inventory.removeEnergy(parseInt(energyType) as Type, count);
+    for (let [type, count] of Object.entries(expPaid.value().energies)) {
+        const ret = await user.inventory.removeEnergy(parseType(type)!, count);
+        if (!ret.has_value()) {
+            return unexpected(`Energies could not be removed from inventory : ${ret.error()}. The deal acceptance is cancelled !`, true);
+        }
     }
 
     // accept the deal
-    const acceptedDealExp = await user.deals.acceptDeal(deal.uid);
+    const acceptedDealExp = await user.deals.acceptDeal(deal.uid);  // TODO : on controller instead of model ?
     if (!acceptedDealExp.has_value()) {
         return unexpected(`The deal could not be accepted : ${acceptedDealExp.error()}`, true);
     }
     
     return expected({
         acceptedDeal: DealsModel.reduceDeal(acceptedDealExp.value()),
-        paidCost: expPayment.value()
+        paidCost: expPaid.value()
     });
 }
 

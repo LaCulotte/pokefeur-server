@@ -60,7 +60,9 @@ export function setupDealershipEndpoints(app: express.Express) {
             },
             "payment.energies.*": { isInt: true },
             "payment.items": { isArray: true },
-            "payment.items.*": { isString: true },
+            "payment.items.*": { isObject: true },
+            "payment.items.*.itemUid": { isString: true },
+            "payment.items.*.costIndex": { isInt: true }
         }),
         execValidationMiddleware,
         acceptDealRequest

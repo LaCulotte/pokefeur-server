@@ -16,6 +16,8 @@ const {items, minItemHeightRatio, maxItemHeightRatio, scrollElem, compact = fals
     compact?: boolean
 }>();
 
+defineEmits(['item-click']);
+
 const ASPECT_RATIO = 245/337;
 
 const mainElem = useTemplateRef("main");
@@ -191,7 +193,12 @@ onUnmounted(() => {
         :style="itemStyle"
         :key="obj.uid"
         >
-            <item :id="obj.uid" :item="obj" :key="obj.uid">
+            <item
+            :id="obj.uid"
+            :item="obj"
+            :key="obj.uid"
+            @click="$emit('item-click', obj)"
+            >
                 <template v-slot:common-content="{ item }">
                     <slot name="common-content" :item="item"></slot>
                         <div

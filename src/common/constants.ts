@@ -36,6 +36,17 @@ export enum Type {
     METAL,
     PSYCHIC,
     WATER,
+    TYPE_COUNT,
+}
+
+export function parseType(typeStr: string): Type | undefined{
+    let parsed = parseInt(typeStr);
+
+    if (parsed >= 0 && parsed < Type.TYPE_COUNT) {
+        return parsed as Type;
+    }
+
+    return undefined;
 }
 
 export const TypeMap: Record<Types, Type> = {

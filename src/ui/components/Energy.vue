@@ -11,7 +11,7 @@ const {
     text_proportion?: number
 }>();
 
-const energy_names: Record<Type, string> = {
+const energy_names: Partial<Record<Type, string>> = {
     [Type.FIRE]: "Fire",
     [Type.WATER]: "Water",
     [Type.LIGHTNING]: "Electric",
@@ -26,7 +26,7 @@ const energy_names: Record<Type, string> = {
     [Type.UNDEFINED]: "undefined",
 }
 
-const energy_class: Record<Type, string> = {
+const energy_class: Partial<Record<Type, string>> = {
     [Type.FIRE]: "fire-energy",
     [Type.WATER]: "water-energy",
     [Type.LIGHTNING]: "lightning-energy",

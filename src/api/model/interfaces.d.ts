@@ -27,6 +27,16 @@ export interface DealCostCard {
     id: string
 }
 
+export interface DealCostCardOfType {
+    type: "card-of-type"
+    id: Type
+}
+
+export interface DealCostCardOfSet {
+    type: "card-of-set"
+    id: string
+}
+
 export interface DealCostBooster {
     type: "booster"
     id: string
@@ -38,17 +48,14 @@ export interface DealCostEnergy {
     count: number
 }
 
-export type DealCostUnit = DealCostCard | DealCostBooster | DealCostEnergy
+export type DealCostUnit = DealCostCard | DealCostBooster | DealCostCardOfSet | DealCostCardOfType // | DealCostEnergy
 export type DealCostUnitT<T> = 
                 T extends "card" ? DealCostCard : 
+                T extends "card-of-type" ? DealCostCardOfType : 
+                T extends "card-of-set" ? DealCostCardOfSet : 
                 T extends "booster" ? DealCostCard : 
                 T extends "energy" ? DealCostEnergy :
                 never
-
-// TODO : make it dynamic
-//      => json mapping dealtype to types of unit costs and types of rewards ?
-export type DealType = "energies" | "items"
-
 
 export type DealState = "proposed" | "accepted" | "redeemed";
 
@@ -58,7 +65,10 @@ export interface Deal {
     uid: string
     type: string
 
-    cost: Array<DealCostUnit>
+    cost: {
+        items: Array<DealCostUnit>,
+        energies: Partial<Record<Type, number>>
+    }
 
     totalWaitTime: number   // In seconds
     timeoutDuration: number // In seconds
@@ -72,9 +82,14 @@ export interface FullDeal extends Deal {
     itemId: string
 }
 
+export interface ItemPayment {
+    itemUid: string, 
+    costIndex: number
+}
+
 export interface Payment {
-    energies: Partial<Record<Type, number>>   
-    items: Array<string>,   // item uids
+    energies: Partial<Record<Type, number>>
+    items: Array<ItemPayment>
 }
 
 export interface User {

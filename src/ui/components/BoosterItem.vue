@@ -13,18 +13,18 @@ const props = defineProps<{
 }>();
 
 let itemStaticData = computed(() => {
-        return getSetLangData(props.boosterId).value;
-    });
+    return getSetLangData(props.boosterId).value;
+});
 
 let logo = computed(() => {
-        return itemStaticData.value.logo?.length > 0
-            ? `${itemStaticData.value.logo}.webp`
-            : "/static/images/placeholders/missing_asset/logo.webp";
-    });
+    return itemStaticData.value.logo?.length > 0
+        ? `${itemStaticData.value.logo}.webp`
+        : "/static/images/placeholders/missing_asset/logo.webp";
+});
 
 let name = computed(() => {
-        return itemStaticData.value.name?.length > 0 ? itemStaticData.value.name : "No data";
-    });
+    return itemStaticData.value.name?.length > 0 ? itemStaticData.value.name : "No data";
+});
 
 function temp_replace(url: string): string {
     return url.replace("https://assets.tcgdex.net", `http://${window.location.hostname}:8000`);

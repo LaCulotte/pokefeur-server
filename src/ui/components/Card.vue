@@ -12,18 +12,18 @@ const props = defineProps<{
 }>();
 
 let itemStaticData = computed(() => {
-        return getCardLangData(props.cardId).value;
-    });
+    return getCardLangData(props.cardId).value;
+});
 
 let image = computed(() => {
-        return itemStaticData.value.image?.length > 0 
-            ? `${itemStaticData.value.image}/low.webp`
-            : "/static/images/placeholders/missing_asset/card/low.webp";    // TODO : could make it depend on type of underlying card
-    });
+    return itemStaticData.value.image?.length > 0 
+        ? `${itemStaticData.value.image}/low.webp`
+        : "/static/images/placeholders/missing_asset/card/low.webp";    // TODO : could make it depend on type of underlying card
+});
 
 let name = computed(() => {
-        return itemStaticData.value.name?.length > 0 ? itemStaticData.value.name : "No data";
-    });
+    return itemStaticData.value.name?.length > 0 ? itemStaticData.value.name : "No data";
+});
 
 
 function temp_replace(url: string): string {

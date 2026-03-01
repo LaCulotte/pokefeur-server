@@ -268,11 +268,11 @@ export class UserData {
                 }
             }
 
-            for (const itemUid of data.paidCost.items) {
-                delete this.data.inventory.items[itemUid];
+            for (const paidItem of data.paidCost.items) {
+                delete this.data.inventory.items[paidItem.itemUid];
             }
         }).catch((err) => {
-            console.error(`Cannot recycle card : ${err}`);
+            console.error(`Cannot accept deal : ${err}`);
         });
     }
 
@@ -298,7 +298,6 @@ export class UserData {
                 return res.json().then((err) => { throw err["message"]; });
             }
         }).then((data: RedeemDealSummary) => {
-            // delete this.data.deals[data.redeemedDeal.uid];
             this.data.deals[data.redeemedDeal.uid] = data.redeemedDeal;
             this.data.inventory.items[data.newItem.uid] = data.newItem;
 

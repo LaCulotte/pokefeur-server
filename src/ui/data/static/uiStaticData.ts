@@ -1,8 +1,8 @@
-import type { StaticLangData } from "@/api/staticData/interfaces";
+import type { StaticLangDataStore } from "@/api/staticData/interfaces";
 import type { SupportedLanguages } from "../../../../resources/interfaces";
 
 export class UiStaticDataSingleton {
-    staticLangData: StaticLangData = {};
+    staticLangDataStore: StaticLangDataStore = {};
 
     private loaded: boolean = false;
 
@@ -22,7 +22,7 @@ export class UiStaticDataSingleton {
             return "Unknown data !";
         }
 
-        this.data.staticLangData[lang] = data;
+        this.data.staticLangDataStore[lang] = data;
         this.data.loaded = true;
     }
 

@@ -50,3 +50,16 @@ Go to [localhost:5173](http://localhost:5173)
 
 [TcgDex's Cards database](https://github.com/tcgdex/cards-database) for card data + card illustrations
 [TcgDex energy asset](https://www.tcgdex.fr/assets/energies.png) + [Pokemon TCG Energy Types](https://www.deviantart.com/xtuart/art/Energy-Types-Pokemon-TCG-Outdated-v2-908706380) for energy icons
+
+## Known issues 
+
+### Static data
+
+- In LangStaticData loaded by frontend 
+    - data.sets["setid"].cards["cardid"] and data.cards["cardid"] are exactly the same in memory in backend
+    - Not the case in frontend
+- No way to send a part of the static data to the backend for now
+    - To be changed in the future (at the same time as adding the patch data feature ?)
+- In checks 
+    - Works right now because staticData and staticLangData are compatible.
+    - May cause issues in the future

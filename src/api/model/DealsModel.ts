@@ -30,7 +30,7 @@ export class DealsModel {
             this.data = await fs.readFile(`./data/deals/${this.user.uid}.json`, "utf-8").then((data) => { return JSON.parse(data) });
 
             // TODO : sanatize deals ?
-            // TODO : reset deal data 
+            // TODO : reset deal data <= ?
         } catch (e) {
             console.warn(`Could not load deals for user ${this.user.username} (uid: ${this.user.uid})`);
 
@@ -78,7 +78,7 @@ export class DealsModel {
         return ret;
     }
 
-    async addDeal(dealType: string, cost: Array<DealCostUnit>, itemType: ItemType, itemId: string, timeoutDuration: number, totalWaitTime: number) : Promise<Expected<FullDeal>> {
+    async addDeal(dealType: string, cost: Deal["cost"], itemType: ItemType, itemId: string, timeoutDuration: number, totalWaitTime: number) : Promise<Expected<FullDeal>> {
         let uid = uuidv4();
 
         while (uid in this.data) {

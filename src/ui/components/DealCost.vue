@@ -1,117 +1,134 @@
 <script setup lang="ts">
 import Energy from './Energy.vue';
-import type { Deal, DealCostUnit } from '../../api/model/interfaces';
+import type { Deal, DealCostUnit, InventoryItem } from '../../api/model/interfaces';
+import { isCardOfType } from '../../common/checks';
 import { Type } from '../../common/constants';
 import Item from './Item.vue';
 import { computed, type ComputedRef } from 'vue';
+import BoosterBase from './BoosterBase.vue';
+import Card from './Card.vue';
+import { getSetLangData } from '../controller/staticDataHelper';
 
-// interface DealCostUnitDisplay extends DealCostUnit {
-    
-// }
-
-type DealCostUnitDisplay = DealCostUnit & { grayed: boolean };
-
-const props = defineProps<{
-    dealCost: Deal["cost"],
-    selectedItems?: Array<string>
+const {
+    items = [],
+    energies = {},
+} = defineProps<{
+    items?: Deal["cost"]["items"],
+    energies?: Deal["cost"]["energies"],
 }>();
 
-const computedCost: ComputedRef<Array<DealCostUnitDisplay>> = computed(() => {
-    let ret: Array<DealCostUnitDisplay> = [];
-    for (let unit of props.dealCost) {
-        ret.push({
-            ...unit,
-            grayed: props.selectedItems !== undefined
-        });
-    }
+defineEmits(['cost-click']);
 
-    if (props.selectedItems !== undefined) {
-        for (let itemId of props.selectedItems) {
-            let a = ret.find((c) => {
-                return c.id === itemId && c.grayed;
-            });
+const TYPE_TO_CARD_ID: Record<Type, string> = {
+    [Type.UNDEFINED]: "none",
+    [Type.COLORLESS]: "swsh3-176",
+    [Type.GRASS]: "xy1-132",
+    [Type.FIRE]: "xy1-133",
+    [Type.WATER]: "xy1-134",
+    [Type.LIGHTNING]: "xy1-135",
+    [Type.PSYCHIC]: "xy1-136",
+    [Type.FIGHTING]: "xy1-137",
+    [Type.DARKNESS]: "xy1-138",
+    [Type.METAL]: "xy1-139",
+    [Type.FAIRY]: "xy1-140",
+    [Type.DRAGON]: "xy6-97",
+    [Type.TYPE_COUNT]: "none",
+};
 
-            if (a !== undefined) {
-                a.grayed = false;
-            }
+function costUnitToItem(costUnit: DealCostUnit): InventoryItem {
+    if (costUnit.type == "booster" || costUnit.type == "card") {
+        return {
+            id: costUnit.id,
+            type: costUnit.type,
+            uid: ""
+        }
+    } else if (costUnit.type == "card-of-type") {
+        return {
+            id: TYPE_TO_CARD_ID[costUnit.id],
+            type: "card",
+            uid: ""
         }
     }
 
-    return ret.sort((a, b): number => {
-        if (a.type === b.type) {
-            return 0;
-        }
-        if (a.type === "energy") {
-            return 1;
-        }
-        return -1;
-    });
-});
+    return {
+        id: "none",
+        type: "card",
+        uid: ""
+    }
+}
 
-// const grayedCost: ComputedRef<Array<string>> = computed(() => {
-//     return [];
-// });
+function getSetLogo(setId: string): string {
+    let setData = getSetLangData(setId).value;
+    return setData?.logo?.length > 0 ? `${setData.logo}.webp` : "/static/images/placeholders/missing_asset/logo.webp";
+};
 
 </script>
 
 <template>
     <div class="cost-grid">
         <div
-            v-for="(c, idx) in computedCost"
+            v-for="(cost, idx) in items"
             :key="idx"
-            :class="['cost-item', 'position-relative', c.type === 'energy' ? 'energy' : 'card']"
+            :class="['cost-item', 'position-relative', 'card']"
+        >
+            <item
+                v-if="cost.type == 'booster' || cost.type == 'card' || cost.type == 'card-of-type'"
+                :key="`${idx}-item`"
+                :item="costUnitToItem(cost)"
+                @click="$emit('cost-click', cost, idx)"
+            >
+                <template v-slot:common-content>
+                    <slot name="item-cost" :cost="cost" :idx="idx"></slot>
+                </template>
+            </item>
+            <!-- <div
+                v-else-if="cost.type == 'card-of-set'"
+                :key="`${idx}-of-set`"
+                style="aspect-ratio: 245/337; height: 100%;"
+                @click="$emit('cost-click', cost, idx)"
+            >
+                <booster-base
+                    logo="/static/images/placeholders/missing_asset/card/low.webp"
+                    name="salut"
+                >
+                    <slot name="item-cost" :cost="cost" :idx="idx"></slot>
+                </booster-base>
+            </div> -->
+            <!-- TODO : make a better  -->
+            <card
+            v-else-if="cost.type == 'card-of-set'"
+            :key="`${idx}-of-set`"
+            card-id="sm7.5-1"
+            @click="$emit('cost-click', cost, idx)"
+            >
+                <v-img class="w-100 h-100" style="overflow: visible;" :src="getSetLogo(cost.id)">
+                </v-img>
+                <slot name="item-cost" :cost="cost" :idx="idx"></slot>
+            </card>
+            <div v-else>
+                {{ 
+                    //@ts-ignore
+                    cost.type  
+                }}
+                Not implemented yet :c
+            </div>
+        </div>
+        <div
+            v-for="(count, idx) in energies"
+            :key="idx"
+            :class="['cost-item', 'position-relative', 'energy']"
         >
             <energy
-                v-if="c.type === 'energy'"
                 :key="`${idx}-energy`"
-                :type="c.id"
+                :type="parseInt(idx)"
                 :height="20"
                 :text_proportion="0.5"
                 class=""
             >
                 <div class="w-100 d-flex justify-begin">
-                    x {{ c.count }}
+                    x {{ count }}
                 </div>
             </energy>
-            <item
-                v-else-if="c.type === 'card'"
-                :key="`${idx}-card`"
-                :item="
-                    {
-                        id: c.id!,
-                        uid: '',
-                        type: 'card',
-                    }
-                "
-            >
-                <template v-slot:common-content>
-                    <!-- v-if="c.grayed" -->
-                    <div
-                    class="position-absolute top-0 w-100 h-100 fade"
-                    :class="[c.grayed ? 'show' : '']"
-                    style="background-color: rgba(0, 0, 0, 0.5);"></div>
-                </template>                
-            </item>
-            <item
-                v-else
-                :key="`${idx}-booster`"
-                :item="
-                    {
-                        id: c.id!,
-                        uid: '',
-                        type: 'booster',
-                    }
-                "
-            >
-                <template v-slot:common-content>
-                    <!-- v-if="c.grayed" -->
-                    <div
-                    class="position-absolute top-0 w-100 h-100 fade"
-                    :class="[c.grayed ? 'show' : '']"
-                    style="background-color: rgba(0, 0, 0, 0.5);"></div>
-                </template>
-            </item>
-
         </div>
     </div>
 </template>

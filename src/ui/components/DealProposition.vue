@@ -3,11 +3,14 @@ import DealCost from './DealCost.vue';
 import Energy from './Energy.vue';
 import { user } from '../data/user/vueUserData';
 import ItemGrid from './ItemGrid.vue';
+import LocalScope from './LocalScope.vue';
 
 import { computed, onMounted, ref, type ComputedRef, type Ref, watch, useTemplateRef } from 'vue';
-import type { Deal, Payment, InventoryItem } from '../../api/model/interfaces';
+import type { Deal, Payment, InventoryItem, DealCostUnit, ItemPayment } from '../../api/model/interfaces';
 import { recycleCards } from '../../api/controller/energy';
 import type { Type } from '../../common/constants';
+import { currLangData } from '../controller/lang';
+import { isCardOfSet, isCardOfType } from '../../common/checks';
 
 const props = defineProps<{
     deal: Deal,
@@ -28,31 +31,73 @@ const renewMessage: ComputedRef<string> = computed(() => {
     }
 });
 
+const selectedCostIndex = ref(0);
+
 const payment: Ref<Payment> = ref({
     energies: {},
     items: []
 });
 
-let selectedItemIds: Ref<Array<string>> = ref([]);
-
-function select(item: InventoryItem) {
-    if (payment.value.items.includes(item.uid)) {
-        return;
-    }
-
-    selectedItemIds.value.push(item.id);
-    payment.value.items.push(item.uid);
+function getPaymentFromCost(costIndex: number): ItemPayment | undefined {
+    return payment.value.items.find((payment) => {
+        return payment.costIndex == costIndex;
+    });
 }
 
-function unselect(item: InventoryItem) {
-    const index = selectedItemIds.value.indexOf(item.id);
-    if (index > -1) {
-        selectedItemIds.value.splice(index, 1);
-    }
+function getPaymentFromItem(itemUid: string): ItemPayment | undefined {
+    return payment.value.items.find((payment) => {
+        return payment.itemUid == itemUid;
+    });
+}
 
-    const paymentIndex = payment.value.items.indexOf(item.uid);
-    if (paymentIndex > -1) {
-        payment.value.items.splice(paymentIndex, 1);
+const currentCostCompleted = computed(() => {
+    return getPaymentFromCost(selectedCostIndex.value) !== undefined;
+});
+
+function removeItemPayment(itemUid: string) {
+    const index = payment.value.items.findIndex((payment) => { return payment.itemUid == itemUid; });
+    if (index > -1) {
+        payment.value.items.splice(index, 1);
+    }
+}
+
+function itemClick(item: InventoryItem) {
+    let itemPayment = getPaymentFromItem(item.uid)
+    if (itemPayment !== undefined) {
+        // const index = payment.value.items.findIndex((payment) => { return payment.itemUid == item.uid; });
+        // if (index > -1) {
+        //     payment.value.items.splice(index, 1);
+        // }
+        if (selectedCostIndex.value == itemPayment.costIndex) {
+            removeItemPayment(item.uid)
+        } else {
+            selectedCostIndex.value = itemPayment.costIndex;
+        }
+    } else {
+        let exitingCost = getPaymentFromCost(selectedCostIndex.value);
+        if (exitingCost !== undefined) {
+            const index = payment.value.items.findIndex((payment) => { return payment.itemUid == exitingCost.itemUid; });
+            if (index > -1) {
+                payment.value.items.splice(index, 1);
+            }
+        }
+
+        payment.value.items.push({
+            costIndex: selectedCostIndex.value,
+            itemUid: item.uid
+        });
+
+        // let currSelectedCostIndex = selectedCostIndex.value;
+    
+        // setTimeout(() => {
+        //     if (currSelectedCostIndex != selectedCostIndex.value) {
+        //         return;
+        //     }
+
+        //     if (selectedCostIndex.value + 1 < props.deal.cost.items.length) {
+        //         selectedCostIndex.value ++;
+        //     }
+        // }, 200);
     }
 }
 
@@ -78,51 +123,62 @@ function removeEnergy(energyType: Type) {
 }
 
 function close() {
-    selectedItemIds.value = [];
+    // selectedItemIds.value = [];
     payment.value = {
         energies: {},
         items: []
     }
+    selectedCostIndex.value = 0;
 }
 
-const displayInventory = computed(() => {
-    return Object.values(user.data.inventory.items).filter((item) => {
-        return props.deal.cost.find((costUnit) => {
-            return costUnit.id == item.id;
-        }) !== undefined;
-    });
+const displayInventory: ComputedRef<Array<InventoryItem>> = computed(() => {
+    let costUnit = props.deal.cost.items[selectedCostIndex.value];
+    if (costUnit === undefined) {
+        return [];
+    }
+
+    let filter: (item: InventoryItem) => boolean = () => { return false; };
+
+    if (costUnit.type == "card" || costUnit.type == "booster") {
+        filter = (item: InventoryItem) => {
+            // TODO : use true centralized filters (the same for both backend and frontend)
+            return item.id == costUnit.id;
+        };
+    } else if (costUnit.type == "card-of-type") {
+        const staticData = currLangData.value;
+        if (staticData !== undefined) {
+            filter = (item) => {
+                return isCardOfType(staticData, item.id, costUnit.id);
+            }
+        }
+    } else if (costUnit.type == "card-of-set") {
+        const staticData = currLangData.value;
+        if (staticData !== undefined) {
+            filter = (item) => {
+                return isCardOfSet(staticData, item.id, costUnit.id);
+            }
+        }
+    }
+
+    return Object.values(user.data.inventory.items).filter(filter);
 });
 
-const remaningCost = computed(() => {
-    let clonedSelectedItemIds = [...selectedItemIds.value];
-    let ret = props.deal.cost.filter((cost) => {
-        if (cost.type === "energy") {
-            return (payment.value.energies[cost.id] ?? 0) < cost.count;
-        } else {
-            let costIndex = clonedSelectedItemIds.findIndex((itemId) => { return itemId == cost.id; });
-            if (costIndex === -1)
-                return true;
+const canAccept: ComputedRef<boolean> = computed(() => {
+    if (payment.value.items.length != props.deal.cost.items.length) {
+        return false;
+    }
 
-            clonedSelectedItemIds.splice(costIndex, 1);
+    for (let [energyType, count] of Object.entries(props.deal.cost.energies)) {
+        let payedCount = payment.value.energies[parseInt(energyType) as Type];
+        if (payedCount === undefined || payedCount < count) {
             return false;
         }
-    });
+    }
 
-    return ret;
-});
-
-const selectableInventoryUids = computed(() => {
-    let ret = displayInventory.value.filter((item) => {
-        return remaningCost.value.find((costUnit) => {
-            return costUnit.id == item.id;
-        }) !== undefined;
-    }).map((item) => { return item.uid; });
-
-    return ret;
+    return true;
 });
 
 let scrollElem = useTemplateRef("scroll-elem");
-// console.log(scrollElem.value?.$el)
 </script>
 
 <template>
@@ -131,7 +187,8 @@ let scrollElem = useTemplateRef("scroll-elem");
             <v-col cols="8" class="h-100 pa-0 position-relative" style="overflow: hidden;">
                 <div class="h-100 pa-0">
                     <deal-cost
-                        :deal-cost="deal.cost"
+                        :items="deal.cost.items"
+                        :energies="deal.cost.energies"
                         style="height: 80%;"
                         class="pt-1 pb-1"
                     >
@@ -150,8 +207,10 @@ let scrollElem = useTemplateRef("scroll-elem");
                 <div class="reward-title">Booster</div>
 
                 <v-dialog
+                class="on-top"
                 transition="slide-y-transition"
-                overlay-transition="slide-y-transition">
+                overlay-transition="slide-y-transition"
+                @after-leave="close()">
                     <template v-slot:activator="{ props: activatorProps }">
                         <v-btn
                         v-if="!disabled"
@@ -176,17 +235,16 @@ let scrollElem = useTemplateRef("scroll-elem");
                     <template v-slot:default="{ isActive }">
                         <v-sheet
                         color="rgba(255, 255, 255)"
-                        style="height: 100%;"
+                        class="on-top"
                         ref="scroll-elem"
                         >
                             <!-- <div style="overflow: auto;" ref="scroll-elem" class="h-100 w-100 ">
                             <div  class="h-100 w-100"> -->
                                 <v-sheet class="sticky-header" color="white">
-                                    <div></div>
                                     <v-toolbar class="pl-2 pr-2">
                                         <v-btn
                                         variant="outlined"
-                                        @click="isActive.value = false; close()"
+                                        @click="isActive.value = false;"
                                         >
                                             CLOSE
                                         </v-btn>
@@ -196,51 +254,85 @@ let scrollElem = useTemplateRef("scroll-elem");
                                         <v-btn
                                         color="success"
                                         variant="flat"
-                                        :disabled="remaningCost.length !== 0"
+                                        :disabled="!canAccept"
                                         @click="user.acceptDeal(props.deal.uid, payment);"
                                         >
                                             ACCEPT
                                         </v-btn>
                                     </v-toolbar>
                                     
+                                    <!-- :deal-cost="deal.cost.filter((c) => { return c.type !== 'energy'; })" -->
                                     <deal-cost
-                                    :deal-cost="deal.cost.filter((c) => { return c.type !== 'energy'; })"
-                                    :selected-items="selectedItemIds"
+                                    :items="deal.cost.items"
+                                    :selected-items="[]"
                                     class="pa-3"
                                     style="max-height: 30vh;"
-                                    ></deal-cost>
+                                    @cost-click="(_, i) => { selectedCostIndex = i; }"
+                                    >
+                                        <template v-slot:item-cost="{cost, idx}">
+                                            <local-scope
+                                            :paymentItem="getPaymentFromCost(idx)"
+                                            v-slot="{paymentItem}"
+                                            >
+                                                <v-sheet
+                                                v-if="paymentItem !== undefined"
+                                                class="position-absolute top-0 w-100 h-100 d-flex align-center justify-center"
+                                                color="rgba(0,0,0,0)"
+                                                >
+                                                    <div
+                                                    style="color: rgb(56, 175, 60); font-family: 'Courier New', Courier, monospace; font-weight: 1000; font-size: 100px;"
+                                                    >
+                                                        {{ paymentItem.costIndex + 1 }}
+                                                    </div>
+                                                </v-sheet>
+                                                <div
+                                                class="position-absolute top-0 w-100 h-100 fade"
+                                                :class="[paymentItem === undefined ? 'show' : '']"
+                                                style="background-color: rgba(0, 0, 0, 0.5);">
+                                                </div>
+                                                <v-sheet
+                                                v-if="idx === selectedCostIndex"
+                                                class="position-absolute top-0 w-100 h-100"
+                                                color="rgba(0,0,0,0)"
+                                                style="border: solid 3px rgb(56, 175, 60);"
+                                                rounded="md"
+                                                ></v-sheet>
+                                            </local-scope>
+                                        </template>
+                                    </deal-cost>
 
                                     <v-divider/>
                                 </v-sheet>
                             
                                 <v-sheet style="overflow: auto;">
                                     <energy
-                                    v-for="e in deal.cost.filter((c) => { return c.type == 'energy'; })"
-                                    :type="e.id"
+                                    v-for="(count, type) of deal.cost.energies"
+                                    :type="parseInt(type)"
                                     :text_proportion="0.8"
                                     class="pt-2 pb-2 w-100"
                                     >
                                         <v-row>
                                             <v-col cols="2" class="d-flex justify-begin">
-                                                {{ (user.data.inventory.energies[e.id] ?? 0) - (payment.energies[e.id] ?? 0)}}
+                                                {{ (user.data.inventory.energies[parseInt(type) as Type] ?? 0) - (payment.energies[parseInt(type) as Type] ?? 0)}}
                                             </v-col>
                                             <v-col cols="3" class="d-flex justify-center">
                                                 <v-chip
                                                 class="h-100"
-                                                :disabled="(payment.energies[e.id] ?? 0) <= 0"
-                                                @click="removeEnergy(e.id)">-</v-chip>
+                                                :disabled="(payment.energies[parseInt(type) as Type] ?? 0) <= 0"
+                                                @click="removeEnergy(parseInt(type) as Type)">-</v-chip>
                                             </v-col>
                                             <v-col cols="4" class="d-flex justify-center">
-                                                {{ payment.energies[e.id] ?? 0 }} / {{ e.count }}
+                                                {{ payment.energies[parseInt(type) as Type] ?? 0 }} / {{ count! }}
                                             </v-col>
                                             <v-col cols="3" class="d-flex justify-center">
                                                 <v-chip
                                                 class="h-100"
-                                                :disabled="(payment.energies[e.id] ?? 0) >= e.count || (payment.energies[e.id] ?? 0) >= (user.data.inventory.energies[e.id] ?? 0)"
-                                                @click="addEnergy(e.id)">+</v-chip>
+                                                :disabled="(payment.energies[parseInt(type) as Type] ?? 0) >= count! || (payment.energies[parseInt(type) as Type] ?? 0) >= (user.data.inventory.energies[parseInt(type) as Type] ?? 0)"
+                                                @click="addEnergy(parseInt(type) as Type)">+</v-chip>
                                             </v-col>
                                         </v-row>
                                     </energy>
+                                    <v-divider/>
 
                                     <item-grid
                                     v-if="scrollElem !== null"
@@ -249,28 +341,57 @@ let scrollElem = useTemplateRef("scroll-elem");
                                     :min-item-height-ratio="0.2"
                                     :scroll-elem="scrollElem?.$el"
                                     compact
+                                    @item-click="itemClick"
                                     >
                                         <template v-slot:common-content="{ item }">
-                                            <div
-                                            class="position-absolute top-0 w-100 h-100 fade"
-                                            :class="[!selectableInventoryUids.includes(item.uid) && !payment.items.includes(item.uid) ? 'show' : '']"
-                                            style="background-color: rgba(0, 0, 0, 0.5);"></div>
+                                            <local-scope
+                                            :paymentItem="getPaymentFromItem(item.uid)"
+                                            v-slot="{paymentItem}"
+                                            >
+                                                <div
+                                                class="position-absolute top-0 w-100 h-100 fade"
+                                                :class="[(currentCostCompleted && paymentItem?.costIndex != selectedCostIndex) || (paymentItem !== undefined && paymentItem?.costIndex != selectedCostIndex) ? 'show' : '']"
+                                                style="background-color: rgba(0, 0, 0, 0.5);"></div>
+                                                
+                                                <v-sheet
+                                                v-if="paymentItem?.costIndex == selectedCostIndex"
+                                                class="position-absolute top-0 w-100 h-100"
+                                                color="rgba(0,0,0,0)"
+                                                style="border: solid 3px rgb(56, 175, 60);"
+                                                rounded="md"
+                                                ></v-sheet>
 
-                                            <v-sheet
-                                            v-if="payment.items.includes(item.uid)"
-                                            class="position-absolute top-0 w-100 h-100"
-                                            color="rgba(0,0,0,0)"
-                                            style="border: solid 3px rgb(56, 175, 60);"
-                                            rounded="md"
-                                            @click="unselect(item)"></v-sheet>
+                                                <v-sheet
+                                                v-if="paymentItem !== undefined"
+                                                class="position-absolute top-0 w-100 h-100 d-flex align-center justify-center"
+                                                color="rgba(0,0,0,0)"
+                                                >
+                                                    <div
+                                                    style="color: rgb(56, 175, 60); font-family: 'Courier New', Courier, monospace; font-weight: 1000; font-size: 100px;"
+                                                    >
+                                                        {{ paymentItem.costIndex + 1 }}
+                                                    </div>
+                                                </v-sheet>
 
-                                            <div
-                                            v-else-if="selectableInventoryUids.includes(item.uid)"
-                                            class="position-absolute top-0 w-100 h-100"
-                                            style="background-color: rgba(0, 0, 0, 0.0);"
-                                            @click="select(item)"></div>
+                                                <v-btn
+                                                v-if="paymentItem !== undefined"
+                                                class="position-absolute close-btn-pos"
+                                                @click.stop="removeItemPayment(item.uid)"
+                                                color="error"
+                                                density="compact"
+                                                size="small"
+                                                :icon="`mdi-cross`"
+                                                >
+                                                    x
+                                                </v-btn>
+                                            </local-scope>
+
                                         </template>
                                     </item-grid>
+
+                                    <div v-if="displayInventory.length == 0">
+                                        No available item :c
+                                    </div>
                                 </v-sheet>
                             <!-- </div> -->
                             <!-- </div> -->
@@ -282,7 +403,7 @@ let scrollElem = useTemplateRef("scroll-elem");
     </div>
 </template>
 
-<style scoped>
+<style>
 .sticky-header {
     position: sticky;
     top: 0;
@@ -305,7 +426,13 @@ let scrollElem = useTemplateRef("scroll-elem");
   transition: opacity 300ms ease;
   will-change: opacity;
 }
+
 .fade.show {
   opacity: 1;
+}
+
+.on-top > .v-overlay__content {
+    position: absolute;
+    top: 0;
 }
 </style>

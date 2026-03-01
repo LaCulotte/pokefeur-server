@@ -39,7 +39,7 @@ app.get("/api/static/keys/*path", (req, res) => {
     }
 
     let isLang = pathArray[0] == "lang";
-    let currData: any = isLang ? StaticDataSingleton.getInstance().staticLangData : StaticDataSingleton.getInstance().staticData;
+    let currData: any = isLang ? StaticDataSingleton.getInstance().staticLangDataStore : StaticDataSingleton.getInstance().staticData;
 
     for (let i of pathArray.slice(1)) {
         if (currData[i] === undefined) {
@@ -64,7 +64,7 @@ app.get("/api/static/*path", (req, res) => {
     }
 
     let isLang = pathArray[0] == "lang";
-    let currData: any = isLang ? StaticDataSingleton.getInstance().staticLangData : StaticDataSingleton.getInstance().staticData;
+    let currData: any = isLang ? StaticDataSingleton.getInstance().staticLangDataStore : StaticDataSingleton.getInstance().staticData;
 
     for (let i of pathArray.slice(1)) {
         if (currData[i] === undefined) {

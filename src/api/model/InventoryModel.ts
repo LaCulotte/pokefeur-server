@@ -149,7 +149,7 @@ export class InventoryModel {
             return unexpected(`Energy type ${energyType} is not currently supported`);
         }
 
-        if (this.data.energies[energyType] === undefined || this.data.energies[energyType] < n) {
+        if (this.data.energies[energyType] === undefined || this.data.energies[energyType] < n) {
             return unexpected(`Not enougth energy of type ${energyType} (expected ${n}; Got ${this.data.energies[energyType] ?? 0})`);
         }
 
