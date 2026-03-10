@@ -8,7 +8,7 @@ import { ref, type Ref, computed, onUnmounted, onMounted, type ComputedRef } fro
 import { useRouter } from 'vue-router'
 import { on } from 'events';
 import Energy from '../components/Energy.vue';
-import DealProposition from '../components/DealProposition.vue';
+import DealProposal from '../components/DealProposal.vue';
 import type { FullDeal, InventoryItem } from '@/api/model/interfaces';
 import { getItemLangData } from '../controller/staticDataHelper';
 
@@ -212,7 +212,7 @@ async function testRedeem() {
                     overscroll-behavior: none;"
                 >
                     <!-- <v-btn @click="testRedeem()">test</v-btn> -->
-                    <deal-proposition
+                    <deal-proposal
                     v-for="deal in toAccept"
                     :key="deal.uid"
                     :deal="deal"
@@ -220,11 +220,11 @@ async function testRedeem() {
                     class="flex-fill border-bottom"
                     style="height: 33%; min-height: 120px;"
                     >
-                    </deal-proposition>
+                    </deal-proposal>
 
                     <div class="mini-spacer"></div>
                     
-                    <deal-proposition
+                    <deal-proposal
                     v-for="deal in disabledDeals"
                     :key="deal.uid"
                     :deal="deal"
@@ -233,7 +233,7 @@ async function testRedeem() {
                     class="flex-fill border-bottom-faded"
                     style="height: 33%; min-height: 120px; opacity: 0.5;"
                     >
-                    </deal-proposition>
+                    </deal-proposal>
                     <div class="mini-spacer"></div>
                 </v-expansion-panel-text>
             </v-expansion-panel>
