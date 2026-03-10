@@ -1,11 +1,11 @@
-import type { Payment, InventoryItem, DealCostEnergy, DealCostCard, DealCostCardOfType, ItemPayment, DealCostCardOfSet } from "../model/interfaces";
+import type { Payment, InventoryItem, DealCostEnergy, DealCostCard, DealCostCardOfType, ItemPayment, DealCostCardOfSet, DealCostCardOfPokemon } from "../model/interfaces";
 import type { DealCostUnit, DealCostBooster } from "../model/interfaces";
 import { Expected, expected, unexpected } from "../../common/utils";
 import { UserModel } from "../model/UserModel";
 import type { Type } from "../../common/constants";
 import { StaticDataSingleton } from "../staticData/loader";
 import type { BaseItemsController } from "./item";
-import { isCardOfSet, isCardOfType } from "../../common/checks";
+import { isCardOfSet, isCardOfType, isCardOfPokemon } from "../../common/checks";
 
 // export abstract class BaseCostController {
 //     abstract checkPayment(items: BaseItemsController, payment: UnitPayment, paid: Payment): Expected<UnitPayment>;
@@ -157,8 +157,6 @@ class CardOfTypeCostController extends ItemCostController {
 }
 
 class CardOfSetCostController extends ItemCostController {
-    // static type: string = "card";    // Two sources of truth ??
-
     data: DealCostCardOfSet;
 
     constructor(costUnit: DealCostCardOfSet) {
@@ -176,6 +174,24 @@ class CardOfSetCostController extends ItemCostController {
         return isCardOfSet(staticData, item.id, this.data.id);
     }
 }
+class CardOfPokemonCostController extends ItemCostController {
+    data: DealCostCardOfPokemon;
+
+    constructor(costUnit: DealCostCardOfPokemon) {
+        super();
+
+        this.data = costUnit;
+    }
+
+    override getData(): DealCostUnit {
+        return this.data;
+    }
+
+    override filterItem(item: InventoryItem): boolean {
+        const staticData = StaticDataSingleton.getInstance().staticData;
+        return isCardOfPokemon(staticData, item.id, this.data.id);
+    }
+}
 
 
 type Constructor<T> = new (...args: any[]) => T;
@@ -185,6 +201,7 @@ const CONTROLLER_MAP: Record<string, Constructor<ItemCostController>> = { // War
     "card": CardCostController,
     "card-of-type": CardOfTypeCostController,
     "card-of-set": CardOfSetCostController,
+    "card-of-pokemon": CardOfPokemonCostController,
 }
 
 export function costControllerFactory(costUnit: DealCostUnit) : ItemCostController {

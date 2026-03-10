@@ -37,6 +37,11 @@ export interface DealCostCardOfSet {
     id: string
 }
 
+export interface DealCostCardOfPokemon {
+    type: "card-of-pokemon"
+    id: number
+}
+
 export interface DealCostBooster {
     type: "booster"
     id: string
@@ -48,12 +53,13 @@ export interface DealCostEnergy {
     count: number
 }
 
-export type DealCostUnit = DealCostCard | DealCostBooster | DealCostCardOfSet | DealCostCardOfType // | DealCostEnergy
+export type DealCostUnit = DealCostCard | DealCostBooster | DealCostCardOfSet | DealCostCardOfType | DealCostCardOfPokemon // | DealCostEnergy
 export type DealCostUnitT<T> = 
                 T extends "card" ? DealCostCard : 
                 T extends "card-of-type" ? DealCostCardOfType : 
                 T extends "card-of-set" ? DealCostCardOfSet : 
-                T extends "booster" ? DealCostCard : 
+                T extends "card-of-pokemon" ? DealCostCardOfPokemon :
+                T extends "booster" ? DealCostBooster : 
                 T extends "energy" ? DealCostEnergy :
                 never
 

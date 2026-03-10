@@ -16,6 +16,10 @@ interface DealSchema {
             count: number,
             sets: Array<string> // set ids
         },
+        "cards-of-pokemon": {
+            count: number,
+            sets: Array<string> // set ids
+        },
         boosters: {
             count: number,
             sets: Array<string> // Set ids

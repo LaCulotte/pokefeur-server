@@ -8,6 +8,7 @@ import { computed, type ComputedRef } from 'vue';
 import BoosterBase from './BoosterBase.vue';
 import Card from './Card.vue';
 import { getSetLangData } from '../controller/staticDataHelper';
+import PokemonIcon from './PokemonIcon.vue';
 
 const {
     items = [],
@@ -95,6 +96,7 @@ function getSetLogo(setId: string): string {
                 </booster-base>
             </div> -->
             <!-- TODO : make a better  -->
+             
             <card
             v-else-if="cost.type == 'card-of-set'"
             :key="`${idx}-of-set`"
@@ -105,6 +107,19 @@ function getSetLogo(setId: string): string {
                 </v-img>
                 <slot name="item-cost" :cost="cost" :idx="idx"></slot>
             </card>
+            <booster-base
+            v-else-if="cost.type == 'card-of-pokemon'"
+            :key="`${idx}-of-pokemon`"
+            logo=""
+            name=""
+            @click="$emit('cost-click', cost, idx)"
+            >
+                <pokemon-icon
+                :id="cost.id"
+                >
+                </pokemon-icon>
+                <slot name="item-cost" :cost="cost" :idx="idx"></slot>
+            </booster-base>
             <div v-else>
                 {{ 
                     //@ts-ignore
@@ -112,6 +127,7 @@ function getSetLogo(setId: string): string {
                 }}
                 Not implemented yet :c
             </div>
+
         </div>
         <div
             v-for="(count, idx) in energies"

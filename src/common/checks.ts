@@ -23,3 +23,12 @@ export function isCardOfSet(data: StaticData, cardId: string, setId: string) {
 
     return cardData.setId == setId;
 }
+
+export function isCardOfPokemon(data: StaticData, cardId: string, pokemonId: number) {
+    const cardData = data.cards[cardId];
+    if (cardData === undefined || cardData.dexId === undefined) {
+        return false;
+    }
+
+    return cardData.dexId.includes(pokemonId);
+}

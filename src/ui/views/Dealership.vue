@@ -293,7 +293,6 @@ async function testRedeem() {
             </v-toolbar>
         </v-sheet>
     </v-dialog>
-
 </template>
 
 <style scoped>

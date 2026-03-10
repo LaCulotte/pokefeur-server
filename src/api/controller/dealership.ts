@@ -30,7 +30,7 @@ const DEAL_SCHEMAS: DealershipSchema = {
                 ]
             },
             "boosters": {
-                "count": 1,
+                "count": 0,
                 "sets": [
                     "me01",
                     "me02",
@@ -64,7 +64,15 @@ const DEAL_SCHEMAS: DealershipSchema = {
                     "me02",
                     "me02.5"
                 ]
-            }
+            },
+            "cards-of-pokemon": {
+                "count": 1,
+                "sets": [
+                    "me01",
+                    "me02",
+                    "me02.5"
+                ]
+            },
         },
         "rewards": {
             "cards": [],
@@ -180,7 +188,36 @@ class DealController {
 
         const staticDataInstance = StaticDataSingleton.getInstance();
 
-       
+               for (let i = 0; this.schema.cost["cards-of-pokemon"] !== undefined && i < this.schema.cost["cards-of-pokemon"].count; i++) {
+            const sets = this.schema.cost["cards-of-pokemon"].sets;
+            if (sets.length === 0) {
+                throw new Error(`Error on generateCost for dealType ${this.type} : 'cost.cards-of-pokemon.count != 0' while 'cost.cards-of-pokemon.sets.length == 0' !`)
+            }
+
+            const availablePokemonIds: Set<number> = new Set();
+            for (let setId of sets) {
+                const set = staticDataInstance.staticData.sets[setId];
+                if (set === undefined) {
+                    console.error(`Error on generateCost for dealType ${this.type} : cannot get set '${setId}' ! Skipping this set...`);
+                    continue;
+                }
+
+                for (let card of Object.values(set.cards)) {
+                    if (card.dexId !== undefined) {
+                        card.dexId.forEach((id) => availablePokemonIds.add(id));
+                    }
+                }
+            }
+
+            if (availablePokemonIds.size === 0) {
+                throw new Error(`Error on generateCost for dealType ${this.type} : no pokemon found in sets '${sets}' !`);
+            }
+
+            const pokemonIds = Array.from(availablePokemonIds);
+            const costPokemonId = pokemonIds[Math.floor(Math.random() * pokemonIds.length)]!;
+            cost.items.push({type: "card-of-pokemon", id: costPokemonId});
+        }
+        
         // randomizeEnergies
         for (let i = 0; this.schema.cost.energies !== undefined && i < this.schema.cost.energies.count; i++) {
             const types: Array<Type> = this.schema.cost.energies.types;
@@ -253,7 +290,8 @@ class DealController {
 
             cost.items.push({type: "card-of-set", id: costSetId});
         }
-        
+
+
         return cost;
     }
 

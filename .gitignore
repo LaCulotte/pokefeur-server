@@ -43,7 +43,7 @@ __screenshots__/
 # Data
 /data
 /resources/generated
-# For now, to be replaced in the futurea
+# For now, to be replaced in the future
 /resources/generated/*
 
 *.lock

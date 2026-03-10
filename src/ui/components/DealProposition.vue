@@ -10,7 +10,7 @@ import type { Deal, Payment, InventoryItem, DealCostUnit, ItemPayment } from '..
 import { recycleCards } from '../../api/controller/energy';
 import type { Type } from '../../common/constants';
 import { currLangData } from '../controller/lang';
-import { isCardOfSet, isCardOfType } from '../../common/checks';
+import { isCardOfSet, isCardOfType, isCardOfPokemon } from '../../common/checks';
 
 const props = defineProps<{
     deal: Deal,
@@ -156,6 +156,13 @@ const displayInventory: ComputedRef<Array<InventoryItem>> = computed(() => {
         if (staticData !== undefined) {
             filter = (item) => {
                 return isCardOfSet(staticData, item.id, costUnit.id);
+            }
+        }
+    } else if (costUnit.type == "card-of-pokemon") {
+        const staticData = currLangData.value;
+        if (staticData !== undefined) {
+            filter = (item) => {
+                return isCardOfPokemon(staticData, item.id, costUnit.id);
             }
         }
     }
