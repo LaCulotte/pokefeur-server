@@ -7,7 +7,8 @@ export const ALL_LANGS: Array<SupportedLanguages> = [
     'ja', 'ko', 'zh-tw', 'id', 'th', 'zh-cn'
 ]
 
-export const DATABASE: string = "resources/data";
+export const DATABASE: string = "resources/cards-data";
+export const POKEMON_NAMES_DATABASE: string = "resources/pokemon_species_names.csv";
 export const GENERATED_DIR: string = "resources/generated"
 
 export enum Category {
@@ -232,3 +233,5 @@ export const SUPPORTED_ENERGY_TYPES: Array<Type> = [
     Type.PSYCHIC,
     Type.WATER,
 ]
+
+export const MAX_POKEMON_ID = 1025;

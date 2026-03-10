@@ -1,4 +1,4 @@
-import { staticDataStore } from '../data/static/vueStaticData';
+import { staticDataStore, pokemonData } from '../data/static/vueStaticData';
 import { lang } from '../controller/lang';
 
 import { Category, Rarity } from '../../common/constants';
@@ -52,4 +52,16 @@ export function getItemLangData(itemType: ItemType, id: string): ComputedRef<Set
     } else {
         return getCardLangData(id);
     }
+}
+
+export function getPokemonName(pokemonId: number): ComputedRef<string> {
+    return computed(() => {
+        return pokemonData[lang.value]?.id_to_name[pokemonId] ?? "MissingNo.";
+    });
+}
+
+export function getPokemonId(pokemonName: string): ComputedRef<number> {
+    return computed(() => {
+        return pokemonData[lang.value]?.name_to_id[pokemonName] ?? 0;
+    });
 }

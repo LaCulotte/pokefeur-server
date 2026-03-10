@@ -15,6 +15,9 @@ import { setupInventoryEndpoints } from "./endpoints/inventory";
 import { setupAdminEndpoints } from "./endpoints/admin";
 import { setupDealershipEndpoints } from "./endpoints/dealership";
 
+import { GENERATED_DIR } from "../common/constants";
+import path from "path"
+
 let a = Date.now();
 await StaticDataSingleton.load();
 await DataModel.load();
@@ -28,6 +31,10 @@ console.log(`Loaded controllers in ${Date.now() - a} ms`)
 
 const app = express();
 app.use(express.json())
+
+app.get("/api/static/pokemons", (req, res) => {
+    res.sendFile(path.join(path.resolve(), GENERATED_DIR, "pokemons.json"));
+});
 
 app.get("/api/static/keys/*path", (req, res) => {
     //@ts-ignore

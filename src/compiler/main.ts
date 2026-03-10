@@ -1,9 +1,11 @@
-import { DATABASE, GENERATED_DIR } from "../common/constants"
+import { DATABASE, GENERATED_DIR, POKEMON_NAMES_DATABASE } from "../common/constants"
 import { smartGlob } from './utils';
 import { promises as fs } from 'fs';
-import type { BackendData, CardData, SetData, SerieData } from "./interfaces"
+import type { BackendData, CardData, SetData, SerieData, PokemonData } from "./interfaces"
 import { getSerie } from './endpoints/series';
 import { saveSerie, saveSerieLang, serializeBackendData } from './dataSingleton';
+import { getPokemonData } from "./endpoints/pokemon";
+import path from "path"
 
 async function getData() : Promise<BackendData> {
     let files = await smartGlob(`./${DATABASE}/*.ts`);
@@ -30,6 +32,12 @@ async function getData() : Promise<BackendData> {
     return ret;
 }
 
+async function makePokemonData(dir: string) {
+    const data = await getPokemonData(POKEMON_NAMES_DATABASE);
+
+    await fs.writeFile(path.join(dir, "pokemons.json"), JSON.stringify(data));
+}
+
 await (async () => {
     try {
         await fs.mkdir(GENERATED_DIR);
@@ -39,4 +47,6 @@ await (async () => {
     await getData();
 
     await serializeBackendData(GENERATED_DIR);
+
+    await makePokemonData(GENERATED_DIR);
 })();

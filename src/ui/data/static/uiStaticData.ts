@@ -1,15 +1,17 @@
 import type { StaticLangDataStore } from "@/api/staticData/interfaces";
 import type { SupportedLanguages } from "../../../../resources/interfaces";
+import type { PokemonData } from "@/compiler/interfaces";
 
 export class UiStaticDataSingleton {
     staticLangDataStore: StaticLangDataStore = {};
+    pokemonData: PokemonData = {};
 
     private loaded: boolean = false;
 
     private static data: UiStaticDataSingleton = new UiStaticDataSingleton();
 
     static async load(lang: SupportedLanguages) : Promise<string | undefined> {
-        let data = await fetch(`/api/static/lang/${lang}`)
+        let staticLangData = await fetch(`/api/static/lang/${lang}`)
                 .then((res) => {
                     if (res.status != 200) {
                         return undefined;
@@ -18,11 +20,26 @@ export class UiStaticDataSingleton {
                     }
                 });
 
-        if (data === undefined) {
+        if (staticLangData === undefined) {
             return "Unknown data !";
         }
 
-        this.data.staticLangDataStore[lang] = data;
+        this.data.staticLangDataStore[lang] = staticLangData;
+
+        let pokemonData = await fetch(`/api/static/pokemons`)
+                .then((res) => {
+                    if (res.status != 200) {
+                        return undefined;
+                    } else {
+                        return res.json()
+                    }
+                });
+                
+        if (pokemonData === undefined) {
+            return "Unknown data !";
+        }
+        this.data.pokemonData = pokemonData;
+
         this.data.loaded = true;
     }
 

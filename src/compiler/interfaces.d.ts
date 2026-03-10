@@ -88,3 +88,8 @@ export interface LangData {
     sets: Partial<Record<SupportedLanguages, Record<string, SetLangData>>>
     cards: Partial<Record<SupportedLanguages, Record<string, CardLangData>>>
 }
+
+export type PokemonData = Partial<Record<SupportedLanguages, {
+    id_to_name: Record<number, string>,
+    name_to_id: Record<string, number>
+}>>;

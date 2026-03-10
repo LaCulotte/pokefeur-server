@@ -45,7 +45,7 @@ export class StaticDataSingleton {
         }
 
         let series: Array<string> = Object.keys(this.data.staticData.series);
-        let seriesLangs: Array<[string, SupportedLanguages]> = series.map((id) => { 
+        let seriesLangs: Array<[string, SupportedLanguages]> = series.map((id) => {
             if (this.data.staticLangDataStore.en?.series[id] !== undefined) {
                 return [id, "en"];
             }
