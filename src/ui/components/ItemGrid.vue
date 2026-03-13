@@ -1,19 +1,22 @@
 <script setup lang="ts">
 
+import e from 'express';
 import type { InventoryItem } from '../../api/model/interfaces';
 import Item from './Item.vue';
 
-import { computed, onMounted, onUnmounted, ref, useTemplateRef, type ComputedRef, type Ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref, useTemplateRef, type ComputedRef, type Ref, watch, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
 
-const {items, minItemHeightRatio, maxItemHeightRatio, scrollElem, compact = false} = defineProps<{
+const {items, minItemHeightRatio, maxItemHeightRatio, scrollElem, compact = false, focusItemUid, focusTrigger} = defineProps<{
     items: Array<InventoryItem>,
     minItemHeightRatio: number,
     maxItemHeightRatio: number,
     scrollElem?: HTMLDivElement | null,
-    compact?: boolean
+    compact?: boolean,
+    focusItemUid?: string,
+    focusTrigger?: number,
 }>();
 
 defineEmits(['item-click']);
@@ -131,6 +134,50 @@ const gridStyle = computed(() => {
 const focusedClass = ref(["border-smooth"]);
 const focusedUid: Ref<string|undefined> = ref(undefined);
 
+async function focusItem(itemId: string | undefined) {
+    if (itemId === undefined) {
+        return;
+    }
+
+    await nextTick();
+
+    focusedUid.value = itemId;
+    focusedClass.value = ["border-smooth"];
+
+    let itemIndex = items.findIndex((item) => { return item.uid == itemId; })
+
+    if (itemIndex != -1) {
+        let dest = Math.floor((itemIndex / numCols.value) * itemSize.value.height);
+
+        if (dest > 2 * height.value) {
+            (scrollElem ?? window).scrollTo({
+                top: dest - (2 * height.value),
+                behavior: "auto",
+            });
+        }
+
+        (scrollElem ?? window).scrollTo({
+            top: dest - 100,    // TODO : hacky, to avoid the item to be hidden behind the header, find a better solution
+            behavior: "smooth",
+        });
+
+        setTimeout(() => {
+            focusedClass.value.push("border-hide");
+        }, 1500);
+    }
+}
+
+watch(() => focusItemUid, (newItemId: string | undefined) => {
+    // if (focusTrigger === undefined) {
+    //     focusItem(newItemId);
+    // }
+    focusItem(newItemId);
+});
+
+watch(() => focusTrigger, () => {
+    // focusItem(focusItemUid);
+});
+
 // TODO : use other lifecycle operator !!
 onMounted(async () => {
     setTimeout(() => {
@@ -143,30 +190,31 @@ onMounted(async () => {
         scrollBehaviour();
         let focusedItemId = router.currentRoute.value.query.itemId;
         if (focusedItemId !== undefined) {
-            focusedUid.value = focusedItemId!.toString();
+            // focusedUid.value = focusedItemId!.toString();
+            focusItem(focusedItemId!.toString());
 
-            let itemIndex = items.findIndex((item) => { return item.uid == focusedItemId; })
+            // let itemIndex = items.findIndex((item) => { return item.uid == focusedItemId; })
 
-            if (itemIndex != -1) {
-                let dest = Math.floor((itemIndex / numCols.value) * itemSize.value.height);
+            // if (itemIndex != -1) {
+            //     let dest = Math.floor((itemIndex / numCols.value) * itemSize.value.height);
 
-                if (dest > 3 * height.value) {
-                    (scrollElem ?? window).scrollTo({
-                        top: dest - (3 * height.value),
-                        behavior: "auto",
-                    });
-                }
+            //     if (dest > 3 * height.value) {
+            //         (scrollElem ?? window).scrollTo({
+            //             top: dest - (3 * height.value),
+            //             behavior: "auto",
+            //         });
+            //     }
 
-                (scrollElem ?? window).scrollTo({
-                    top: dest,
-                    behavior: "smooth",
-                });
+            //     (scrollElem ?? window).scrollTo({
+            //         top: dest,
+            //         behavior: "smooth",
+            //     });
 
-                setTimeout(() => {
-                    // document.getElementById(`${to.hash.slice(1, to.hash.length)}-overlay`)?.classList.add("border-smooth");
-                    focusedClass.value.push("border-hide");
-                }, 1500);
-            }
+            //     setTimeout(() => {
+            //         // document.getElementById(`${to.hash.slice(1, to.hash.length)}-overlay`)?.classList.add("border-smooth");
+            //         focusedClass.value.push("border-hide");
+            //     }, 1500);
+            // }
         }
     }, 200);
 });
@@ -178,7 +226,6 @@ onUnmounted(() => {
         document.removeEventListener("scroll", scrollBehaviour);
     }
 });
-
 </script>
 
 <template>

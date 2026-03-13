@@ -5,7 +5,7 @@ import { user } from '../data/user/vueUserData';
 import ItemGrid from './ItemGrid.vue';
 import LocalScope from './LocalScope.vue';
 
-import { computed, onMounted, ref, type ComputedRef, type Ref, watch, useTemplateRef } from 'vue';
+import { computed, onMounted, ref, type ComputedRef, type Ref, watch, useTemplateRef, nextTick } from 'vue';
 import type { Deal, Payment, InventoryItem, DealCostUnit, ItemPayment } from '../../api/model/interfaces';
 import { recycleCards } from '../../api/controller/energy';
 import type { Type } from '../../common/constants';
@@ -32,6 +32,8 @@ const renewMessage: ComputedRef<string> = computed(() => {
 });
 
 const selectedCostIndex = ref(0);
+const focusedItem = ref<string | undefined>(undefined);
+const focusTrigger = ref<number>(0);
 
 const payment: Ref<Payment> = ref({
     energies: {},
@@ -61,6 +63,24 @@ function removeItemPayment(itemUid: string) {
     }
 }
 
+function costClick(_: DealCostUnit, costIndex: number) {
+    selectedCostIndex.value = costIndex;
+
+    let itemPayment = getPaymentFromCost(costIndex);
+    if (itemPayment !== undefined) {
+        focusedItem.value = undefined;
+        nextTick(() => { focusedItem.value = itemPayment.itemUid; });
+        // triggerRef(focusedItem)
+        // focusedItem.value = itemPayment.itemUid;
+        // focusTrigger.value ++;
+    } else {
+        scrollElem.value?.$el.scrollTo({
+            top: 0,
+            behavior: "auto",
+        });
+    }
+}
+
 function itemClick(item: InventoryItem) {
     let itemPayment = getPaymentFromItem(item.uid)
     if (itemPayment !== undefined) {
@@ -72,6 +92,8 @@ function itemClick(item: InventoryItem) {
             removeItemPayment(item.uid)
         } else {
             selectedCostIndex.value = itemPayment.costIndex;
+            focusedItem.value = undefined;
+            nextTick(() => { focusedItem.value = item.uid; });
         }
     } else {
         let exitingCost = getPaymentFromCost(selectedCostIndex.value);
@@ -185,7 +207,8 @@ const canAccept: ComputedRef<boolean> = computed(() => {
     return true;
 });
 
-let scrollElem = useTemplateRef("scroll-elem");
+const scrollElem = useTemplateRef("scroll-elem");
+// const itemGrid = useTemplateRef("item-grid");
 </script>
 
 <template>
@@ -274,7 +297,7 @@ let scrollElem = useTemplateRef("scroll-elem");
                                     :selected-items="[]"
                                     class="pa-3"
                                     style="max-height: 30vh;"
-                                    @cost-click="(_, i) => { selectedCostIndex = i; }"
+                                    @cost-click="costClick"
                                     >
                                         <template v-slot:item-cost="{cost, idx}">
                                             <local-scope
@@ -311,6 +334,7 @@ let scrollElem = useTemplateRef("scroll-elem");
                                     <v-divider/>
                                 </v-sheet>
                             
+                                <!-- <div ></div> -->
                                 <v-sheet style="overflow: auto;">
                                     <energy
                                     v-for="(count, type) of deal.cost.energies"
@@ -349,6 +373,9 @@ let scrollElem = useTemplateRef("scroll-elem");
                                     :scroll-elem="scrollElem?.$el"
                                     compact
                                     @item-click="itemClick"
+                                    ref="item-grid"
+                                    :focus-item-uid="focusedItem"
+                                    :focus-trigger="focusTrigger"
                                     >
                                         <template v-slot:common-content="{ item }">
                                             <local-scope
