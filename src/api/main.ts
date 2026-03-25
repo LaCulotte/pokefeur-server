@@ -14,6 +14,7 @@ import { initUserDeals } from "./controller/dealership";
 import { setupInventoryEndpoints } from "./endpoints/inventory";
 import { setupAdminEndpoints } from "./endpoints/admin";
 import { setupDealershipEndpoints } from "./endpoints/dealership";
+import { setupTradeProposalEndpoints } from "./endpoints/tradeProposal";
 
 import { GENERATED_DIR } from "../common/constants";
 import path from "path"
@@ -99,6 +100,7 @@ setupLoginEnpoints(app);
 setupInventoryEndpoints(app);
 setupAdminEndpoints(app);
 setupDealershipEndpoints(app);
+setupTradeProposalEndpoints(app);
 
 app.listen(3000, () => {
     console.log("Server is running on http://localhost:3000");

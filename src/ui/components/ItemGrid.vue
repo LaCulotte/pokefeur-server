@@ -1,7 +1,6 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends InventoryItem">
 
-import e from 'express';
-import type { InventoryItem } from '../../api/model/interfaces';
+import type { InventoryItem, BoosterItem, CardItem } from '../../api/model/interfaces';
 import Item from './Item.vue';
 
 import { computed, onMounted, onUnmounted, ref, useTemplateRef, type ComputedRef, type Ref, watch, nextTick } from 'vue';
@@ -10,7 +9,7 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 
 const {items, minItemHeightRatio, maxItemHeightRatio, scrollElem, compact = false, focusItemUid, focusTrigger} = defineProps<{
-    items: Array<InventoryItem>,
+    items: Array<T>,
     minItemHeightRatio: number,
     maxItemHeightRatio: number,
     scrollElem?: HTMLDivElement | null,
@@ -92,8 +91,8 @@ function scrollBehaviour() {
     translateMain.value = numRowBegin * itemSize.value.height;
 }
 
-const shownItems: ComputedRef<Array<InventoryItem>> = computed(() => {
-    let ret: Array<InventoryItem> = [];
+const shownItems: ComputedRef<Array<T>> = computed(() => {
+    let ret: Array<T> = [];
 
     let maxElem = firstElem.value + numCols.value * (numVirtRows.value + ROW_MARGIN * 2);
     if (maxElem > items.length) {
@@ -229,7 +228,6 @@ onUnmounted(() => {
 </script>
 
 <template>
-<div>
 <div :style="mainStyle" ref="main">
     <div class="w-100 align-content-start ma-0" :style="gridStyle">
         <div
@@ -265,10 +263,7 @@ onUnmounted(() => {
                 </template>
             </item>
         </div>
-        <!-- <slot :style="`grid-column: span ${numCols};`" name="after-grid"></slot> -->
     </div>
-</div>
-<slot name="after-grid"></slot>
 </div>
 </template>
 

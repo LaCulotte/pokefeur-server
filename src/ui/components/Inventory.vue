@@ -2,11 +2,11 @@
 import ItemGrid from './ItemGrid.vue';
 import Energy from './Energy.vue';
 
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref, onMounted, type ComputedRef } from 'vue';
 import { user } from '../data/user/vueUserData';
 import { useDisplay } from 'vuetify'
 import { Category, SUPPORTED_ENERGY_TYPES, Type } from '../../common/constants';
-import type { CardItem } from '@/api/model/interfaces';
+import type { CardItem, InventoryItem } from '@/api/model/interfaces';
 
 import { staticDataStore } from '../data/static/vueStaticData';
 import { lang } from '../controller/lang';
@@ -54,6 +54,26 @@ function removeItem(uid: string) {
     user.removeItem(uid);
     emit("removeItem");
 }
+
+type DisplayInventoryItem = InventoryItem & { isInTrade: boolean };
+const items: ComputedRef<Array<DisplayInventoryItem>> = computed(() => {
+    const ret: Array<DisplayInventoryItem> = [];
+
+    for (let item of Object.values(user.data.inventory.items)) {
+        ret.push({
+            ...item,
+            isInTrade: false
+        });
+    }
+    for (let item of Object.values(user.data.inventory.inTradeItems)) {
+        ret.push({
+            ...item,
+            isInTrade: true
+        });
+    }
+
+    return ret;
+});
 </script>
 
 <template>
@@ -72,7 +92,7 @@ function removeItem(uid: string) {
         </v-row>
         <v-divider></v-divider>
         <item-grid
-        :items="Object.values(user.data.inventory.items)"
+        :items="items"
         :max-item-height-ratio="0.25"
         :min-item-height-ratio="0.25"
         :scroll-elem="scrollElem"
@@ -80,6 +100,7 @@ function removeItem(uid: string) {
         >
             <template v-slot:common-content="{ item }">
                 <v-btn
+                v-if="!item.isInTrade"
                 class="position-absolute close-btn-pos"
                 @click="removeItem(item.uid)"
                 color="error"
@@ -91,15 +112,17 @@ function removeItem(uid: string) {
                 </v-btn>
 
                 <div
-                :id="`${item.uid}-overlay`"
-                class="position-absolute top-0 h-100 w-100"
+                class="position-absolute top-0 h-100 w-100 d-flex justify-center align-center"
+                :style="item.isInTrade ? 'background-color: rgba(0, 0, 0, 0.25);' : ''"
                 style="pointer-events: none"
                 >
+                    <div v-if="item.isInTrade" style="color: red; font-weight: 800; font-size: 25px; text-align: center;">IN TRADE</div>
                 </div>
             </template>
 
             <template v-slot:booster-content="{ booster }">
                 <v-btn
+                v-if="!booster.isInTrade"
                 class="pa-2 position-absolute"
                 style="top: 75%; left: 50%; transform: translate(-50%, -50%);"
                 @click="user.openBooster(booster.uid)">
@@ -109,16 +132,12 @@ function removeItem(uid: string) {
 
             <template v-slot:card-content="{ card }">
                 <v-btn
-                v-if="isCardRecyclable(card)"
+                v-if="!card.isInTrade && isCardRecyclable(card)"
                 class="pa-2 position-absolute"
                 style="top: 75%; left: 50%; transform: translate(-50%, -50%);"
                 @click="user.recycleCard(card.uid)">
                     Recycle
                 </v-btn>
-            </template>
-
-            <template v-slot:after-grid>
-                <slot></slot>
             </template>
         </item-grid>
     </div>

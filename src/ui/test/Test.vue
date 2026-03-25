@@ -81,7 +81,7 @@ function easyFetch() {
         return res.text()
     })
     .then((t) => {
-        res.value = t.slice(0, 1000);
+        res.value = JSON.stringify(JSON.parse(t), null, 2).slice(0, 1000);
     });
 }
 </script>
@@ -106,7 +106,9 @@ function easyFetch() {
         </v-form>
         <div v-if="!!res">
             <div>Result :</div>
-            <div v-html="res"></div>
+            <!-- <div v-html="JSON.stringify(res, undefined, '\t')"></div>* -->
+            <!-- <textarea v-model="jsonstr" rows="8" cols="40"></textarea> -->
+            <pre>{{ res }}</pre>
         </div>
     </div>
     <div v-else>

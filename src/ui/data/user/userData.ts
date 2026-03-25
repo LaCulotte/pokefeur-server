@@ -2,6 +2,7 @@ import type { CardItem, InventoryItem, ItemType, FullUser, User, Payment } from 
 import type { Type } from "../../../common/constants";
 import type { AcceptDealSummary, RedeemDealSummary } from "@/api/controller/interfaces.dealership";
 import { expected, unexpected, type Expected } from "../../../common/utils";
+import type { UserTradesModel } from "@/api/model/UserTradesModel";
 
 export class UserData {
     data: FullUser = {
@@ -11,9 +12,13 @@ export class UserData {
 
         inventory: {
             items: {},
+            inTradeItems: {},
             energies: {}
         },
-        deals: {}
+        deals: {},
+        trades: {
+            proposals: {}
+        }
     };
 
     lastAuthenticated: number = -1;

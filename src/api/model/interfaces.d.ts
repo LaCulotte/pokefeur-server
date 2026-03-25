@@ -107,8 +107,40 @@ export interface User {
 
 export interface FullUser extends User {
     inventory: {
-        items: Record<string, InventoryItem>
+        items: Record<string, InventoryItem>,
+        inTradeItems: Record<string, InventoryItem>,
         energies: Partial<Record<Type, number>>
     }
     deals: Record<string, Deal>
+    trades: {
+        proposals: Record<string, TradeProposal>        
+    }
 }
+
+// TODO !
+// export enum AcceptState {
+//     ACCEPTED = 0,
+//     REFUSED,
+//     PENDING,
+//     COMPLETED
+// }
+
+type AcceptState = "accepted" | "refused" | "pending" | "completed";
+
+export interface TradeProposal {
+    uid: string,
+    proposalDate: number,
+    acceptedDate: number | undefined,
+    from: {
+        uid: string
+        items: Array<InventoryItem>
+        accepted: AcceptState
+    }
+    to: {
+        uid: string
+        items: Array<InventoryItem>
+        accepted: AcceptState
+    }
+}
+
+export type TradeProposalSide = TradeProposal["to"] | TradeProposal["from"]

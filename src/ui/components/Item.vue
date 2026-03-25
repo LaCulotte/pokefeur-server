@@ -1,12 +1,12 @@
-<script setup lang="ts">
-import type { InventoryItem } from "@/api/model/interfaces";
-import BoosterItem from "./BoosterItem.vue";
+<script setup lang="ts" generic="T extends InventoryItem">
+import type { CardItem, BoosterItem, InventoryItem } from "@/api/model/interfaces";
+import BoosterItemElem from "./BoosterItem.vue";
 
 import Card from "./Card.vue"
 import { user } from "../data/user/vueUserData";
 
 const props = defineProps<{
-    item: InventoryItem
+    item: T
 }>();
 
 </script>
@@ -14,11 +14,11 @@ const props = defineProps<{
 <template>
 
     <card v-if="item.type == 'card'" :card-id="item.id">
-        <slot name="card-content" :card="item"></slot>
-        <slot name="common-content" :item="(item as InventoryItem)"></slot>
+        <slot name="card-content" :card="item as (T & CardItem)"></slot>
+        <slot name="common-content" :item="item"></slot>
     </card>
-    <booster-item v-else :booster-id="item.id">
-        <slot name="booster-content" :booster="item"></slot>
-        <slot name="common-content" :item="(item as InventoryItem)"></slot>
-    </booster-item>
+    <booster-item-elem v-else :booster-id="item.id">
+        <slot name="booster-content" :booster="item as (T & BoosterItem)"></slot>
+        <slot name="common-content" :item="item"></slot>
+    </booster-item-elem>
 </template>

@@ -31,6 +31,14 @@ export class Expected<T> {
         return this.state.val as string;
     }
 
+    transform<U> (transformLambda: (val: T) => Expected<U>): Expected<U> {
+        if (this.state.expected) {
+            return transformLambda(this.state.val)
+        } else {
+            return this.as_error();
+        }
+    }
+
     value(): T {
         if (!this.state.expected) {
             throw Error("Bad Unexpected access");

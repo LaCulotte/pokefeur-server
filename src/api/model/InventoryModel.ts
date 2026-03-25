@@ -9,6 +9,7 @@ import { SUPPORTED_ENERGY_TYPES, Type } from "../../common/constants";
 type InventoryDataStructure = FullUser["inventory"];
 
 const DEFAULT_INVENTORY: InventoryDataStructure = {
+    inTradeItems: {},
     items: {},
     energies: SUPPORTED_ENERGY_TYPES
                 .reduce((acc, e) => (acc[e] = 0, acc), {} as InventoryDataStructure["energies"])
@@ -35,6 +36,7 @@ export class InventoryModel {
 
             this.data = {
                 items: parsed.items ?? {},
+                inTradeItems: parsed.inTradeItems ?? {},
                 // Merge parsed values with defaults so every energy key is present
                 energies: { ...(DEFAULT_INVENTORY.energies), ...(parsed.energies ?? {}) }
             };
@@ -70,7 +72,7 @@ export class InventoryModel {
 
         let itemUid = uuidv4();
 
-        while (itemUid in this.data.items) {
+        while (itemUid in this.data.items || itemUid in this.data.inTradeItems) {
             itemUid = uuidv4();
         }
 
@@ -158,5 +160,48 @@ export class InventoryModel {
         await this.saveInventory();
 
         return expected(energyType);
+    }
+
+    async moveItemToTrade(itemUid: string) : Promise<Expected<InventoryItem>> {
+        if (this.data.items[itemUid] === undefined) {
+            if (this.data.inTradeItems[itemUid] !== undefined) {
+                return unexpected(`No item of uid ${itemUid} is already used in a trade for the user ${this.user.uid}`, true);
+            }
+
+            return unexpected(`No item of uid ${itemUid} in the inventory of user ${this.user.uid}`, true);
+        }
+        
+        this.data.inTradeItems[itemUid] = this.data.items[itemUid];
+        delete this.data.items[itemUid];
+
+        await this.saveInventory();
+
+        return expected(this.data.inTradeItems[itemUid]);
+    }
+
+    async moveItemFromTrade(itemUid: string) : Promise<Expected<InventoryItem>> {
+        if (this.data.inTradeItems[itemUid] === undefined) {
+            return unexpected(`No item of uid ${itemUid} in the trade inventory of user ${this.user.uid}`, true);
+        }
+        
+        this.data.items[itemUid] = this.data.inTradeItems[itemUid];
+        delete this.data.inTradeItems[itemUid];
+        
+        await this.saveInventory();
+
+        return expected(this.data.items[itemUid]);
+    }
+
+    async removeTradeItem(itemUid: string) : Promise<Expected<InventoryItem>> {
+        if (this.data.inTradeItems[itemUid] === undefined) {
+            return unexpected(`No item of uid ${itemUid} in the trade inventory of user ${this.user.uid}`, true);
+        }
+
+        const item = structuredClone(this.data.inTradeItems[itemUid]);
+        delete this.data.inTradeItems[itemUid];
+
+        await this.saveInventory();
+
+        return expected(item);
     }
 };

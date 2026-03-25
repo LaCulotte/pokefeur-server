@@ -3,10 +3,13 @@ import { v4 as uuidv4 } from "uuid"
 
 import type { User, UserType } from "./interfaces"
 import { UserModel } from "./UserModel";
+import { TradeProposalsModel } from "./TradeProposalsModel";
 
 export class DataModel {
     users: Record<string, UserModel> = {};
     nameToUid: Record<string, string> = {};
+
+    tradeProposals: TradeProposalsModel = new TradeProposalsModel();
 
     private loaded: boolean = false;
     // Do not access anywhere other than UserController !
@@ -50,7 +53,10 @@ export class DataModel {
             this.instance.nameToUid[user.data.username] = uid;
         }
 
+        await this.instance.tradeProposals.loadProposals();
         this.instance.loaded = true;
+        
+        this.instance.tradeProposals.attachToUsers();   // TODO : outside of load ?
     };
 
     // --- Save functions ---

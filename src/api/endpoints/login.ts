@@ -62,9 +62,10 @@ function getFullUser(req: express.Request, res: express.Response) {
 
     // TODO : function UserModel.getFullData ?
     let ret: FullUser = {
-        ...structuredClone(user.data),
-        inventory: structuredClone(user.inventory.data),
-        deals: structuredClone(user.deals.getReducedData())
+        ...user.data,
+        inventory: user.inventory.data,
+        deals: user.deals.getReducedData(),
+        trades: user.trades.data
     };
     res.json({ user: ret });
 }
