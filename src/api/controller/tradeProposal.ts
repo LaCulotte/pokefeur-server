@@ -1,7 +1,11 @@
 import type { InventoryItem, TradeProposal, TradeProposalSide } from "../model/interfaces";
 import { type Expected, expected, unexpected } from "../../common/utils";
 import { DataModel } from "../model/DataModel";
-import type { UserModel } from "../model/UserModel";
+
+/**
+ * Note for future architecture ?
+ * => Make controller functions more local to user instead of managing them both in the same functions
+ */
 
 export async function makeTradeProposal(fromUserUid: string, 
     toUserUid: string, 
@@ -107,7 +111,7 @@ export async function acceptTradeProposal(userUid: string, proposalUid: string):
             await toUser.inventory.removeTradeItem(item.uid);
         }
 
-        proposal.acceptedDate = Date.now()
+        proposal.acceptedDate = Math.floor(Date.now() / 1000)
     }
 
     // TODO : auto-refuse all un-acceptable trade requests ?
