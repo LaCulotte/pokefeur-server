@@ -70,6 +70,29 @@ function getFullUser(req: express.Request, res: express.Response) {
     res.json({ user: ret });
 }
 
+function searchUsers(req: express.Request, res: express.Response) {
+    if (req.session.userUid === undefined) {
+        throw new Error("Logged state not validated !");
+    }
+    
+    const usernameQuery: string = req.query.usernameQuery as string;
+    const ret = DataModel.getInstance().searchUsers(usernameQuery)
+    res.json(ret)
+}
+
+function changeDescription(req: express.Request, res: express.Response) {
+    if (req.session.userUid === undefined) {
+        throw new Error("Logged state not validated !");
+    }
+    
+    const success = DataModel.getInstance().changeDescription(req.session.userUid, req.body.newDescription);
+    if (!success) {
+        res.status(500).json({message: "Failed to change description"});
+        return;
+    }
+
+    res.json({message: "Description changed successfully"});
+}
 
 // TODO : use generic class "endpoint" that handles path, middleware and handler registration
 //        the different endpoints derive from this class and implement their specificities
@@ -93,4 +116,22 @@ export function setupLoginEnpoints(app: express.Express) {
         loggedUserMiddleware,
         getFullUser
     );
+
+    app.get("/api/searchUsers", 
+        loggedUserMiddleware,
+        check("usernameQuery").isString().notEmpty(),
+        searchUsers
+    );
+
+    app.post("/api/changeDescription",
+        loggedUserMiddleware,
+        check("newDescription").isString().notEmpty(),
+        changeDescription
+    )
+
+    // app.get("/api/queryUser",
+    //     check("uid").isString().notEmpty(),
+    //     execValidationMiddleware,
+    //     queryUser
+    // );
 }

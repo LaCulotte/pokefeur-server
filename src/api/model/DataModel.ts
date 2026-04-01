@@ -36,8 +36,7 @@ export class DataModel {
         await this.createDirs();
 
         try {
-            let users: Record<string, User> = await fs.readFile("./data/users.json", "utf-8")
-                                                .then((jdata) => { return JSON.parse(jdata) });
+            let users: Record<string, User> = await fs.readFile("./data/users.json", "utf-8").then((data) => { return JSON.parse(data) });
 
             for (let [uid, user] of Object.entries(users)) {
                 this.instance.users[uid] = new UserModel(user);
@@ -98,15 +97,15 @@ export class DataModel {
         return newUserModel;
     }
 
-    getUserByName(username: string) : UserModel | null {
-        // TODO : use nameToUid instead !!
-        for (let [_, user] of Object.entries(this.users)) {
-            if (user.data.username === username) {
-                return user;
-            }
-        }
+    getUserByName(query: string) : UserModel | null {
+        const userUid = Object.entries(this.nameToUid)
+            .find(([username, _]) => { return username == query; })
+            ?.[1];
 
-        return null;
+        if (!userUid)
+            return null
+        
+        return this.users[userUid] ?? null;
     }
 
     static getUserByName(username: string) : UserModel | null {
@@ -123,5 +122,23 @@ export class DataModel {
 
     static getUser(uid: string) : UserModel | null {
         return DataModel.getInstance().getUser(uid);
+    }
+
+    changeDescription(uid: string, newDescription: string) : boolean {
+        const user = DataModel.getUser(uid);
+        if (!user) {
+            return false;
+        }
+        
+        user.data.description = newDescription;
+        this.saveUsers();
+        return true;
+    }
+
+    searchUsers(usernameQuery: string): {username: string, uid: string}[] {
+        const safeQuery = usernameQuery.toLocaleLowerCase()
+        return Object.entries(this.nameToUid)
+            .filter(([username, _]) => username.toLowerCase().includes(safeQuery))
+            .map(([username, uid]) => { return { username, uid }; });
     }
 };

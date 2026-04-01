@@ -102,6 +102,8 @@ export interface User {
     uid: string
 
     username: string
+    description?: string
+
     type: UserType
 }
 
