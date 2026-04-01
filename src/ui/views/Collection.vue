@@ -72,9 +72,16 @@ onUnmounted(() => {
         </div>
 
         <div class="position-absolute top-0 w-100 h-screen">
-            <div class="position-absolute bottom-0 pa-5" style="z-index: 20;">
+            <!-- <div class="position-absolute bottom-0 pa-5" style="z-index: 20;">
                 <v-btn class="collection-btn" rounded="xl" icon="mdi-home" @click="goToHome"></v-btn>
-            </div>
+            </div> -->
+            <v-btn 
+                class="position-absolute d-flex" 
+                style="bottom: 5%; left: 5%; z-index: 20;"
+                rounded="xl"
+                icon="mdi-home"
+                to="/"
+            />
         </div>
 
         <div class="position-absolute d-flex flex-column top-0 w-100 h-100 inventory-scroll" ref="scroll-inventory" id="scroll-inventory"

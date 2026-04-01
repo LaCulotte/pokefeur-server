@@ -213,36 +213,39 @@ async function testRedeem() {
                 >
                     <!-- <v-btn @click="testRedeem()">test</v-btn> -->
                     <deal-proposal
-                    v-for="deal in toAccept"
-                    :key="deal.uid"
-                    :deal="deal"
-                    :now="now"
-                    class="flex-fill border-bottom"
-                    style="height: 33%; min-height: 120px;"
+                        v-for="deal in toAccept"
+                        :key="deal.uid"
+                        :deal="deal"
+                        :now="now"
+                        class="flex-fill border-bottom"
+                        style="height: 33%; min-height: 120px;"
                     >
                     </deal-proposal>
 
                     <div class="mini-spacer"></div>
                     
                     <deal-proposal
-                    v-for="deal in disabledDeals"
-                    :key="deal.uid"
-                    :deal="deal"
-                    disabled
-                    :now="now"
-                    class="flex-fill border-bottom-faded"
-                    style="height: 33%; min-height: 120px; opacity: 0.5;"
+                        v-for="deal in disabledDeals"
+                        :key="deal.uid"
+                        :deal="deal"
+                        disabled
+                        :now="now"
+                        class="flex-fill border-bottom-faded"
+                        style="height: 33%; min-height: 120px; opacity: 0.5;"
                     >
                     </deal-proposal>
                     <div class="mini-spacer"></div>
                 </v-expansion-panel-text>
             </v-expansion-panel>
         </v-expansion-panels>
-        
-        <div class="position-absolute d-flex" style="bottom: 5%; left: 5%; z-index: 20;">
-            <v-btn class="collection-btn" rounded="xl" icon="mdi-home" @click="goToHome()"></v-btn>
-            <!-- <div class="flex-shrink-0" style="flex: 2 2;"></div> -->
-        </div>
+
+        <v-btn 
+            class="position-absolute d-flex" 
+            style="bottom: calc(0.05 * 100vh); left: 5%; z-index: 20;"
+            rounded="xl"
+            icon="mdi-home"
+            to="/"
+        />
     </div>
 
     <v-dialog
