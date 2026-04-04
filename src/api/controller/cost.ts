@@ -1,4 +1,4 @@
-import type { Payment, InventoryItem, DealCostEnergy, DealCostCard, DealCostCardOfType, ItemPayment, DealCostCardOfSet, DealCostCardOfPokemon } from "../model/interfaces";
+import type { Payment, InventoryItem, DealCostEnergy, DealCostCard, DealCostCardOfType, ItemPayment, DealCostCardOfSet, DealCostCardOfPokemon, DealCostUnitT } from "../model/interfaces";
 import type { DealCostUnit, DealCostBooster } from "../model/interfaces";
 import { Expected, expected, unexpected } from "../../common/utils";
 import { UserModel } from "../model/UserModel";
@@ -66,21 +66,35 @@ export abstract class ItemCostController {
     }
 }
 
-class BoosterCostController extends ItemCostController {
-    // static type: string = "booster";    // Two sources of truth ??
+export abstract class ItemCostControllerT<CostT extends DealCostUnit> extends ItemCostController {
+    data: CostT
 
-    data: DealCostBooster;
-
-    constructor(costUnit: DealCostBooster) {
+    constructor(costUnit: CostT) {
         super();
 
         this.data = costUnit;
     }
 
-    override getData(): DealCostUnit {
+    override getData(): CostT {
         return this.data;
     }
+}
 
+// class BoosterCostController extends ItemCostController {
+    // static type: string = "booster";    // Two sources of truth ??
+
+    // data: DealCostBooster;
+
+    // constructor(costUnit: DealCostBooster) {
+    //     super();
+
+    //     this.data = costUnit;
+    // }
+
+    // override getData(): DealCostUnit {
+    //     return this.data;
+    // }
+class BoosterCostController extends ItemCostControllerT<DealCostBooster> {
     override filterItem(item: InventoryItem): boolean {
         return item.type == "booster" && this.data.id == item.id;
     }
@@ -95,21 +109,22 @@ class BoosterCostController extends ItemCostController {
     // }
 }
 
-class CardCostController extends ItemCostController {
-    // static type: string = "card";    // Two sources of truth ??
+// class CardCostController extends ItemCostController {
+//     // static type: string = "card";    // Two sources of truth ??
 
-    data: DealCostCard;
+//     data: DealCostCard;
 
-    constructor(costUnit: DealCostCard) {
-        super();
+//     constructor(costUnit: DealCostCard) {
+//         super();
 
-        this.data = costUnit;
-    }
+//         this.data = costUnit;
+//     }
 
-    override getData(): DealCostUnit {
-        return this.data;
-    }
+//     override getData(): DealCostUnit {
+//         return this.data;
+//     }
 
+class CardCostController extends ItemCostControllerT<DealCostCard> {
     override filterItem(item: InventoryItem): boolean {
         return item.type == "card" && this.data.id == item.id;
     }
@@ -135,80 +150,86 @@ class CardCostController extends ItemCostController {
     // }
 }
 
-class CardOfTypeCostController extends ItemCostController {
-    // static type: string = "card";    // Two sources of truth ??
+// class CardOfTypeCostController extends ItemCostController {
+//     // static type: string = "card";    // Two sources of truth ??
 
-    data: DealCostCardOfType;
+//     data: DealCostCardOfType;
 
-    constructor(costUnit: DealCostCardOfType) {
-        super();
+//     constructor(costUnit: DealCostCardOfType) {
+//         super();
 
-        this.data = costUnit;
-    }
+//         this.data = costUnit;
+//     }
 
-    override getData(): DealCostUnit {
-        return this.data;
-    }
-
+//     override getData(): DealCostUnit {
+//         return this.data;
+//     }
+class CardOfTypeCostController extends ItemCostControllerT<DealCostCardOfType> {
     override filterItem(item: InventoryItem): boolean {
         const staticData = StaticDataSingleton.getInstance().staticData;
         return isCardOfType(staticData, item.id, this.data.id);
     }
 }
 
-class CardOfSetCostController extends ItemCostController {
-    data: DealCostCardOfSet;
+// class CardOfSetCostController extends ItemCostController {
+//     data: DealCostCardOfSet;
 
-    constructor(costUnit: DealCostCardOfSet) {
-        super();
+//     constructor(costUnit: DealCostCardOfSet) {
+//         super();
 
-        this.data = costUnit;
-    }
+//         this.data = costUnit;
+//     }
 
-    override getData(): DealCostUnit {
-        return this.data;
-    }
-
+//     override getData(): DealCostUnit {
+//         return this.data;
+//     }
+class CardOfSetCostController extends ItemCostControllerT<DealCostCardOfSet> {
     override filterItem(item: InventoryItem): boolean {
         const staticData = StaticDataSingleton.getInstance().staticData;
         return isCardOfSet(staticData, item.id, this.data.id);
     }
 }
-class CardOfPokemonCostController extends ItemCostController {
-    data: DealCostCardOfPokemon;
+// class CardOfPokemonCostController extends ItemCostController {
+//     data: DealCostCardOfPokemon;
 
-    constructor(costUnit: DealCostCardOfPokemon) {
-        super();
+//     constructor(costUnit: DealCostCardOfPokemon) {
+//         super();
 
-        this.data = costUnit;
-    }
+//         this.data = costUnit;
+//     }
 
-    override getData(): DealCostUnit {
-        return this.data;
-    }
-
+//     override getData(): DealCostUnit {
+//         return this.data;
+//     }
+class CardOfPokemonCostController extends ItemCostControllerT<DealCostCardOfPokemon> {
     override filterItem(item: InventoryItem): boolean {
         const staticData = StaticDataSingleton.getInstance().staticData;
         return isCardOfPokemon(staticData, item.id, this.data.id);
     }
 }
 
+function typeEraseConstructor<CostT extends DealCostUnit> (constructor: new (args: CostT) => ItemCostControllerT<CostT>) 
+    : (args: DealCostUnit) => ItemCostControllerT<CostT>
+{
+    return (args: DealCostUnit) => { return new constructor(args as CostT) };
+}
 
-type Constructor<T> = new (...args: any[]) => T;
-const CONTROLLER_MAP: Record<string, Constructor<ItemCostController>> = { // Warning, multiple sources of thruth ??
-    "booster": BoosterCostController,
-    // "energy": EnergyCostController,
-    "card": CardCostController,
-    "card-of-type": CardOfTypeCostController,
-    "card-of-set": CardOfSetCostController,
-    "card-of-pokemon": CardOfPokemonCostController,
+type ConstructorMap = {
+    [K in DealCostUnit['type']]: (args: DealCostUnit) => ItemCostControllerT<DealCostUnitT<K>>
+}
+
+const CONTROLLER_CONSTRUCTOR_MAP: ConstructorMap = {
+    "booster": typeEraseConstructor(BoosterCostController),
+    "card": typeEraseConstructor(CardCostController),
+    "card-of-type": typeEraseConstructor(CardOfTypeCostController),
+    "card-of-set": typeEraseConstructor(CardOfSetCostController),
+    "card-of-pokemon": typeEraseConstructor(CardOfPokemonCostController),
+}
+
+function buildCostController<T extends DealCostUnit['type']> (type: T, args: DealCostUnitT<T>): ItemCostControllerT<DealCostUnitT<T>> {
+    return CONTROLLER_CONSTRUCTOR_MAP[type](args);
 }
 
 export function costControllerFactory(costUnit: DealCostUnit) : ItemCostController {
-    const controllerType = CONTROLLER_MAP[costUnit.type];
-    if (controllerType === undefined) {
-        throw new Error("What the hell ?");
-    }
-
-    return new controllerType(costUnit);
+    return buildCostController(costUnit.type, costUnit);
 }
