@@ -116,7 +116,6 @@ class DealController {
     cost: {
         energies: Partial<Record<Type, EnergyCostController>>,
         items: Array<ItemCostController>
-
     }
 
     constructor(deals: DealsModel, type: string) {

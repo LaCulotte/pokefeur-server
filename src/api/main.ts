@@ -38,7 +38,6 @@ app.get("/api/static/pokemons", (req, res) => {
 });
 
 app.get("/api/static/keys/*path", (req, res) => {
-    //@ts-ignore
     const pathArray: string[] = req.params.path;
 
     if (!pathArray || pathArray.length === 0) {
@@ -47,15 +46,15 @@ app.get("/api/static/keys/*path", (req, res) => {
     }
 
     const isLang = pathArray[0] == "lang";
-    let currData: any = isLang ? StaticDataSingleton.getInstance().staticLangDataStore : StaticDataSingleton.getInstance().staticData;
+    let currData = isLang ? StaticDataSingleton.getInstance().staticLangDataStore : StaticDataSingleton.getInstance().staticData;
 
     for (const i of pathArray.slice(1)) {
-        if (currData[i] === undefined) {
+        if (currData[i as keyof typeof currData] === undefined) {
             res.status(404).json({ error: `Path component '${i}' not found` });
             return;
         }
 
-        currData = currData[i];
+        currData = currData[i as keyof typeof currData];
     }
     
     res.json(Object.keys(currData));
@@ -63,7 +62,6 @@ app.get("/api/static/keys/*path", (req, res) => {
 
 // Endpoint that loops over any number of path component
 app.get("/api/static/*path", (req, res) => {
-    //@ts-ignore
     const pathArray: string[] = req.params.path;
 
     if (!pathArray || pathArray.length === 0) {
@@ -72,15 +70,15 @@ app.get("/api/static/*path", (req, res) => {
     }
 
     const isLang = pathArray[0] == "lang";
-    let currData: any = isLang ? StaticDataSingleton.getInstance().staticLangDataStore : StaticDataSingleton.getInstance().staticData;
+    let currData = isLang ? StaticDataSingleton.getInstance().staticLangDataStore : StaticDataSingleton.getInstance().staticData;
 
     for (const i of pathArray.slice(1)) {
-        if (currData[i] === undefined) {
+        if (currData[i as keyof typeof currData] === undefined) {
             res.status(404).json({ error: `Path component '${i}' not found` });
             return;
         }
 
-        currData = currData[i];
+        currData = currData[i as keyof typeof currData];
     }
     
     res.json(currData);

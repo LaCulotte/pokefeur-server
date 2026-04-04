@@ -352,6 +352,7 @@ const scrollElem = useTemplateRef("scroll-elem");
                             <v-sheet style="overflow: auto;">
                                 <energy
                                     v-for="(count, type) of deal.cost.energies"
+                                    :key="type"
                                     :type="parseInt(type)"
                                     :text_proportion="0.8"
                                     class="pt-2 pb-2 w-100"

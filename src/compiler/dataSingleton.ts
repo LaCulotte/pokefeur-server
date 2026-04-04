@@ -153,7 +153,7 @@ async function mkdir(path: PathLike) {
 }
 
 export async function serializeBackendData(outDir: string) {
-    const promises: Array<Promise<any>> = []
+    const promises: Array<Promise<unknown>> = []
 
     const backendDir = path.join(outDir, "backend");
     const langDir = path.join(outDir, "lang");

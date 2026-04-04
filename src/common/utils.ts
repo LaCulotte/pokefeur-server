@@ -63,13 +63,13 @@ export class Expected<T> {
         return this.state.val;
     }
 
-    cast<U>(): Expected<U> {
-        if (this.state.expected) {
-            throw new Error("Cannot cast an expected value");
-        }
+    // cast<U>(): Expected<U> {
+    //     if (this.state.expected) {
+    //         throw new Error("Cannot cast an expected value");
+    //     }
 
-        return this as Expected<any>;
-    }
+    //     return this as Expected<any>;
+    // }
 
     // Warning ! May be dangerous if has_value was not checked before
     as_error(): Expected<never> {

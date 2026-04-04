@@ -121,6 +121,7 @@ async function testRedeem() {
     >
         <v-responsive
             v-for="deal in toRedeem"
+            :key="deal.uid"
             class="panel-main ma-2"
             style="overflow: visible;"
         >

@@ -61,7 +61,7 @@ export class DataModel {
     // --- Save functions ---
 
     async saveUsers() {
-        function replacer(key: string, value: UserModel | any) {
+        function replacer(key: string, value: UserModel | unknown) {
             if (value instanceof UserModel) {
                 return value.data;
             }

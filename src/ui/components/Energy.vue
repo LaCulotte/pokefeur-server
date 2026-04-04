@@ -47,14 +47,14 @@ const energy_class: Partial<Record<Type, string>> = {
         <div
             class="d-flex justify-center"
             style="min-width: 25px;"
-            :style="`transform: scale(${height / 25}); width: ${(1 - text_proportion) * 100}%;`"
+            :style="`transform: scale(${height / 25}); width: ${(1 - textProportion) * 100}%;`"
         >
             <span
                 :class="`energy ${energy_class[type]}`"
                 :title="energy_names[type]"
             />
         </div>
-        <div :style="`width: ${text_proportion * 100}%;`">
+        <div :style="`width: ${textProportion * 100}%;`">
             <div
                 class="w-100 d-flex justify-center"
                 style="padding-right: 10%;"

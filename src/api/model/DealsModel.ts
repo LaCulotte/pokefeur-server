@@ -10,7 +10,7 @@ export class DealsModel {
 
     data: Record<string, FullDeal>
 
-    currLock: Promise<any> | undefined;
+    currLock: Promise<unknown> | undefined;
     
     constructor(user: User) {
         this.user = user;
