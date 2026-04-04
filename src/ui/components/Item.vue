@@ -12,13 +12,30 @@ const props = defineProps<{
 </script>
 
 <template>
-
-    <card v-if="item.type == 'card'" :card-id="item.id">
-        <slot name="card-content" :card="item as (T & CardItem)"></slot>
-        <slot name="common-content" :item="item"></slot>
+    <card
+        v-if="item.type == 'card'"
+        :card-id="item.id"
+    >
+        <slot
+            name="card-content"
+            :card="item as (T & CardItem)"
+        />
+        <slot
+            name="common-content"
+            :item="item"
+        />
     </card>
-    <booster-item-elem v-else :booster-id="item.id">
-        <slot name="booster-content" :booster="item as (T & BoosterItem)"></slot>
-        <slot name="common-content" :item="item"></slot>
+    <booster-item-elem
+        v-else
+        :booster-id="item.id"
+    >
+        <slot
+            name="booster-content"
+            :booster="item as (T & BoosterItem)"
+        />
+        <slot
+            name="common-content"
+            :item="item"
+        />
     </booster-item-elem>
 </template>

@@ -4,5 +4,5 @@ defineProps</* @vue-ignore */ T>();
 </script>
 
 <template>
-    <slot v-bind="$attrs as T"></slot>
+    <slot v-bind="$attrs as T"/>
 </template>

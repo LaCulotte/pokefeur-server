@@ -33,12 +33,24 @@ function temp_replace(url: string): string {
 </script>
 
 <template>
-    <div class="d-flex align-center justify-center w-100 h-100" style="aspect-ratio: 245/337;">
-        <div class="h-100" style="aspect-ratio: 245/337;">
-            <v-responsive class="w-100 h-100" style="aspect-ratio: 245/337;">
-                <v-img class="position-absolute top-0 w-100 h-100" :src="temp_replace(image)" :title="name">
-                </v-img>
-                <slot></slot>
+    <div
+        class="d-flex align-center justify-center w-100 h-100"
+        style="aspect-ratio: 245/337;"
+    >
+        <div
+            class="h-100"
+            style="aspect-ratio: 245/337;"
+        >
+            <v-responsive
+                class="w-100 h-100"
+                style="aspect-ratio: 245/337;"
+            >
+                <v-img
+                    class="position-absolute top-0 w-100 h-100"
+                    :src="temp_replace(image)"
+                    :title="name"
+                />
+                <slot/>
             </v-responsive>
         </div>
     </div>

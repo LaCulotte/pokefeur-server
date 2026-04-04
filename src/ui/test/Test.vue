@@ -109,18 +109,28 @@ function easyFetch() {
     <div v-if="user.isAuthenticatedFlag">
         <v-form @submit.prevent="easyFetch">
             <v-row>
-                <v-text-field type="text" v-model="url"></v-text-field>
+                <v-text-field
+                    type="text"
+                    v-model="url"
+                />
                 <v-select 
                     v-model="method"
                     :items="['GET', 'POST', 'PUT']"
-                >
-                </v-select>
+                />
             </v-row>
             <div>
-                <v-textarea type="text" v-model="body"></v-textarea>
+                <v-textarea
+                    type="text"
+                    v-model="body"
+                />
             </div>
             <div>
-                <v-btn type="submit" :disabled="!isBodyValid">SEND</v-btn>
+                <v-btn
+                    type="submit"
+                    :disabled="!isBodyValid"
+                >
+                    SEND
+                </v-btn>
             </div>
         </v-form>
         <div v-if="!!res">
@@ -133,7 +143,6 @@ function easyFetch() {
     <div v-else>
         <a href="/login">Authenticate first !</a>
     </div>
-
 </template>
 
 <style scoped></style>

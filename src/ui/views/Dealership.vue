@@ -115,28 +115,41 @@ async function testRedeem() {
 </script>
 
 <template>
-    <div class="main w-screen h-screen pa-2" style="background-color: #b0ceceaf;">
-        <v-responsive v-for="deal in toRedeem" class="panel-main ma-2" style="overflow: visible;">
-            <v-sheet class="h-100 w-100 border"
+    <div
+        class="main w-screen h-screen pa-2"
+        style="background-color: #b0ceceaf;"
+    >
+        <v-responsive
+            v-for="deal in toRedeem"
+            class="panel-main ma-2"
+            style="overflow: visible;"
+        >
+            <v-sheet 
+                class="h-100 w-100 border"
                 rounded="xl"
                 color=""
                 style="box-shadow: 0 3px 7px rgba(0, 0, 0, 0.5);"
-                >
-            </v-sheet>
+            />
             <svg style="position: absolute; width: 0; height: 0;">
-                <clipPath id="my-clip-path" clipPathUnits="objectBoundingBox">
-                    <path d="M0,0.75,1,0.4,1,1,0,1Z"></path>
+                <clipPath
+                    id="my-clip-path"
+                    clipPathUnits="objectBoundingBox"
+                >
+                    <path d="M0,0.75,1,0.4,1,1,0,1Z"/>
                 </clipPath>
             </svg>
-            <v-sheet class="position-absolute top-0 h-100 w-100"
+            <v-sheet
+                class="position-absolute top-0 h-100 w-100"
                 rounded="xl"
                 color="#7baeafaf"
                 style='clip-path: url(#my-clip-path);'
-                >
-            </v-sheet>
+            />
             <div class="position-absolute top-0 w-100 h-100 pa-2 d-flex flex-column align-center">
                 <div class="h-75 w-100 d-flex flex-row align-center justify-space-evenly">
-                    <div class="h-100 d-flex align-center justify-center" style="flex:5 5">
+                    <div
+                        class="h-100 d-flex align-center justify-center"
+                        style="flex:5 5"
+                    >
                         <strong>Booster</strong>
                     </div>
                     <div class="flex-1-1 h-100 d-flex align-center justify-begin">
@@ -144,38 +157,41 @@ async function testRedeem() {
                             class="booster-css"
                         >
                             <booster-base 
-                            ref="booster"
-                            logo="https://upload.wikimedia.org/wikipedia/commons/5/5a/Black_question_mark.png" 
-                            name=""
-                            @contextmenu.prevent
-                            @dragstart.prevent
+                                ref="booster"
+                                logo="https://upload.wikimedia.org/wikipedia/commons/5/5a/Black_question_mark.png" 
+                                name=""
+                                @contextmenu.prevent
+                                @dragstart.prevent
                             >
-                            <div class="position-absolute top-0 h-100 w-100"></div>
+                                <div class="position-absolute top-0 h-100 w-100"/>
                             </booster-base>
                         </div>
                     </div>
                 </div>
                 <div class="flex-fill w-100 pa-2 d-flex align-center">
                     <v-progress-linear
-                    class="h-100"
-                    color="light-green-darken-4"
-                    :model-value="(((deal.startDate ?? 0) + deal.totalWaitTime - now) / deal.totalWaitTime) * 100"
-                    rounded
-                    style="background-color: rgba(0, 0, 0, 0.2);"
+                        class="h-100"
+                        color="light-green-darken-4"
+                        :model-value="(((deal.startDate ?? 0) + deal.totalWaitTime - now) / deal.totalWaitTime) * 100"
+                        rounded
+                        style="background-color: rgba(0, 0, 0, 0.2);"
 
-                    v-if="(deal.startDate ?? 0) + deal.totalWaitTime > now"
+                        v-if="(deal.startDate ?? 0) + deal.totalWaitTime > now"
                     >
-                        <div class="box-child w-100 h-100" style="
+                        <div
+                            class="box-child w-100 h-100"
+                            style="
                             box-shadow: inset 0 0 2px; position: absolute;
                             pointer-events: none;
                             top: 0;
                             left: 0;
-                        "></div>
+                        "
+                        />
                         <strong class="loading-text">Booster en cours; {{ (deal.startDate ?? 0) + deal.totalWaitTime - now }}s restantes ...</strong>
                     </v-progress-linear>
                     <v-btn
-                    v-else
-                    @click="redeem(deal.uid)"
+                        v-else
+                        @click="redeem(deal.uid)"
                     >
                         Redeem
                     </v-btn>
@@ -184,7 +200,10 @@ async function testRedeem() {
         </v-responsive>
     </div>
     <div class="sticky-footer">
-        <v-expansion-panels style="background: none;" v-bind:model-value="['panel']">
+        <v-expansion-panels
+            style="background: none;"
+            v-bind:model-value="['panel']"
+        >
             <v-expansion-panel
                 value="panel"
                 style="border-top: 1px solid; border-left: 1px solid; border-right: 1px solid; border-radius: 15px 15px 0px 0px;"
@@ -195,10 +214,13 @@ async function testRedeem() {
                     style="height: 5vh; min-height: 0; box-shadow: 0px 3px 10px -6px black;"
                 >
                     <template v-slot:actions="{expanded}">   
-                        <v-icon :icon="expanded ? 'mdi-chevron-down': 'mdi-chevron-up'"></v-icon>
+                        <v-icon :icon="expanded ? 'mdi-chevron-down': 'mdi-chevron-up'"/>
                     </template>                    
-                    <template v-slot:default="">
-                        <v-row no-gutters class="h-100 w-100 position-absolute top-0 left-0 align-center">
+                    <template v-slot="">
+                        <v-row
+                            no-gutters
+                            class="h-100 w-100 position-absolute top-0 left-0 align-center"
+                        >
                             <v-col align="center">
                                 Dealership
                             </v-col>
@@ -219,10 +241,9 @@ async function testRedeem() {
                         :now="now"
                         class="flex-fill border-bottom"
                         style="height: 33%; min-height: 120px;"
-                    >
-                    </deal-proposal>
+                    />
 
-                    <div class="mini-spacer"></div>
+                    <div class="mini-spacer"/>
                     
                     <deal-proposal
                         v-for="deal in disabledDeals"
@@ -232,9 +253,8 @@ async function testRedeem() {
                         :now="now"
                         class="flex-fill border-bottom-faded"
                         style="height: 33%; min-height: 120px; opacity: 0.5;"
-                    >
-                    </deal-proposal>
-                    <div class="mini-spacer"></div>
+                    />
+                    <div class="mini-spacer"/>
                 </v-expansion-panel-text>
             </v-expansion-panel>
         </v-expansion-panels>
@@ -249,14 +269,17 @@ async function testRedeem() {
     </div>
 
     <v-dialog
-    v-if="redeemed !== null"
-    v-model="showRedeemed"
+        v-if="redeemed !== null"
+        v-model="showRedeemed"
     >
         <v-sheet style="overflow: hidden;">
-            <div class="w-100 pa-2" style="text-align: center; font-weight: 800; font-size: 20px;">
+            <div
+                class="w-100 pa-2"
+                style="text-align: center; font-weight: 800; font-size: 20px;"
+            >
                 Got a new item : 
             </div>
-            <v-divider></v-divider>
+            <v-divider/>
             <v-row class="pa-2">
                 <v-col>
                     <div style="text-align: end; font-weight: 600; font-size: 16px;">
@@ -265,34 +288,32 @@ async function testRedeem() {
                 </v-col>
                 <v-col>
                     <div style="text-align: start; font-size: 16px;">
-                    {{ getItemLangData(redeemed.type, redeemed.id).value.name }}
+                        {{ getItemLangData(redeemed.type, redeemed.id).value.name }}
                     </div>
                 </v-col>
             </v-row>
             <item
-            class="mb-3 flex-1-1"
-            :item="redeemed"
-            style="max-height: 20vh;"
-            >
-            </item>
+                class="mb-3 flex-1-1"
+                :item="redeemed"
+                style="max-height: 20vh;"
+            />
             <v-toolbar class="pl-2 pr-2">
-                <v-spacer></v-spacer>
+                <v-spacer/>
                 <v-btn
-                class="mr-2"
-                color="success"
-                variant="flat"
-                @click="goToCollection(redeemed.uid)"
+                    class="mr-2"
+                    color="success"
+                    variant="flat"
+                    @click="goToCollection(redeemed.uid)"
                 >
                     Go >
                 </v-btn>
 
                 <v-btn
-                variant="outlined"
-                @click="showRedeemed = false"
+                    variant="outlined"
+                    @click="showRedeemed = false"
                 >
                     CLOSE
                 </v-btn>
-                
             </v-toolbar>
         </v-sheet>
     </v-dialog>

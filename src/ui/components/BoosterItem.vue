@@ -33,7 +33,10 @@ function temp_replace(url: string): string {
 </script>
 
 <template>
-    <booster-base :logo="temp_replace(logo)" :name="name">
-        <slot></slot>
+    <booster-base
+        :logo="temp_replace(logo)"
+        :name="name"
+    >
+        <slot/>
     </booster-base>
 </template>

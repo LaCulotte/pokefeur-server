@@ -26,13 +26,28 @@ async function action() {
 </script>
 
 <template>
-    <div v-if="user.isAuthenticatedFlag">Logged as {{ user.data.username }}</div>
-    <div v-else>Not Logged</div>
+    <div v-if="user.isAuthenticatedFlag">
+        Logged as {{ user.data.username }}
+    </div>
+    <div v-else>
+        Not Logged
+    </div>
 
     <v-form @submit.prevent="action"> 
-        <v-text-field v-model="username" type="text" placeholder="Username" />
-        <v-btn type="submit" value="Login">{{ user.isAuthenticatedFlag ? 'Logout' : 'Login'}}</v-btn>
+        <v-text-field
+            v-model="username"
+            type="text"
+            placeholder="Username"
+        />
+        <v-btn
+            type="submit"
+            value="Login"
+        >
+            {{ user.isAuthenticatedFlag ? 'Logout' : 'Login'}}
+        </v-btn>
     </v-form>
 
-    <v-sheet v-if="errorMessage !== ''">Login failed : {{ errorMessage }}</v-sheet>
+    <v-sheet v-if="errorMessage !== ''">
+        Login failed : {{ errorMessage }}
+    </v-sheet>
 </template>

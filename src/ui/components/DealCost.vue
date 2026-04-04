@@ -79,7 +79,11 @@ function getSetLogo(setId: string): string {
                 @click="$emit('cost-click', cost, idx)"
             >
                 <template v-slot:common-content>
-                    <slot name="item-cost" :cost="cost" :idx="idx"></slot>
+                    <slot
+                        name="item-cost"
+                        :cost="cost"
+                        :idx="idx"
+                    />
                 </template>
             </item>
             <!-- <div
@@ -98,27 +102,37 @@ function getSetLogo(setId: string): string {
             <!-- TODO : make a better  -->
              
             <card
-            v-else-if="cost.type == 'card-of-set'"
-            :key="`${idx}-of-set`"
-            card-id="sm7.5-1"
-            @click="$emit('cost-click', cost, idx)"
+                v-else-if="cost.type == 'card-of-set'"
+                :key="`${idx}-of-set`"
+                card-id="sm7.5-1"
+                @click="$emit('cost-click', cost, idx)"
             >
-                <v-img class="w-100 h-100" style="overflow: visible;" :src="getSetLogo(cost.id)">
-                </v-img>
-                <slot name="item-cost" :cost="cost" :idx="idx"></slot>
+                <v-img
+                    class="w-100 h-100"
+                    style="overflow: visible;"
+                    :src="getSetLogo(cost.id)"
+                />
+                <slot
+                    name="item-cost"
+                    :cost="cost"
+                    :idx="idx"
+                />
             </card>
             <booster-base
-            v-else-if="cost.type == 'card-of-pokemon'"
-            :key="`${idx}-of-pokemon`"
-            logo=""
-            name=""
-            @click="$emit('cost-click', cost, idx)"
+                v-else-if="cost.type == 'card-of-pokemon'"
+                :key="`${idx}-of-pokemon`"
+                logo=""
+                name=""
+                @click="$emit('cost-click', cost, idx)"
             >
                 <pokemon-icon
-                :id="cost.id"
-                >
-                </pokemon-icon>
-                <slot name="item-cost" :cost="cost" :idx="idx"></slot>
+                    :id="cost.id"
+                />
+                <slot
+                    name="item-cost"
+                    :cost="cost"
+                    :idx="idx"
+                />
             </booster-base>
             <div v-else>
                 {{ 
@@ -127,7 +141,6 @@ function getSetLogo(setId: string): string {
                 }}
                 Not implemented yet :c
             </div>
-
         </div>
         <div
             v-for="(count, idx) in energies"

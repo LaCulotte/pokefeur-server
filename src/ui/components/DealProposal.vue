@@ -214,158 +214,190 @@ const scrollElem = useTemplateRef("scroll-elem");
 <template>
     <div>
         <v-row class="h-100 ma-0">
-            <v-col cols="8" class="h-100 pa-0 position-relative" style="overflow: hidden;">
+            <v-col
+                cols="8"
+                class="h-100 pa-0 position-relative"
+                style="overflow: hidden;"
+            >
                 <div class="h-100 pa-0">
                     <deal-cost
                         :items="deal.cost.items"
                         :energies="deal.cost.energies"
                         style="height: 80%;"
                         class="pt-1 pb-1"
-                    >
-                    </deal-cost>
+                    />
                     <div class="w-100 pl-2">
                         <span>{{ renewMessage }}</span>
                     </div>
                 </div>
                 <div class="h-100 w-100 pt-3 pb-3 position-absolute top-0">
-                    <div class="h-100 w-100 border-right"></div>
+                    <div class="h-100 w-100 border-right"/>
                 </div>
             </v-col>
 
-            <v-col cols="4" class="pa-4 d-flex flex-column align-center justify-center">
-                <div class="section-title">Reward</div>
-                <div class="reward-title">Booster</div>
+            <v-col
+                cols="4"
+                class="pa-4 d-flex flex-column align-center justify-center"
+            >
+                <div class="section-title">
+                    Reward
+                </div>
+                <div class="reward-title">
+                    Booster
+                </div>
 
                 <v-dialog
-                class="on-top"
-                transition="slide-y-transition"
-                overlay-transition="slide-y-transition"
-                @after-leave="close()">
+                    class="on-top"
+                    transition="slide-y-transition"
+                    overlay-transition="slide-y-transition"
+                    @after-leave="close()"
+                >
                     <template v-slot:activator="{ props: activatorProps }">
                         <v-btn
-                        v-if="!disabled"
-                        v-bind="activatorProps"
-                        color="success"
-                        class="mt-3"
-                        density="compact"
+                            v-if="!disabled"
+                            v-bind="activatorProps"
+                            color="success"
+                            class="mt-3"
+                            density="compact"
                         >
                             ACCEPT
                         </v-btn>
                         <v-btn
-                        v-else
-                        variant="outlined"
-                        :ripple="false"
-                        color="black"
-                        class="mt-3"
-                        density="compact" 
+                            v-else
+                            variant="outlined"
+                            :ripple="false"
+                            color="black"
+                            class="mt-3"
+                            density="compact" 
                         >
                             RENEWING
                         </v-btn>
                     </template>
-                    <template v-slot:default="{ isActive }">
+                    <template v-slot="{ isActive }">
                         <v-sheet
-                        color="rgba(255, 255, 255)"
-                        class="on-top"
-                        ref="scroll-elem"
+                            color="rgba(255, 255, 255)"
+                            class="on-top"
+                            ref="scroll-elem"
                         >
                             <!-- <div style="overflow: auto;" ref="scroll-elem" class="h-100 w-100 ">
                             <div  class="h-100 w-100"> -->
-                                <v-sheet class="sticky-header" color="white">
-                                    <v-toolbar class="pl-2 pr-2">
-                                        <v-btn
+                            <v-sheet
+                                class="sticky-header"
+                                color="white"
+                            >
+                                <v-toolbar class="pl-2 pr-2">
+                                    <v-btn
                                         variant="outlined"
                                         @click="isActive.value = false;"
-                                        >
-                                            CLOSE
-                                        </v-btn>
+                                    >
+                                        CLOSE
+                                    </v-btn>
                                         
-                                        <v-spacer></v-spacer>
+                                    <v-spacer/>
                                         
-                                        <v-btn
+                                    <v-btn
                                         color="success"
                                         variant="flat"
                                         :disabled="!canAccept"
                                         @click="user.acceptDeal(props.deal.uid, payment);"
-                                        >
-                                            ACCEPT
-                                        </v-btn>
-                                    </v-toolbar>
+                                    >
+                                        ACCEPT
+                                    </v-btn>
+                                </v-toolbar>
                                     
-                                    <!-- :deal-cost="deal.cost.filter((c) => { return c.type !== 'energy'; })" -->
-                                    <deal-cost
+                                <!-- :deal-cost="deal.cost.filter((c) => { return c.type !== 'energy'; })" -->
+                                <deal-cost
                                     :items="deal.cost.items"
                                     :selected-items="[]"
                                     class="pa-3"
                                     style="max-height: 30vh;"
                                     @cost-click="costClick"
-                                    >
-                                        <template v-slot:item-cost="{cost, idx}">
-                                            <local-scope
+                                >
+                                    <template v-slot:item-cost="{cost, idx}">
+                                        <local-scope
                                             :paymentItem="getPaymentFromCost(idx)"
                                             v-slot="{paymentItem}"
-                                            >
-                                                <v-sheet
+                                        >
+                                            <v-sheet
                                                 v-if="paymentItem !== undefined"
                                                 class="position-absolute top-0 w-100 h-100 d-flex align-center justify-center"
                                                 color="rgba(0,0,0,0)"
-                                                >
-                                                    <div
-                                                    style="color: rgb(56, 175, 60); font-family: 'Courier New', Courier, monospace; font-weight: 1000; font-size: 100px;"
-                                                    >
-                                                        {{ paymentItem.costIndex + 1 }}
-                                                    </div>
-                                                </v-sheet>
+                                            >
                                                 <div
+                                                    style="color: rgb(56, 175, 60); font-family: 'Courier New', Courier, monospace; font-weight: 1000; font-size: 100px;"
+                                                >
+                                                    {{ paymentItem.costIndex + 1 }}
+                                                </div>
+                                            </v-sheet>
+                                            <div
                                                 class="position-absolute top-0 w-100 h-100 fade"
                                                 :class="[paymentItem === undefined ? 'show' : '']"
-                                                style="background-color: rgba(0, 0, 0, 0.5);">
-                                                </div>
-                                                <v-sheet
+                                                style="background-color: rgba(0, 0, 0, 0.5);"
+                                            />
+                                            <v-sheet
                                                 v-if="idx === selectedCostIndex"
                                                 class="position-absolute top-0 w-100 h-100"
                                                 color="rgba(0,0,0,0)"
                                                 style="border: solid 3px rgb(56, 175, 60);"
                                                 rounded="md"
-                                                ></v-sheet>
-                                            </local-scope>
-                                        </template>
-                                    </deal-cost>
+                                            />
+                                        </local-scope>
+                                    </template>
+                                </deal-cost>
 
-                                    <v-divider/>
-                                </v-sheet>
+                                <v-divider/>
+                            </v-sheet>
                             
-                                <!-- <div ></div> -->
-                                <v-sheet style="overflow: auto;">
-                                    <energy
+                            <!-- <div ></div> -->
+                            <v-sheet style="overflow: auto;">
+                                <energy
                                     v-for="(count, type) of deal.cost.energies"
                                     :type="parseInt(type)"
                                     :text_proportion="0.8"
                                     class="pt-2 pb-2 w-100"
-                                    >
-                                        <v-row>
-                                            <v-col cols="2" class="d-flex justify-begin">
-                                                {{ (user.data.inventory.energies[parseInt(type) as Type] ?? 0) - (payment.energies[parseInt(type) as Type] ?? 0)}}
-                                            </v-col>
-                                            <v-col cols="3" class="d-flex justify-center">
-                                                <v-chip
+                                >
+                                    <v-row>
+                                        <v-col
+                                            cols="2"
+                                            class="d-flex justify-begin"
+                                        >
+                                            {{ (user.data.inventory.energies[parseInt(type) as Type] ?? 0) - (payment.energies[parseInt(type) as Type] ?? 0)}}
+                                        </v-col>
+                                        <v-col
+                                            cols="3"
+                                            class="d-flex justify-center"
+                                        >
+                                            <v-chip
                                                 class="h-100"
                                                 :disabled="(payment.energies[parseInt(type) as Type] ?? 0) <= 0"
-                                                @click="removeEnergy(parseInt(type) as Type)">-</v-chip>
-                                            </v-col>
-                                            <v-col cols="4" class="d-flex justify-center">
-                                                {{ payment.energies[parseInt(type) as Type] ?? 0 }} / {{ count! }}
-                                            </v-col>
-                                            <v-col cols="3" class="d-flex justify-center">
-                                                <v-chip
+                                                @click="removeEnergy(parseInt(type) as Type)"
+                                            >
+                                                -
+                                            </v-chip>
+                                        </v-col>
+                                        <v-col
+                                            cols="4"
+                                            class="d-flex justify-center"
+                                        >
+                                            {{ payment.energies[parseInt(type) as Type] ?? 0 }} / {{ count! }}
+                                        </v-col>
+                                        <v-col
+                                            cols="3"
+                                            class="d-flex justify-center"
+                                        >
+                                            <v-chip
                                                 class="h-100"
                                                 :disabled="(payment.energies[parseInt(type) as Type] ?? 0) >= count! || (payment.energies[parseInt(type) as Type] ?? 0) >= (user.data.inventory.energies[parseInt(type) as Type] ?? 0)"
-                                                @click="addEnergy(parseInt(type) as Type)">+</v-chip>
-                                            </v-col>
-                                        </v-row>
-                                    </energy>
-                                    <v-divider/>
+                                                @click="addEnergy(parseInt(type) as Type)"
+                                            >
+                                                +
+                                            </v-chip>
+                                        </v-col>
+                                    </v-row>
+                                </energy>
+                                <v-divider/>
 
-                                    <item-grid
+                                <item-grid
                                     v-if="scrollElem !== null"
                                     :items="displayInventory"
                                     :max-item-height-ratio="0.2"
@@ -376,38 +408,39 @@ const scrollElem = useTemplateRef("scroll-elem");
                                     ref="item-grid"
                                     :focus-item-uid="focusedItem"
                                     :focus-trigger="focusTrigger"
-                                    >
-                                        <template v-slot:common-content="{ item }">
-                                            <local-scope
+                                >
+                                    <template v-slot:common-content="{ item }">
+                                        <local-scope
                                             :paymentItem="getPaymentFromItem(item.uid)"
                                             v-slot="{paymentItem}"
-                                            >
-                                                <div
+                                        >
+                                            <div
                                                 class="position-absolute top-0 w-100 h-100 fade"
                                                 :class="[(currentCostCompleted && paymentItem?.costIndex != selectedCostIndex) || (paymentItem !== undefined && paymentItem?.costIndex != selectedCostIndex) ? 'show' : '']"
-                                                style="background-color: rgba(0, 0, 0, 0.5);"></div>
+                                                style="background-color: rgba(0, 0, 0, 0.5);"
+                                            />
                                                 
-                                                <v-sheet
+                                            <v-sheet
                                                 v-if="paymentItem?.costIndex == selectedCostIndex"
                                                 class="position-absolute top-0 w-100 h-100"
                                                 color="rgba(0,0,0,0)"
                                                 style="border: solid 3px rgb(56, 175, 60);"
                                                 rounded="md"
-                                                ></v-sheet>
+                                            />
 
-                                                <v-sheet
+                                            <v-sheet
                                                 v-if="paymentItem !== undefined"
                                                 class="position-absolute top-0 w-100 h-100 d-flex align-center justify-center"
                                                 color="rgba(0,0,0,0)"
-                                                >
-                                                    <div
+                                            >
+                                                <div
                                                     style="color: rgb(56, 175, 60); font-family: 'Courier New', Courier, monospace; font-weight: 1000; font-size: 100px;"
-                                                    >
-                                                        {{ paymentItem.costIndex + 1 }}
-                                                    </div>
-                                                </v-sheet>
+                                                >
+                                                    {{ paymentItem.costIndex + 1 }}
+                                                </div>
+                                            </v-sheet>
 
-                                                <v-btn
+                                            <v-btn
                                                 v-if="paymentItem !== undefined"
                                                 class="position-absolute close-btn-pos"
                                                 @click.stop="removeItemPayment(item.uid)"
@@ -415,18 +448,17 @@ const scrollElem = useTemplateRef("scroll-elem");
                                                 density="compact"
                                                 size="small"
                                                 :icon="`mdi-cross`"
-                                                >
-                                                    x
-                                                </v-btn>
-                                            </local-scope>
+                                            >
+                                                x
+                                            </v-btn>
+                                        </local-scope>
+                                    </template>
+                                </item-grid>
 
-                                        </template>
-                                    </item-grid>
-
-                                    <div v-if="displayInventory.length == 0">
-                                        No available item :c
-                                    </div>
-                                </v-sheet>
+                                <div v-if="displayInventory.length == 0">
+                                    No available item :c
+                                </div>
+                            </v-sheet>
                             <!-- </div> -->
                             <!-- </div> -->
                         </v-sheet>

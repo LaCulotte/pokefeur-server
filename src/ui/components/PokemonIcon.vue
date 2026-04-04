@@ -53,11 +53,19 @@ const name = computed(() => {
 </script>
 
 <template>
-<div class="h-100 w-100">
-    <div class="d-flex justify-center align-center h-100 w-100" style="overflow: visible;" ref="main">
-        <div :class="`icon`" :title="name" :style="style"></div>
+    <div class="h-100 w-100">
+        <div
+            class="d-flex justify-center align-center h-100 w-100"
+            style="overflow: visible;"
+            ref="main"
+        >
+            <div
+                :class="`icon`"
+                :title="name"
+                :style="style"
+            />
+        </div>
     </div>
-</div>
 </template>
 
 <style scoped>

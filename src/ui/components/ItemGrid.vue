@@ -228,43 +228,57 @@ onUnmounted(() => {
 </script>
 
 <template>
-<div :style="mainStyle" ref="main">
-    <div class="w-100 align-content-start ma-0" :style="gridStyle">
+    <div
+        :style="mainStyle"
+        ref="main"
+    >
         <div
-        v-for="obj of shownItems"
-        :cols="Math.ceil(12 / numCols)"
-        class="w-100 d-flex justify-center align-center"
-        style="padding: 4px;"
-        :style="itemStyle"
-        :key="obj.uid"
+            class="w-100 align-content-start ma-0"
+            :style="gridStyle"
         >
-            <item
-            :id="obj.uid"
-            :item="obj"
-            :key="obj.uid"
-            @click="$emit('item-click', obj)"
+            <div
+                v-for="obj of shownItems"
+                :cols="Math.ceil(12 / numCols)"
+                class="w-100 d-flex justify-center align-center"
+                style="padding: 4px;"
+                :style="itemStyle"
+                :key="obj.uid"
             >
-                <template v-slot:common-content="{ item }">
-                    <slot name="common-content" :item="item"></slot>
+                <item
+                    :id="obj.uid"
+                    :item="obj"
+                    :key="obj.uid"
+                    @click="$emit('item-click', obj)"
+                >
+                    <template v-slot:common-content="{ item }">
+                        <slot
+                            name="common-content"
+                            :item="item"
+                        />
                         <div
-                        class="position-absolute top-0 h-100 w-100"
-                        :class="obj.uid == focusedUid ? focusedClass : []"
-                        style="pointer-events: none"
-                        >
-                        </div>
-                </template>
+                            class="position-absolute top-0 h-100 w-100"
+                            :class="obj.uid == focusedUid ? focusedClass : []"
+                            style="pointer-events: none"
+                        />
+                    </template>
 
-                <template v-slot:booster-content="{ booster }">
-                    <slot name="booster-content" :booster="booster"></slot>
-                </template>
+                    <template v-slot:booster-content="{ booster }">
+                        <slot
+                            name="booster-content"
+                            :booster="booster"
+                        />
+                    </template>
 
-                <template v-slot:card-content="{ card }">
-                    <slot name="card-content" :card="card"></slot>
-                </template>
-            </item>
+                    <template v-slot:card-content="{ card }">
+                        <slot
+                            name="card-content"
+                            :card="card"
+                        />
+                    </template>
+                </item>
+            </div>
         </div>
     </div>
-</div>
 </template>
 
 <style>

@@ -79,63 +79,74 @@ const items: ComputedRef<Array<DisplayInventoryItem>> = computed(() => {
 <template>
     <div>
         <!-- Energies table -->
-        <v-row class="w-100 ma-0" style="margin-bottom: 1vh !important">
-            <v-col :cols="energyColsSize"
-            v-for="energyType in SUPPORTED_ENERGY_TYPES"
-            :key="energyType"
-            class="d-flex justify-center align-center"
+        <v-row
+            class="w-100 ma-0"
+            style="margin-bottom: 1vh !important"
+        >
+            <v-col
+                :cols="energyColsSize"
+                v-for="energyType in SUPPORTED_ENERGY_TYPES"
+                :key="energyType"
+                class="d-flex justify-center align-center"
             >
                 <energy :type="energyType">
                     {{ user.data.inventory.energies[energyType] ?? -1 }}
                 </energy>
             </v-col>
         </v-row>
-        <v-divider></v-divider>
+        <v-divider/>
         <item-grid
-        :items="items"
-        :max-item-height-ratio="0.25"
-        :min-item-height-ratio="0.25"
-        :scroll-elem="scrollElem"
-        class="mt-2"
+            :items="items"
+            :max-item-height-ratio="0.25"
+            :min-item-height-ratio="0.25"
+            :scroll-elem="scrollElem"
+            class="mt-2"
         >
             <template v-slot:common-content="{ item }">
                 <v-btn
-                v-if="!item.isInTrade"
-                class="position-absolute close-btn-pos"
-                @click="removeItem(item.uid)"
-                color="error"
-                density="compact"
-                size="small"
-                :icon="`mdi-cross`"
+                    v-if="!item.isInTrade"
+                    class="position-absolute close-btn-pos"
+                    @click="removeItem(item.uid)"
+                    color="error"
+                    density="compact"
+                    size="small"
+                    :icon="`mdi-cross`"
                 >
                     x
                 </v-btn>
 
                 <div
-                class="position-absolute top-0 h-100 w-100 d-flex justify-center align-center"
-                :style="item.isInTrade ? 'background-color: rgba(0, 0, 0, 0.25);' : ''"
-                style="pointer-events: none"
+                    class="position-absolute top-0 h-100 w-100 d-flex justify-center align-center"
+                    :style="item.isInTrade ? 'background-color: rgba(0, 0, 0, 0.25);' : ''"
+                    style="pointer-events: none"
                 >
-                    <div v-if="item.isInTrade" style="color: red; font-weight: 800; font-size: 25px; text-align: center;">IN TRADE</div>
+                    <div
+                        v-if="item.isInTrade"
+                        style="color: red; font-weight: 800; font-size: 25px; text-align: center;"
+                    >
+                        IN TRADE
+                    </div>
                 </div>
             </template>
 
             <template v-slot:booster-content="{ booster }">
                 <v-btn
-                v-if="!booster.isInTrade"
-                class="pa-2 position-absolute"
-                style="top: 75%; left: 50%; transform: translate(-50%, -50%);"
-                @click="user.openBooster(booster.uid)">
+                    v-if="!booster.isInTrade"
+                    class="pa-2 position-absolute"
+                    style="top: 75%; left: 50%; transform: translate(-50%, -50%);"
+                    @click="user.openBooster(booster.uid)"
+                >
                     Open
                 </v-btn>
             </template>
 
             <template v-slot:card-content="{ card }">
                 <v-btn
-                v-if="!card.isInTrade && isCardRecyclable(card)"
-                class="pa-2 position-absolute"
-                style="top: 75%; left: 50%; transform: translate(-50%, -50%);"
-                @click="user.recycleCard(card.uid)">
+                    v-if="!card.isInTrade && isCardRecyclable(card)"
+                    class="pa-2 position-absolute"
+                    style="top: 75%; left: 50%; transform: translate(-50%, -50%);"
+                    @click="user.recycleCard(card.uid)"
+                >
                     Recycle
                 </v-btn>
             </template>

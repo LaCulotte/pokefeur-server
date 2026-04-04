@@ -65,7 +65,7 @@ onUnmounted(() => {
                     title="Admin"
                 >
                     <v-expansion-panel-text>
-                        <admin-dashboard></admin-dashboard>
+                        <admin-dashboard/>
                     </v-expansion-panel-text>
                 </v-expansion-panel>
             </v-expansion-panels>
@@ -84,33 +84,37 @@ onUnmounted(() => {
             />
         </div>
 
-        <div class="position-absolute d-flex flex-column top-0 w-100 h-100 inventory-scroll" ref="scroll-inventory" id="scroll-inventory"
-        style="background-color: rgba(95, 158, 160, 0.4); overflow: auto;"
+        <div
+            class="position-absolute d-flex flex-column top-0 w-100 h-100 inventory-scroll"
+            ref="scroll-inventory"
+            id="scroll-inventory"
+            style="background-color: rgba(95, 158, 160, 0.4); overflow: auto;"
         >
-            <div class="sticky-header pa-2" style="z-index: -10; visibility: hidden;">
+            <div
+                class="sticky-header pa-2"
+                style="z-index: -10; visibility: hidden;"
+            >
                 <v-expansion-panels style="background: none;">
                     <v-expansion-panel
                         title="Fake expansion panel"
                         text=""
-                    >
-                    </v-expansion-panel>
+                    />
                 </v-expansion-panels>
             </div>
 
             <div
-            class="w-100"
-            ref="inventory-parent"
-            :style="lockedHeight > 0 ? `min-height: ${lockedHeight}px;` : ''"
+                class="w-100"
+                ref="inventory-parent"
+                :style="lockedHeight > 0 ? `min-height: ${lockedHeight}px;` : ''"
             >
                 <div
-                class="pa-3 w-100"
-                ref="inside-elem"
+                    class="pa-3 w-100"
+                    ref="inside-elem"
                 >
                     <inventory 
-                    :max-item-height="'30vh'"
-                    :scroll-elem="scrollElem"
-                    >
-                    </inventory>
+                        :max-item-height="'30vh'"
+                        :scroll-elem="scrollElem"
+                    />
                 </div>
                 <!-- <div
                 style="background-color: rgba(95, 158, 160, 0.4);"
@@ -120,7 +124,7 @@ onUnmounted(() => {
                 
                 <!-- <div>salut</div> -->
             </div>
-            <div ref="last-elem"></div>
+            <div ref="last-elem"/>
         </div>
     </div>
 </template>

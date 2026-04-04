@@ -90,20 +90,54 @@ const cols = computed(() => {
     <v-form @submit.prevent="user.addItem(type, id ?? '')">
         <v-row>
             <v-col :cols="cols">
-                <v-select hide-details="auto" density="compact" v-model="type" :items="['card', 'booster']"></v-select>
+                <v-select
+                    hide-details="auto"
+                    density="compact"
+                    v-model="type"
+                    :items="['card', 'booster']"
+                />
             </v-col>
             <v-col :cols="cols">
-                <v-autocomplete hide-details="auto" density="compact" type="text" v-model="serie" :items="seriesAutocomplete"></v-autocomplete>
+                <v-autocomplete
+                    hide-details="auto"
+                    density="compact"
+                    type="text"
+                    v-model="serie"
+                    :items="seriesAutocomplete"
+                />
             </v-col>
-            <v-col :cols="cols" v-if="serie">
-                <v-autocomplete hide-details="auto" density="compact" type="text" v-model="set" :items="setsAutocomplete"></v-autocomplete>
+            <v-col
+                :cols="cols"
+                v-if="serie"
+            >
+                <v-autocomplete
+                    hide-details="auto"
+                    density="compact"
+                    type="text"
+                    v-model="set"
+                    :items="setsAutocomplete"
+                />
             </v-col>
-            <v-col :cols="cols" v-if="set && type == 'card'">
-                <v-autocomplete hide-details="auto" density="compact" type="text" v-model="card" :items="cardsAutocomplete"></v-autocomplete>
+            <v-col
+                :cols="cols"
+                v-if="set && type == 'card'"
+            >
+                <v-autocomplete
+                    hide-details="auto"
+                    density="compact"
+                    type="text"
+                    v-model="card"
+                    :items="cardsAutocomplete"
+                />
             </v-col>
         </v-row>
         <v-row>
-            <v-btn type="submit" :disabled="id == ''">Add</v-btn>
+            <v-btn
+                type="submit"
+                :disabled="id == ''"
+            >
+                Add
+            </v-btn>
         </v-row>
     </v-form>
 </template>
