@@ -16,5 +16,22 @@ export default defineConfigWithVueTs(
   globalIgnores(['**/dist/**', '**/dist-ssr/**', '**/coverage/**']),
 
   pluginVue.configs['flat/essential'],
+  pluginVue.configs['flat/strongly-recommended'],
   vueTsConfigs.recommended,
+
+  {
+    rules: {
+      "vue/html-indent": ["error", 4],
+      "vue/v-slot-style": ["error", {
+        "atComponent": "v-slot",
+        "default": "v-slot",
+        "named": "longform",
+      }],
+      "vue/no-unused-vars": ["error", {
+        "ignorePattern": "^_"
+      }],
+      "@typescript-eslint/no-unused-vars": ["off"],
+      "vue/multi-word-component-names": ["off"]
+    }
+  }
 )
