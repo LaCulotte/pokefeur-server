@@ -1,8 +1,8 @@
 <script setup lang="ts" generic="T">
 defineOptions({ inheritAttrs: false });
-defineProps</* @vue-ignore */ T>();
+const props = defineProps<{ scope: T }>()
 </script>
 
 <template>
-    <slot v-bind="$attrs as T" />
+    <slot v-bind="$props.scope" />
 </template>

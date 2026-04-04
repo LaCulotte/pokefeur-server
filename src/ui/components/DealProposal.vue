@@ -313,16 +313,21 @@ const scrollElem = useTemplateRef("scroll-elem");
                                     style="max-height: 30vh;"
                                     @cost-click="costClick"
                                 >
-                                    <template v-slot:item-cost="{cost, idx}">
-                                        <local-scope
+                                    <template v-slot:item-cost="{ idx }">
+                                        <!-- <local-scope
                                             :payment-item="getPaymentFromCost(idx)"
                                             v-slot="{paymentItem}"
+                                        > -->
+                                        <local-scope
+                                            :scope="{ paymentItem: getPaymentFromCost(idx) }"
+                                            v-slot="{ paymentItem }"
                                         >
                                             <v-sheet
                                                 v-if="paymentItem !== undefined"
                                                 class="position-absolute top-0 w-100 h-100 d-flex align-center justify-center"
                                                 color="rgba(0,0,0,0)"
                                             >
+                                                <!-- TODO : have a class instead !! -->
                                                 <div
                                                     style="color: rgb(56, 175, 60); font-family: 'Courier New', Courier, monospace; font-weight: 1000; font-size: 100px;"
                                                 >
@@ -411,9 +416,13 @@ const scrollElem = useTemplateRef("scroll-elem");
                                     :focus-trigger="focusTrigger"
                                 >
                                     <template v-slot:common-content="{ item }">
-                                        <local-scope
+                                        <!-- <local-scope
                                             :payment-item="getPaymentFromItem(item.uid)"
                                             v-slot="{paymentItem}"
+                                        > -->
+                                        <local-scope
+                                            :scope="{ paymentItem: getPaymentFromItem(item.uid) }"
+                                            v-slot="{ paymentItem }"
                                         >
                                             <div
                                                 class="position-absolute top-0 w-100 h-100 fade"
