@@ -1,10 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref, watch, computed } from 'vue';
-// import { staticDataStore, loadDataStore } from './data/static/vueStaticData';
-// import type { User, ItemType } from '../api/data/interfaces';
-// import { lang } from './controller/lang';
 import { user } from '../data/user/vueUserData';
-
 
 // const username = ref("");
 
@@ -62,17 +58,40 @@ import { user } from '../data/user/vueUserData';
 const url = ref("/api/");
 const method = ref("GET");
 const body = ref("");
-const res = ref("")
+const res = ref("");
+
+const isBodyValid = computed(() => {
+    if (!body.value) {
+        return true;
+    }
+
+    try {
+        JSON.parse(body.value)
+        return true;
+    } catch(_) {
+        return false;
+    }
+})
+
+const fetchUrl = computed(() => {
+    if (method.value != "GET") {
+        return url.value;
+    } else if (body.value && isBodyValid.value) {
+        return url.value + "?" + new window.URLSearchParams(JSON.parse(body.value)).toString()
+    }
+
+    return url.value;
+})
 
 function easyFetch() {
-    if (method.value == "GET" && !!body.value) {
-        res.value = "Cannot have a body on GET request"
-        return;
-    }
+    // if (method.value == "GET" && !!body.value) {
+    //     res.value = "Cannot have a body on GET request"
+    //     return;
+    // }
     
-    fetch(url.value, {
+    fetch(fetchUrl.value, {
         method: method.value,
-        body: body.value ? body.value : undefined,
+        body: (method.value != "GET" && body.value) ? body.value : undefined,
         headers: body.value ? {
             "Content-Type": "application/json",
         } : {}
@@ -81,7 +100,7 @@ function easyFetch() {
         return res.text()
     })
     .then((t) => {
-        res.value = JSON.stringify(JSON.parse(t), null, 2).slice(0, 1000);
+        res.value = JSON.stringify(JSON.parse(t), null, 2).slice(0, 10000);
     });
 }
 </script>
@@ -101,7 +120,7 @@ function easyFetch() {
                 <v-textarea type="text" v-model="body"></v-textarea>
             </div>
             <div>
-                <v-btn type="submit">SEND</v-btn>
+                <v-btn type="submit" :disabled="!isBodyValid">SEND</v-btn>
             </div>
         </v-form>
         <div v-if="!!res">
