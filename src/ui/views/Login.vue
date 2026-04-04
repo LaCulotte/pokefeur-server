@@ -43,7 +43,7 @@ async function action() {
             type="submit"
             value="Login"
         >
-            {{ user.isAuthenticatedFlag ? 'Logout' : 'Login'}}
+            {{ user.isAuthenticatedFlag ? 'Logout' : 'Login' }}
         </v-btn>
     </v-form>
 

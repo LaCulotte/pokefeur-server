@@ -44,7 +44,7 @@ function goToDealership() {
                 />
             </div>
 
-            <div style="flex: 1 1"/>
+            <div style="flex: 1 1" />
         </div>
 
 

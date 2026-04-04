@@ -50,7 +50,7 @@ function temp_replace(url: string): string {
                     :src="temp_replace(image)"
                     :title="name"
                 />
-                <slot/>
+                <slot />
             </v-responsive>
         </div>
     </div>

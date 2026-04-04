@@ -135,14 +135,14 @@ async function testRedeem() {
                     id="my-clip-path"
                     clipPathUnits="objectBoundingBox"
                 >
-                    <path d="M0,0.75,1,0.4,1,1,0,1Z"/>
+                    <path d="M0,0.75,1,0.4,1,1,0,1Z" />
                 </clipPath>
             </svg>
             <v-sheet
                 class="position-absolute top-0 h-100 w-100"
                 rounded="xl"
                 color="#7baeafaf"
-                style='clip-path: url(#my-clip-path);'
+                style="clip-path: url(#my-clip-path);"
             />
             <div class="position-absolute top-0 w-100 h-100 pa-2 d-flex flex-column align-center">
                 <div class="h-75 w-100 d-flex flex-row align-center justify-space-evenly">
@@ -163,7 +163,7 @@ async function testRedeem() {
                                 @contextmenu.prevent
                                 @dragstart.prevent
                             >
-                                <div class="position-absolute top-0 h-100 w-100"/>
+                                <div class="position-absolute top-0 h-100 w-100" />
                             </booster-base>
                         </div>
                     </div>
@@ -202,7 +202,7 @@ async function testRedeem() {
     <div class="sticky-footer">
         <v-expansion-panels
             style="background: none;"
-            v-bind:model-value="['panel']"
+            :model-value="['panel']"
         >
             <v-expansion-panel
                 value="panel"
@@ -214,7 +214,7 @@ async function testRedeem() {
                     style="height: 5vh; min-height: 0; box-shadow: 0px 3px 10px -6px black;"
                 >
                     <template v-slot:actions="{expanded}">   
-                        <v-icon :icon="expanded ? 'mdi-chevron-down': 'mdi-chevron-up'"/>
+                        <v-icon :icon="expanded ? 'mdi-chevron-down': 'mdi-chevron-up'" />
                     </template>                    
                     <template v-slot="">
                         <v-row
@@ -243,7 +243,7 @@ async function testRedeem() {
                         style="height: 33%; min-height: 120px;"
                     />
 
-                    <div class="mini-spacer"/>
+                    <div class="mini-spacer" />
                     
                     <deal-proposal
                         v-for="deal in disabledDeals"
@@ -254,7 +254,7 @@ async function testRedeem() {
                         class="flex-fill border-bottom-faded"
                         style="height: 33%; min-height: 120px; opacity: 0.5;"
                     />
-                    <div class="mini-spacer"/>
+                    <div class="mini-spacer" />
                 </v-expansion-panel-text>
             </v-expansion-panel>
         </v-expansion-panels>
@@ -279,7 +279,7 @@ async function testRedeem() {
             >
                 Got a new item : 
             </div>
-            <v-divider/>
+            <v-divider />
             <v-row class="pa-2">
                 <v-col>
                     <div style="text-align: end; font-weight: 600; font-size: 16px;">
@@ -298,7 +298,7 @@ async function testRedeem() {
                 style="max-height: 20vh;"
             />
             <v-toolbar class="pl-2 pr-2">
-                <v-spacer/>
+                <v-spacer />
                 <v-btn
                     class="mr-2"
                     color="success"

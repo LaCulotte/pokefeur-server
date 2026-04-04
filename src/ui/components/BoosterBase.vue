@@ -32,7 +32,7 @@ const props = defineProps<{
                         :src="logo"
                     />
                 </v-sheet>
-                <slot/>
+                <slot />
             </v-responsive>
         </div>
     </div>

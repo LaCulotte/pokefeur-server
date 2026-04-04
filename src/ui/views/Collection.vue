@@ -65,7 +65,7 @@ onUnmounted(() => {
                     title="Admin"
                 >
                     <v-expansion-panel-text>
-                        <admin-dashboard/>
+                        <admin-dashboard />
                     </v-expansion-panel-text>
                 </v-expansion-panel>
             </v-expansion-panels>
@@ -124,7 +124,7 @@ onUnmounted(() => {
                 
                 <!-- <div>salut</div> -->
             </div>
-            <div ref="last-elem"/>
+            <div ref="last-elem" />
         </div>
     </div>
 </template>

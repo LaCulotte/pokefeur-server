@@ -94,7 +94,7 @@ const items: ComputedRef<Array<DisplayInventoryItem>> = computed(() => {
                 </energy>
             </v-col>
         </v-row>
-        <v-divider/>
+        <v-divider />
         <item-grid
             :items="items"
             :max-item-height-ratio="0.25"

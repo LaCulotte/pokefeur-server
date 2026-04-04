@@ -231,7 +231,7 @@ const scrollElem = useTemplateRef("scroll-elem");
                     </div>
                 </div>
                 <div class="h-100 w-100 pt-3 pb-3 position-absolute top-0">
-                    <div class="h-100 w-100 border-right"/>
+                    <div class="h-100 w-100 border-right" />
                 </div>
             </v-col>
 
@@ -293,7 +293,7 @@ const scrollElem = useTemplateRef("scroll-elem");
                                         CLOSE
                                     </v-btn>
                                         
-                                    <v-spacer/>
+                                    <v-spacer />
                                         
                                     <v-btn
                                         color="success"
@@ -315,7 +315,7 @@ const scrollElem = useTemplateRef("scroll-elem");
                                 >
                                     <template v-slot:item-cost="{cost, idx}">
                                         <local-scope
-                                            :paymentItem="getPaymentFromCost(idx)"
+                                            :payment-item="getPaymentFromCost(idx)"
                                             v-slot="{paymentItem}"
                                         >
                                             <v-sheet
@@ -345,7 +345,7 @@ const scrollElem = useTemplateRef("scroll-elem");
                                     </template>
                                 </deal-cost>
 
-                                <v-divider/>
+                                <v-divider />
                             </v-sheet>
                             
                             <!-- <div ></div> -->
@@ -361,7 +361,7 @@ const scrollElem = useTemplateRef("scroll-elem");
                                             cols="2"
                                             class="d-flex justify-begin"
                                         >
-                                            {{ (user.data.inventory.energies[parseInt(type) as Type] ?? 0) - (payment.energies[parseInt(type) as Type] ?? 0)}}
+                                            {{ (user.data.inventory.energies[parseInt(type) as Type] ?? 0) - (payment.energies[parseInt(type) as Type] ?? 0) }}
                                         </v-col>
                                         <v-col
                                             cols="3"
@@ -395,7 +395,7 @@ const scrollElem = useTemplateRef("scroll-elem");
                                         </v-col>
                                     </v-row>
                                 </energy>
-                                <v-divider/>
+                                <v-divider />
 
                                 <item-grid
                                     v-if="scrollElem !== null"
@@ -411,7 +411,7 @@ const scrollElem = useTemplateRef("scroll-elem");
                                 >
                                     <template v-slot:common-content="{ item }">
                                         <local-scope
-                                            :paymentItem="getPaymentFromItem(item.uid)"
+                                            :payment-item="getPaymentFromItem(item.uid)"
                                             v-slot="{paymentItem}"
                                         >
                                             <div

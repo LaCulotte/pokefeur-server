@@ -4,11 +4,11 @@ import { Type } from '../../common/constants';
 const {
     type,
     height = 25,
-    text_proportion = 0.7
+    textProportion = 0.7
 } = defineProps<{
     type: Type,
     height?: number
-    text_proportion?: number
+    textProportion?: number
 }>();
 
 const energy_names: Partial<Record<Type, string>> = {
@@ -59,7 +59,7 @@ const energy_class: Partial<Record<Type, string>> = {
                 class="w-100 d-flex justify-center"
                 style="padding-right: 10%;"
             >
-                <slot/>
+                <slot />
             </div>
         </div>
     </div>

@@ -37,6 +37,6 @@ function temp_replace(url: string): string {
         :logo="temp_replace(logo)"
         :name="name"
     >
-        <slot/>
+        <slot />
     </booster-base>
 </template>
