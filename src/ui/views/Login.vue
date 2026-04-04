@@ -14,7 +14,7 @@ async function action() {
         user.logout();
     } else {
         await user.login(username.value);
-        let dest = localStorage.getItem("login-dest");
+        const dest = localStorage.getItem("login-dest");
         if (dest !== null) {
             router.push(dest);
         } else {

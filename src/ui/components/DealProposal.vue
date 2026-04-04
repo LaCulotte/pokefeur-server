@@ -23,7 +23,7 @@ const renewMessage: ComputedRef<string> = computed(() => {
         return "Accepted ...";
     }
     
-    let timeRemaining = (props.deal.proposedDate ?? 0) + props.deal.timeoutDuration - props.now;
+    const timeRemaining = (props.deal.proposedDate ?? 0) + props.deal.timeoutDuration - props.now;
     if (timeRemaining > 0) {
         return `Renewed in ${timeRemaining}s ...`
     } else {
@@ -66,7 +66,7 @@ function removeItemPayment(itemUid: string) {
 function costClick(_: DealCostUnit, costIndex: number) {
     selectedCostIndex.value = costIndex;
 
-    let itemPayment = getPaymentFromCost(costIndex);
+    const itemPayment = getPaymentFromCost(costIndex);
     if (itemPayment !== undefined) {
         focusedItem.value = undefined;
         nextTick(() => { focusedItem.value = itemPayment.itemUid; });
@@ -82,7 +82,7 @@ function costClick(_: DealCostUnit, costIndex: number) {
 }
 
 function itemClick(item: InventoryItem) {
-    let itemPayment = getPaymentFromItem(item.uid)
+    const itemPayment = getPaymentFromItem(item.uid)
     if (itemPayment !== undefined) {
         // const index = payment.value.items.findIndex((payment) => { return payment.itemUid == item.uid; });
         // if (index > -1) {
@@ -96,7 +96,7 @@ function itemClick(item: InventoryItem) {
             nextTick(() => { focusedItem.value = item.uid; });
         }
     } else {
-        let exitingCost = getPaymentFromCost(selectedCostIndex.value);
+        const exitingCost = getPaymentFromCost(selectedCostIndex.value);
         if (exitingCost !== undefined) {
             const index = payment.value.items.findIndex((payment) => { return payment.itemUid == exitingCost.itemUid; });
             if (index > -1) {
@@ -154,7 +154,7 @@ function close() {
 }
 
 const displayInventory: ComputedRef<Array<InventoryItem>> = computed(() => {
-    let costUnit = props.deal.cost.items[selectedCostIndex.value];
+    const costUnit = props.deal.cost.items[selectedCostIndex.value];
     if (costUnit === undefined) {
         return [];
     }
@@ -197,8 +197,8 @@ const canAccept: ComputedRef<boolean> = computed(() => {
         return false;
     }
 
-    for (let [energyType, count] of Object.entries(props.deal.cost.energies)) {
-        let payedCount = payment.value.energies[parseInt(energyType) as Type];
+    for (const [energyType, count] of Object.entries(props.deal.cost.energies)) {
+        const payedCount = payment.value.energies[parseInt(energyType) as Type];
         if (payedCount === undefined || payedCount < count) {
             return false;
         }

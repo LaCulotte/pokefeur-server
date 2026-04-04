@@ -41,7 +41,7 @@ function isCardRecyclable(card: CardItem) {
         return false;
     }
 
-    for (let type of cardData.types) {
+    for (const type of cardData.types) {
         if (!SUPPORTED_ENERGY_TYPES.includes(type)) {
             return false;
         }
@@ -59,13 +59,13 @@ type DisplayInventoryItem = InventoryItem & { isInTrade: boolean };
 const items: ComputedRef<Array<DisplayInventoryItem>> = computed(() => {
     const ret: Array<DisplayInventoryItem> = [];
 
-    for (let item of Object.values(user.data.inventory.items)) {
+    for (const item of Object.values(user.data.inventory.items)) {
         ret.push({
             ...item,
             isInTrade: false
         });
     }
-    for (let item of Object.values(user.data.inventory.inTradeItems)) {
+    for (const item of Object.values(user.data.inventory.inTradeItems)) {
         ret.push({
             ...item,
             isInTrade: true

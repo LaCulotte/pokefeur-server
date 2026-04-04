@@ -16,19 +16,19 @@ const __dirname = path.dirname(__filename);
 
 export async function getSerie(filePath: string) : Promise<[string, SerieData, Array<SerieLangData>]> {
     // let rawSerie: RawSerie = await fs.readFile(filePath, "utf-8").then(data => JSON.parse(data));
-    let rawSerie: RawSerie = (await import(path.join(getImportRelativePath(__dirname), filePath))).default;
-    let serie = deserializeRawSerie(rawSerie);
+    const rawSerie: RawSerie = (await import(path.join(getImportRelativePath(__dirname), filePath))).default;
+    const serie = deserializeRawSerie(rawSerie);
 
-    let enName = rawSerie.name.en;
+    const enName = rawSerie.name.en;
     let serieDate: ISODate = "1970-1-1";
 
     if (enName !== undefined) {
-        let setsGlobQuery = path.join(path.dirname(filePath), enName, "*.ts");
+        const setsGlobQuery = path.join(path.dirname(filePath), enName, "*.ts");
 
-        let setsFiles = await smartGlob(setsGlobQuery);
-        let setList: Array<[ISODate, string]> = [];
-        for (let file of setsFiles) {
-            let setData = await getSet(file);
+        const setsFiles = await smartGlob(setsGlobQuery);
+        const setList: Array<[ISODate, string]> = [];
+        for (const file of setsFiles) {
+            const setData = await getSet(file);
             setList.push([setData.releaseDate, setData.id]);
         }
         
@@ -42,7 +42,7 @@ export async function getSerie(filePath: string) : Promise<[string, SerieData, A
 
     // saveSerie(serie);
 
-    let serieLangs = forEachLang(getAvailableLangs(rawSerie),
+    const serieLangs = forEachLang(getAvailableLangs(rawSerie),
         (lang: SupportedLanguages, defaultVal?: SerieLangData) => {
             return createSerieLang(rawSerie, serie, lang, defaultVal)
         }
@@ -52,7 +52,7 @@ export async function getSerie(filePath: string) : Promise<[string, SerieData, A
 }
 
 function deserializeRawSerie(data: RawSerie) : SerieData {
-    let serie: SerieData = {
+    const serie: SerieData = {
         id: data.id,
         sets: [],
     }
@@ -61,7 +61,7 @@ function deserializeRawSerie(data: RawSerie) : SerieData {
 }
 
 function getAvailableLangs(rawData: RawSerie) : Set<SupportedLanguages> {
-    let ret: Set<SupportedLanguages> = new Set();
+    const ret: Set<SupportedLanguages> = new Set();
 
     Object.keys(rawData.name).forEach((key) => {ret.add(key as SupportedLanguages)});
     
@@ -76,15 +76,15 @@ function createSerieLang(rawData: RawSerie, serie: SerieData, lang: SupportedLan
         name = Object.values(rawData.name)[0];
     }
     
-    let langData: SerieLangData = {
+    const langData: SerieLangData = {
         lang: lang,
         id: serie.id,
         name: name ?? "",
         sets: {}
     }
 
-    for (let setId of serie.sets) {
-        let setLang = doSetExist(lang, setId, defaultLangData?.lang);
+    for (const setId of serie.sets) {
+        const setLang = doSetExist(lang, setId, defaultLangData?.lang);
 
         if (setLang === undefined) {
             throw new Error(`No lang available for set of id '${setId}' ??`);

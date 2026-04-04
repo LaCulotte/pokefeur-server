@@ -29,7 +29,7 @@ watch(set, (setNew, setOld) => {
 
 const seriesAutocomplete = computed(() => {
     // return Object.keys(staticDataStore[lang.value]?.sets ?? {});
-    let langData = staticDataStore[lang.value];
+    const langData = staticDataStore[lang.value];
     if (langData === undefined)
         return [];
 

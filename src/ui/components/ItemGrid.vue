@@ -40,19 +40,19 @@ const maxItemHeight = computed(() => {
 })
 
 const numCols = computed(() => {
-    let minWidth = (minItemHeight.value * ASPECT_RATIO) + 8;
+    const minWidth = (minItemHeight.value * ASPECT_RATIO) + 8;
     return Math.ceil(width.value / minWidth);
 });
 
 const itemSize = computed(() => {
-    let maxWidth = (width.value / numCols.value) - 8;
+    const maxWidth = (width.value / numCols.value) - 8;
     let calcHeight = maxWidth / ASPECT_RATIO;
 
     if (calcHeight > maxItemHeight.value) {
         calcHeight = maxItemHeight.value;
     }
 
-    let calcWidth = calcHeight * ASPECT_RATIO;
+    const calcWidth = calcHeight * ASPECT_RATIO;
     return { width: calcWidth, height: calcHeight };
 });
 
@@ -77,22 +77,22 @@ function scrollBehaviour() {
         return;
     }
 
-    let mainTop = mainElem.value.getBoundingClientRect().top;
+    const mainTop = mainElem.value.getBoundingClientRect().top;
     if (mainTop > -ROW_MARGIN * itemSize.value.height) {
         translateMain.value = 0;
         firstElem.value = 0;    // Check if this triggers a recompute;
         return;
     }
 
-    let numRowAbove = -Math.ceil(mainTop / itemSize.value.height);
-    let numRowBegin = numRowAbove - ROW_MARGIN;
+    const numRowAbove = -Math.ceil(mainTop / itemSize.value.height);
+    const numRowBegin = numRowAbove - ROW_MARGIN;
     firstElem.value = numRowBegin * numCols.value;
 
     translateMain.value = numRowBegin * itemSize.value.height;
 }
 
 const shownItems: ComputedRef<Array<T>> = computed(() => {
-    let ret: Array<T> = [];
+    const ret: Array<T> = [];
 
     let maxElem = firstElem.value + numCols.value * (numVirtRows.value + ROW_MARGIN * 2);
     if (maxElem > items.length) {
@@ -143,10 +143,10 @@ async function focusItem(itemId: string | undefined) {
     focusedUid.value = itemId;
     focusedClass.value = ["border-smooth"];
 
-    let itemIndex = items.findIndex((item) => { return item.uid == itemId; })
+    const itemIndex = items.findIndex((item) => { return item.uid == itemId; })
 
     if (itemIndex != -1) {
-        let dest = Math.floor((itemIndex / numCols.value) * itemSize.value.height);
+        const dest = Math.floor((itemIndex / numCols.value) * itemSize.value.height);
 
         if (dest > 2 * height.value) {
             (scrollElem ?? window).scrollTo({
@@ -187,7 +187,7 @@ onMounted(async () => {
         }
 
         scrollBehaviour();
-        let focusedItemId = router.currentRoute.value.query.itemId;
+        const focusedItemId = router.currentRoute.value.query.itemId;
         if (focusedItemId !== undefined) {
             // focusedUid.value = focusedItemId!.toString();
             focusItem(focusedItemId!.toString());

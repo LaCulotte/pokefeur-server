@@ -8,23 +8,23 @@ import { getPokemonData } from "./endpoints/pokemon";
 import path from "path"
 
 async function getData() : Promise<BackendData> {
-    let files = await smartGlob(`./${DATABASE}/*.ts`);
-    let ret: BackendData = {
+    const files = await smartGlob(`./${DATABASE}/*.ts`);
+    const ret: BackendData = {
         series: {},
         sets: {},
         cards: {}
     };
 
-    let series = [];
-    for (let file of files) {
+    const series = [];
+    for (const file of files) {
         series.push(await getSerie(file));
     }
 
     series.sort((a, b) => { return a[0] >= b[0] ? 1 : -1; });
 
-    for (let serie of series) {
+    for (const serie of series) {
         saveSerie(serie[1]);
-        for (let serieLang of serie[2])  {
+        for (const serieLang of serie[2])  {
             saveSerieLang(serieLang);
         }
     }

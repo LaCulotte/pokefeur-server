@@ -18,7 +18,7 @@ export async function recycleCards(userUid: string, cardUids: Array<string>) : P
     }
 
     const energies: Array<Type> = [];
-    for (let cardUid of cardUids) {
+    for (const cardUid of cardUids) {
         const item = user.inventory.data.items[cardUid];
 
         if (item === undefined || item.type !== "card") {
@@ -34,7 +34,7 @@ export async function recycleCards(userUid: string, cardUids: Array<string>) : P
             return unexpected(`Card of id ${item.id} is not recyclable (${cardData.name}).`, true);
         }
 
-        for (let energy of cardData.types) {
+        for (const energy of cardData.types) {
             if (!SUPPORTED_ENERGY_TYPES.includes(energy)) {
                 return unexpected(`Card of id ${item.id} is not recyclable because it \
 would produce an energy of type ${energy} which is not currently supported.`, true);
@@ -43,12 +43,12 @@ would produce an energy of type ${energy} which is not currently supported.`, tr
         }
     }
 
-    for (let cardUid of cardUids) {
+    for (const cardUid of cardUids) {
         await user.inventory.removeItemFromInventory(cardUid);
     }
 
-    for (let energy of energies) {
-        let expEnergy = await user.inventory.addEnergy(energy);
+    for (const energy of energies) {
+        const expEnergy = await user.inventory.addEnergy(energy);
         if (!expEnergy.has_value()) {
             return unexpected(`Got error when recycling cards ${cardUids} : ${expEnergy.error()}`, true);
         }

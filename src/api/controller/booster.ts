@@ -18,25 +18,25 @@ export async function openBooster(userUid: string, boosterUid: string) : Promise
         return unexpected(`No booster of uid ${boosterUid} for user of uid ${userUid}`, true);
     }
 
-    let expRemoved = await user.inventory.removeItemFromInventory(boosterUid);
+    const expRemoved = await user.inventory.removeItemFromInventory(boosterUid);
     if (!expRemoved.has_value()) {
         return unexpected(`Cannot open booster : ${expRemoved.error()}`, true);
     }
 
-    let set = staticDataInstance.staticData.sets[boosterItem.id];
+    const set = staticDataInstance.staticData.sets[boosterItem.id];
     if (set === undefined) {
         return unexpected(`Cannot open booster : ${boosterItem.id} is not a valid set id`)
     }
 
-    let cardsKeys = Object.keys(set.cards);
+    const cardsKeys = Object.keys(set.cards);
     if (cardsKeys.length == 0) {
         return unexpected(`No card in set ${set.id} ! (cards : ${set.cards})`, true);
     }
     
-    let generatedIds: Array<string> = [];
+    const generatedIds: Array<string> = [];
     for(let i = 0; i < 10; i++) {
-        let i = Math.floor(Math.random() * cardsKeys.length);
-        let cardId = cardsKeys[i];
+        const cardIndex = Math.floor(Math.random() * cardsKeys.length);
+        const cardId = cardsKeys[cardIndex];
 
         if (cardId === undefined) {
             return unexpected(`Got undefined card when opening booster of ${set.id}`, true);
@@ -47,9 +47,9 @@ export async function openBooster(userUid: string, boosterUid: string) : Promise
 
     // TODO : remove Item from inventory here !!
 
-    let ret: Array<CardItem> = [];
-    for (let id of generatedIds) {
-        let generatedCard = await user.inventory.addItemToInventory("card", id);
+    const ret: Array<CardItem> = [];
+    for (const id of generatedIds) {
+        const generatedCard = await user.inventory.addItemToInventory("card", id);
 
         if (generatedCard.has_value()) {
             ret.push(generatedCard.value());

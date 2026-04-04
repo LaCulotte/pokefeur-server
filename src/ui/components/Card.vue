@@ -11,17 +11,17 @@ const props = defineProps<{
     cardId: string
 }>();
 
-let itemStaticData = computed(() => {
+const itemStaticData = computed(() => {
     return getCardLangData(props.cardId).value;
 });
 
-let image = computed(() => {
+const image = computed(() => {
     return itemStaticData.value.image?.length > 0 
         ? `${itemStaticData.value.image}/low.webp`
         : "/static/images/placeholders/missing_asset/card/low.webp";    // TODO : could make it depend on type of underlying card
 });
 
-let name = computed(() => {
+const name = computed(() => {
     return itemStaticData.value.name?.length > 0 ? itemStaticData.value.name : "No data";
 });
 

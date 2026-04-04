@@ -31,7 +31,7 @@ export function saveSerie(serie: interfaces.SerieData) {
 
 
 export function saveCardLang(card: interfaces.CardLangData) {
-    let cards = langData.cards[card.lang];
+    const cards = langData.cards[card.lang];
     if (cards === undefined) {
         langData.cards[card.lang] = {
             [`${card.id}`]: card
@@ -42,7 +42,7 @@ export function saveCardLang(card: interfaces.CardLangData) {
 }
 
 export function saveSetLang(set: interfaces.SetLangData) {
-    let sets = langData.sets[set.lang];
+    const sets = langData.sets[set.lang];
     if (sets === undefined) {
         langData.sets[set.lang] = {
             [`${set.id}`]: set
@@ -53,7 +53,7 @@ export function saveSetLang(set: interfaces.SetLangData) {
 }
 
 export function saveSerieLang(serie: interfaces.SerieLangData) {
-    let series = langData.series[serie.lang];
+    const series = langData.series[serie.lang];
     if (series === undefined) {
         langData.series[serie.lang] = {
             [`${serie.id}`]: serie
@@ -64,7 +64,7 @@ export function saveSerieLang(serie: interfaces.SerieLangData) {
 }
 
 function doCardExistNoDefault(lang: SupportedLanguages, id: string) : boolean {
-    let cards = langData.cards[lang];
+    const cards = langData.cards[lang];
 
     if (cards === undefined) {
         return false;
@@ -82,7 +82,7 @@ export function doCardExist(lang: SupportedLanguages, id: string, defaultLang: S
         return defaultLang;
     }
 
-    for (let [lang, cards] of Object.entries(langData.cards)) {
+    for (const [lang, cards] of Object.entries(langData.cards)) {
         if (cards[id] !== undefined)
             return lang as SupportedLanguages;
     }
@@ -92,7 +92,7 @@ export function doCardExist(lang: SupportedLanguages, id: string, defaultLang: S
 }
 
 function doSetExistNoDefault(lang: SupportedLanguages, id: string) : boolean {
-    let sets = langData.sets[lang];
+    const sets = langData.sets[lang];
 
     if (sets === undefined) {
         return false;
@@ -110,7 +110,7 @@ export function doSetExist(lang: SupportedLanguages, id: string, defaultLang: Su
         return defaultLang;
     }
 
-    for (let [lang, sets] of Object.entries(langData.sets)) {
+    for (const [lang, sets] of Object.entries(langData.sets)) {
         if (sets[id] !== undefined)
             return lang as SupportedLanguages;
     }
@@ -119,7 +119,7 @@ export function doSetExist(lang: SupportedLanguages, id: string, defaultLang: Su
 }
 
 function doSerieExistNoDefault(lang: SupportedLanguages, id: string) : boolean {
-    let series = langData.series[lang];
+    const series = langData.series[lang];
 
     if (series === undefined) {
         return false;
@@ -137,7 +137,7 @@ export function doSerieExist(lang: SupportedLanguages, id: string, defaultLang: 
         return defaultLang;
     }
 
-    for (let [lang, series] of Object.entries(langData.series)) {
+    for (const [lang, series] of Object.entries(langData.series)) {
         if (series[id] !== undefined)
             return lang as SupportedLanguages;
     }
@@ -153,10 +153,10 @@ async function mkdir(path: PathLike) {
 }
 
 export async function serializeBackendData(outDir: string) {
-    let promises: Array<Promise<any>> = []
+    const promises: Array<Promise<any>> = []
 
-    let backendDir = path.join(outDir, "backend");
-    let langDir = path.join(outDir, "lang");
+    const backendDir = path.join(outDir, "backend");
+    const langDir = path.join(outDir, "lang");
 
     await mkdir(backendDir);
     promises.push(fs.writeFile(path.join(backendDir, "sets.json"), JSON.stringify(backendData.sets), "utf-8"));
@@ -164,20 +164,20 @@ export async function serializeBackendData(outDir: string) {
     promises.push(fs.writeFile(path.join(backendDir, "cards.json"), JSON.stringify(backendData.cards), "utf-8"));
     
     await mkdir(langDir);
-    for (let [lang, data] of Object.entries(langData.cards)) {
-        let currLangDir = path.join(langDir, lang);
+    for (const [lang, data] of Object.entries(langData.cards)) {
+        const currLangDir = path.join(langDir, lang);
         await mkdir(currLangDir);
         promises.push(fs.writeFile(path.join(currLangDir, "cards.json"), JSON.stringify(data), "utf-8"));
     }
 
-    for (let [lang, data] of Object.entries(langData.sets)) {
-        let currLangDir = path.join(langDir, lang);
+    for (const [lang, data] of Object.entries(langData.sets)) {
+        const currLangDir = path.join(langDir, lang);
         await mkdir(currLangDir);
         promises.push(fs.writeFile(path.join(currLangDir, "sets.json"), JSON.stringify(data), "utf-8"));
     }
 
-    for (let [lang, data] of Object.entries(langData.series)) {
-        let currLangDir = path.join(langDir, lang);
+    for (const [lang, data] of Object.entries(langData.series)) {
+        const currLangDir = path.join(langDir, lang);
         await mkdir(currLangDir);
         promises.push(fs.writeFile(path.join(currLangDir, "series.json"), JSON.stringify(data), "utf-8"));
     }

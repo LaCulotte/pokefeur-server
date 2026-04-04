@@ -12,17 +12,17 @@ const props = defineProps<{
     boosterId: string
 }>();
 
-let itemStaticData = computed(() => {
+const itemStaticData = computed(() => {
     return getSetLangData(props.boosterId).value;
 });
 
-let logo = computed(() => {
+const logo = computed(() => {
     return itemStaticData.value.logo?.length > 0
         ? `${itemStaticData.value.logo}.webp`
         : "/static/images/placeholders/missing_asset/logo.webp";
 });
 
-let name = computed(() => {
+const name = computed(() => {
     return itemStaticData.value.name?.length > 0 ? itemStaticData.value.name : "No data";
 });
 

@@ -14,7 +14,7 @@ export async function acceptDealRequest(req: express.Request, res: express.Respo
         throw new Error("No userUid on add deal request ?");
     }
 
-    let expAddDeal = await acceptDeal(req.session.userUid, req.body.dealUid, req.body.payment);
+    const expAddDeal = await acceptDeal(req.session.userUid, req.body.dealUid, req.body.payment);
 
     if (expAddDeal.has_value()) {
         res.status(200).json(expAddDeal.value());
@@ -28,7 +28,7 @@ export async function redeemDealRequest(req: express.Request, res: express.Respo
         throw new Error("No userUid on add deal request ?");
     }
 
-    let expRedeemDeal = await redeemDeal(req.session.userUid, req.body.dealUid);
+    const expRedeemDeal = await redeemDeal(req.session.userUid, req.body.dealUid);
 
     if (expRedeemDeal.has_value()) {
         res.status(200).json(expRedeemDeal.value());

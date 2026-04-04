@@ -69,9 +69,9 @@ export class DealsModel {
     }
 
     getReducedData() : Record<string, Deal> {
-        let ret: Record<string, Deal> = {};
+        const ret: Record<string, Deal> = {};
         
-        for (let [uid, deal] of Object.entries(this.data)) {
+        for (const [uid, deal] of Object.entries(this.data)) {
             ret[uid] = DealsModel.reduceDeal(deal);
         }
 
@@ -85,7 +85,7 @@ export class DealsModel {
             uid = uuidv4();
         }
         
-        let newDeal: FullDeal = {
+        const newDeal: FullDeal = {
             state: "proposed",
             uid,
             type: dealType,
@@ -109,7 +109,7 @@ export class DealsModel {
     }
 
     async acceptDeal(dealUid: string) : Promise<Expected<FullDeal>> {
-        let deal = this.data[dealUid];
+        const deal = this.data[dealUid];
 
         if (deal === undefined) {
             return unexpected(`No deal of id ${dealUid}`);
@@ -124,7 +124,7 @@ export class DealsModel {
     }
 
     async redeemDeal(dealUid: string) : Promise<Expected<FullDeal>> {
-        let deal = this.data[dealUid];
+        const deal = this.data[dealUid];
 
         if (deal === undefined) {
             return unexpected(`No deal of id '${dealUid}' for user ${this.user.uid} (${this.user.username})`);
@@ -134,8 +134,8 @@ export class DealsModel {
             return unexpected(`Deal of id ${dealUid} cannot be redeemed before being accepted !`);
         }
 
-        let now = Math.floor(Date.now() / 1000);
-        let remaining = deal.totalWaitTime - (now - (deal.startDate ?? 0));     // No start date => ok to redeem
+        const now = Math.floor(Date.now() / 1000);
+        const remaining = deal.totalWaitTime - (now - (deal.startDate ?? 0));     // No start date => ok to redeem
         if (remaining > 0) {
             return unexpected(`Deal of id '${dealUid}' is not ready yet (${remaining} seconds remaining)`);
         }
@@ -147,7 +147,7 @@ export class DealsModel {
     }
 
     async removeDeal(dealUid: string) : Promise<Expected<FullDeal>> {
-        let deal = this.data[dealUid];
+        const deal = this.data[dealUid];
 
         if (deal === undefined) {
             return unexpected(`No deal of id '${dealUid}' for user ${this.user.uid} (${this.user.username})`);

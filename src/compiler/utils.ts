@@ -74,16 +74,16 @@ export function forEachLang<Type>(allLangs: Set<SupportedLanguages>, callback: (
     
     let defaultLang: SupportedLanguages = DEFAULT_LANG;
     if (!allLangs.has(DEFAULT_LANG)) {
-        for (let l of allLangs.values()) {
+        for (const l of allLangs.values()) {
             defaultLang = l;
             break;
         }
     }
     
-    let defaultValue = callback(defaultLang);
-    let ret: Array<Type> = [ defaultValue ];
+    const defaultValue = callback(defaultLang);
+    const ret: Array<Type> = [ defaultValue ];
 
-    for (let lang of LANGS) {
+    for (const lang of LANGS) {
         if (allLangs.has(lang) && lang != defaultLang) {
             ret.push(callback(lang, defaultValue));
         }
@@ -106,21 +106,21 @@ function pictureExists(serieId: string, setId: string, localId: string, lang: Su
 }
 
 export function getPicture(serieId: string, setId: string, localId: string, lang: SupportedLanguages | "univ", defaultLang?: SupportedLanguages) : string {
-    let langPic = pictureExists(serieId, setId, localId, lang);
+    const langPic = pictureExists(serieId, setId, localId, lang);
     if (langPic !== undefined) {
         return langPic
     }
 
     if (defaultLang !== undefined) {
-        let defaultPic = pictureExists(serieId, setId, localId, defaultLang);
+        const defaultPic = pictureExists(serieId, setId, localId, defaultLang);
         if (defaultPic !== undefined) {
             return defaultPic;
         }
     }
 
-    for (let testLang of ALL_LANGS) {
+    for (const testLang of ALL_LANGS) {
         if (testLang != lang && testLang != defaultLang) {
-            let testPic = pictureExists(serieId, setId, localId, testLang);
+            const testPic = pictureExists(serieId, setId, localId, testLang);
             if (testPic != undefined) {
                 return testPic;
             }
@@ -131,7 +131,7 @@ export function getPicture(serieId: string, setId: string, localId: string, lang
 }
 
 export function stringToEnum<Type>(enumObj: Record<string, Type>, value: string, defaultValue: Type, enumName?: string) : Type {
-    let val = enumObj[value];
+    const val = enumObj[value];
     if (val !== undefined) {
         return val;
     }

@@ -14,13 +14,13 @@ async function addItemToInventoryRequest(req: express.Request, res: express.Resp
         throw new Error("No userUid on add item request ?");
     }
 
-    let user = DataModel.getUser(req.session.userUid);
+    const user = DataModel.getUser(req.session.userUid);
     if (user === undefined) {
         res.status(400).json({errors: [`Unknown user ${user}`]});
         return;
     }
     
-    let expItem = await user.inventory.addItemToInventory(req.body.type, req.body.id)
+    const expItem = await user.inventory.addItemToInventory(req.body.type, req.body.id)
 
     if (expItem.has_value()) {
         res.status(200).json(expItem.value());
@@ -34,13 +34,13 @@ async function removeItemFromInventoryRequest(req: express.Request, res: express
         throw new Error("No userUid on remove item request ?");
     }
 
-    let user = DataModel.getUser(req.session.userUid);
+    const user = DataModel.getUser(req.session.userUid);
     if (user === undefined) {
         res.status(400).json({errors: [`Unknown user ${user}`]});
         return;
     }
 
-    let expItem = await user.inventory.removeItemFromInventory(req.body.itemUid);
+    const expItem = await user.inventory.removeItemFromInventory(req.body.itemUid);
 
     if (expItem.has_value()) {
         res.status(200).json(expItem.value());
@@ -54,7 +54,7 @@ async function openBoosterRequest(req: express.Request, res: express.Response) {
         throw new Error("No userUid on open booster request ?");
     }
 
-    let expOpenedCards = await openBooster(req.session.userUid, req.body.itemUid);
+    const expOpenedCards = await openBooster(req.session.userUid, req.body.itemUid);
 
     if (expOpenedCards.has_value()) {
         res.status(200).json(expOpenedCards.value());
@@ -68,7 +68,7 @@ async function recycleCardsRequest(req: express.Request, res: express.Response) 
         throw new Error("No userUid on recycle cards request ?");
     }
 
-    let expEnergies = await recycleCards(req.session.userUid, req.body.cardUids);
+    const expEnergies = await recycleCards(req.session.userUid, req.body.cardUids);
 
     if (expEnergies.has_value()) {
         res.status(200).json(expEnergies.value());

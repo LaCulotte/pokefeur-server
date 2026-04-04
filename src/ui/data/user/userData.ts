@@ -197,7 +197,7 @@ export class UserData {
         }).then((data: Array<CardItem>) => {
             delete this.data.inventory.items[itemUid];
 
-            for (let card of data.values()) {
+            for (const card of data.values()) {
                 this.data.inventory.items[card.uid] = card;
             }
         }).catch((err) => {
@@ -229,7 +229,7 @@ export class UserData {
         }).then((data: Array<Type>) => {
             delete this.data.inventory.items[itemUid];
 
-            for (let energy of data.values()) {
+            for (const energy of data.values()) {
                 if (this.data.inventory.energies[energy] === undefined) {
                     this.data.inventory.energies[energy] = 0;
                 }

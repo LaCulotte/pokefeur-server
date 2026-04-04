@@ -53,7 +53,7 @@ export abstract class ItemCostController {
             return unexpected(`Cannot pay multiple times with the same item of uid ${payment.itemUid}`);
         }
 
-        let itemExp = items.getItem(payment.itemUid);
+        const itemExp = items.getItem(payment.itemUid);
         if (!itemExp.has_value()) {
             return unexpected(`Cannot get payment item of uid ${payment.itemUid} : ${itemExp.error()}`);
         }

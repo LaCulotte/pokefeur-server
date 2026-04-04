@@ -10,7 +10,7 @@ async function getTradeProposalsRequest(req: express.Request, res: express.Respo
         throw new Error("No userUid on add item request ?");
     }
 
-    let user = DataModel.getUser(req.session.userUid);
+    const user = DataModel.getUser(req.session.userUid);
     if (user === undefined) {
         res.status(400).json({errors: [`Unknown user ${user}`]});
         return;
@@ -24,7 +24,7 @@ async function createTradeProposalRequest(req: express.Request, res: express.Res
         throw new Error("No userUid on add item request ?");
     }
     
-    let expProposal = await makeTradeProposal(req.session.userUid, req.body.toUserUid, req.body.offeredItemUids, req.body.requestedItemUids);
+    const expProposal = await makeTradeProposal(req.session.userUid, req.body.toUserUid, req.body.offeredItemUids, req.body.requestedItemUids);
     
     if (expProposal.has_value()) {
         res.status(200).json(expProposal.value());
@@ -38,7 +38,7 @@ async function acceptTradeProposalRequest(req: express.Request, res: express.Res
         throw new Error("No userUid on add item request ?");
     }
     
-    let expAccepted = await acceptTradeProposal(req.session.userUid, req.body.proposalUid);
+    const expAccepted = await acceptTradeProposal(req.session.userUid, req.body.proposalUid);
 
     if (expAccepted.has_value()) {
         res.status(200).json(expAccepted.value());
@@ -52,7 +52,7 @@ async function refuseTradeProposalRequest(req: express.Request, res: express.Res
         throw new Error("No userUid on add item request ?");
     }
     
-    let expRefused = await refuseTradeProposal(req.session.userUid, req.body.proposalUid);
+    const expRefused = await refuseTradeProposal(req.session.userUid, req.body.proposalUid);
 
     if (expRefused.has_value()) {
         res.status(200).json(expRefused.value());
@@ -66,7 +66,7 @@ async function completeTradeProposalRequest(req: express.Request, res: express.R
         throw new Error("No userUid on add item request ?");
     }
     
-    let expCompleted = await completeTradeProposal(req.session.userUid, req.body.proposalUid);
+    const expCompleted = await completeTradeProposal(req.session.userUid, req.body.proposalUid);
 
     if (expCompleted.has_value()) {
         res.status(200).json(expCompleted.value());

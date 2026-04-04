@@ -21,8 +21,8 @@ export async function makeTradeProposal(fromUserUid: string,
     }
 
     const fromItems: Array<InventoryItem> = [];
-    for (let itemUid of offeredItemUids) {
-        let item = fromUser.inventory.data.items[itemUid];
+    for (const itemUid of offeredItemUids) {
+        const item = fromUser.inventory.data.items[itemUid];
         if (item === undefined) {
             return unexpected(`No item of uid ${itemUid} in inventory of user ${fromUserUid}`, true);
         }
@@ -36,8 +36,8 @@ export async function makeTradeProposal(fromUserUid: string,
     }
 
     const toItems: Array<InventoryItem> = [];
-    for (let itemUid of requestedItemUids) {
-        let item = toUser.inventory.data.items[itemUid];
+    for (const itemUid of requestedItemUids) {
+        const item = toUser.inventory.data.items[itemUid];
         if (item === undefined) {
             return unexpected(`No item of uid ${itemUid} in inventory of user ${toUserUid}`, true);
         }
@@ -45,16 +45,16 @@ export async function makeTradeProposal(fromUserUid: string,
         toItems.push(item);
     }
 
-    let proposalExp = await dataInstance.tradeProposals.createProposal(fromUser, toUser, fromItems, toItems);
+    const proposalExp = await dataInstance.tradeProposals.createProposal(fromUser, toUser, fromItems, toItems);
 
     if (!proposalExp.has_value()) {
         return unexpected(`Error while creating trade proposal : ${proposalExp.error()}`, true);
     }
 
-    for (let item of fromItems) {
-        let expRemoved = await fromUser.inventory.moveItemToTrade(item.uid);
+    for (const item of fromItems) {
+        const expRemoved = await fromUser.inventory.moveItemToTrade(item.uid);
         if (!expRemoved.has_value()) {
-            for (let rollbackItem of fromItems) {
+            for (const rollbackItem of fromItems) {
                 fromUser.inventory.moveItemFromTrade(rollbackItem.uid);
             }
 
@@ -91,10 +91,10 @@ export async function acceptTradeProposal(userUid: string, proposalUid: string):
         return unexpected(`Error while accepting trade proposal of uid ${proposalUid} for user ${userUid} : ${acceptProposalExp.error()}`, true);
     }
 
-    for (let item of acceptProposalExp.value().items) {
-        let expMoved = await user.inventory.moveItemToTrade(item.uid);
+    for (const item of acceptProposalExp.value().items) {
+        const expMoved = await user.inventory.moveItemToTrade(item.uid);
         if (!expMoved.has_value()) {
-            for (let rollbackItem of acceptProposalExp.value().items) {
+            for (const rollbackItem of acceptProposalExp.value().items) {
                 await user.inventory.moveItemFromTrade(rollbackItem.uid);
             }
 
@@ -103,11 +103,11 @@ export async function acceptTradeProposal(userUid: string, proposalUid: string):
     }
 
     if (proposal.to.accepted === "accepted" && proposal.from.accepted === "accepted") {
-        for (let item of proposal.from.items) {
+        for (const item of proposal.from.items) {
             await fromUser.inventory.removeTradeItem(item.uid);
         }
 
-        for (let item of proposal.to.items) {
+        for (const item of proposal.to.items) {
             await toUser.inventory.removeTradeItem(item.uid);
         }
 
@@ -146,11 +146,11 @@ export async function refuseTradeProposal(userUid: string, proposalUid: string):
         return unexpected(`Error while refusing trade proposal of uid ${proposalUid} for user ${userUid} : ${refuseProposalExp.error()}`, true);
     }
 
-    for (let item of proposal.from.items) {
+    for (const item of proposal.from.items) {
         await fromUser.inventory.moveItemFromTrade(item.uid);
     }
 
-    for (let item of proposal.to.items) {
+    for (const item of proposal.to.items) {
         await toUser.inventory.moveItemFromTrade(item.uid);
     }
 
@@ -184,7 +184,7 @@ export async function completeTradeProposal(userUid: string, proposalUid: string
     }
 
     const { opposite: oppositeSide } = user.trades.getProposalSide(proposalUid).value();
-    for (let item of oppositeSide.items) {
+    for (const item of oppositeSide.items) {
         const exp = await user.inventory.addItemToInventory(item.type, item.id);
         if (!exp.has_value()) {
             console.error(`Error while adding item ${JSON.stringify(item)} to inventory of user ${userUid} during completion of trade proposal ${proposalUid} : ${exp.error()}`);

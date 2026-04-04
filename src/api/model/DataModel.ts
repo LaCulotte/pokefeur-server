@@ -36,9 +36,9 @@ export class DataModel {
         await this.createDirs();
 
         try {
-            let users: Record<string, User> = await fs.readFile("./data/users.json", "utf-8").then((data) => { return JSON.parse(data) });
+            const users: Record<string, User> = await fs.readFile("./data/users.json", "utf-8").then((data) => { return JSON.parse(data) });
 
-            for (let [uid, user] of Object.entries(users)) {
+            for (const [uid, user] of Object.entries(users)) {
                 this.instance.users[uid] = new UserModel(user);
             }
         } catch (e) {
@@ -47,7 +47,7 @@ export class DataModel {
             await this.instance.saveUsers();
         }
         
-        for (let [uid, user] of Object.entries(this.instance.users)) {
+        for (const [uid, user] of Object.entries(this.instance.users)) {
             await user.loadUserData();
             this.instance.nameToUser[user.data.username] = user;
         }
@@ -79,13 +79,13 @@ export class DataModel {
             uid = uuidv4();
         }
 
-        let newUser: User = {
+        const newUser: User = {
             uid,
             username,
             type,
         };
 
-        let newUserModel = new UserModel(newUser); 
+        const newUserModel = new UserModel(newUser); 
 
         this.users[uid] = newUserModel
         this.nameToUser[username] = newUserModel;

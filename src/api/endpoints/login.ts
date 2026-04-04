@@ -15,7 +15,7 @@ function login(req: express.Request, res: express.Response) {
         return;
     }
 
-    let username: string = req.body.username;
+    const username: string = req.body.username;
 
     let user: UserModel | undefined = DataModel.getUserByName(username);
     if (user === undefined) {
@@ -59,7 +59,7 @@ function getFullUser(req: express.Request, res: express.Response) {
     }
 
     // TODO : function UserModel.getFullData ?
-    let ret: FullUser = {
+    const ret: FullUser = {
         ...user.data,
         inventory: user.inventory.data,
         deals: user.deals.getReducedData(),

@@ -16,17 +16,17 @@ const __dirname = path.dirname(__filename);
 
 export async function getSet(filePath: string) : Promise<SetData> {
     // let rawSet: RawSet = await fs.readFile(filePath, "utf-8").then(data => JSON.parse(data));
-    let rawSet: RawSet = (await import(path.join(getImportRelativePath(__dirname), filePath))).default;
-    let set = deserializeRawSet(rawSet);
+    const rawSet: RawSet = (await import(path.join(getImportRelativePath(__dirname), filePath))).default;
+    const set = deserializeRawSet(rawSet);
 
-    let enName = rawSet.name.en;
+    const enName = rawSet.name.en;
     if (enName !== undefined) {
-        let cardsGlobQuery = path.join(path.dirname(filePath), enName, "*.ts");
+        const cardsGlobQuery = path.join(path.dirname(filePath), enName, "*.ts");
     
-        let cardsFiles = await smartGlob(cardsGlobQuery);
-        let cardList: Array<[number, string]> = [];
-        for (let file of cardsFiles) {
-            let cardData = await getCard(file);
+        const cardsFiles = await smartGlob(cardsGlobQuery);
+        const cardList: Array<[number, string]> = [];
+        for (const file of cardsFiles) {
+            const cardData = await getCard(file);
             cardList.push([parseInt(cardData.localId), cardData.id]);
         }
 
@@ -62,7 +62,7 @@ function getReleaseDate(data: RawSet, lang: SupportedLanguages = "en") : ISODate
 
 function deserializeRawSet(data: RawSet) : SetData {
     // Ajouter le total de cartes (officiel + réel)
-    let set: SetData = {
+    const set: SetData = {
         id: data.id,
         serieId: data.serie.id,
         releaseDate: getReleaseDate(data),
@@ -79,7 +79,7 @@ function deserializeRawSet(data: RawSet) : SetData {
 }
 
 function getAvailableLangs(rawData: RawSet) : Set<SupportedLanguages> {
-    let ret: Set<SupportedLanguages> = new Set();
+    const ret: Set<SupportedLanguages> = new Set();
 
     Object.keys(rawData.name).forEach((key) => {ret.add(key as SupportedLanguages)});
     
@@ -95,7 +95,7 @@ function createSetLang(rawData: RawSet, set: SetData, lang: SupportedLanguages, 
     }
 
     // Ajouter le total de cartes (officiel + réel)
-    let langData: SetLangData = {
+    const langData: SetLangData = {
         lang: lang,
         id: set.id,
         serieId: set.serieId,
@@ -111,8 +111,8 @@ function createSetLang(rawData: RawSet, set: SetData, lang: SupportedLanguages, 
         symbol: defaultLangData?.symbol ?? getPicture(set.serieId, set.id, "symbol", "univ"),
     }
 
-    for (let cardId of set.cards) {
-        let cardLang = doCardExist(lang, cardId, defaultLangData?.lang);
+    for (const cardId of set.cards) {
+        const cardLang = doCardExist(lang, cardId, defaultLangData?.lang);
 
         if (cardLang === undefined) {
             throw new Error(`No lang available for card of id '${cardId}' ??`);

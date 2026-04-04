@@ -38,19 +38,19 @@ export class StaticDataSingleton {
     static async load() {
         await this.data.loadStaticData();
 
-        let workingData: Partial<Record<SupportedLanguages, WorkingLangData>> = {}
-        for (let lang of LANGS) {
+        const workingData: Partial<Record<SupportedLanguages, WorkingLangData>> = {}
+        for (const lang of LANGS) {
             // TODO : promise.all to 'semi-parallelize'
             workingData[lang] = await this.data.loadStaticLangDataStore(lang);
         }
 
-        let series: Array<string> = Object.keys(this.data.staticData.series);
-        let seriesLangs: Array<[string, SupportedLanguages]> = series.map((id) => {
+        const series: Array<string> = Object.keys(this.data.staticData.series);
+        const seriesLangs: Array<[string, SupportedLanguages]> = series.map((id) => {
             if (this.data.staticLangDataStore.en?.series[id] !== undefined) {
                 return [id, "en"];
             }
 
-            for (let [lang, sdata] of Object.entries(this.data.staticLangDataStore)) {
+            for (const [lang, sdata] of Object.entries(this.data.staticLangDataStore)) {
                 if (sdata.series[id] !== undefined)
                     return [id, lang as SupportedLanguages];
             }
@@ -59,16 +59,16 @@ export class StaticDataSingleton {
             return [id, "en"];
         });
 
-        for (let [lang, wdata] of Object.entries(workingData)) {
+        for (const [lang, wdata] of Object.entries(workingData)) {
             await this.data.linkSetsLangData(lang as SupportedLanguages, wdata);
         }
 
-        for (let [lang, wdata] of Object.entries(workingData)) {
+        for (const [lang, wdata] of Object.entries(workingData)) {
             await this.data.linkSeriesLangData(lang as SupportedLanguages, wdata);
         }
 
-        for (let [wlang, wdata] of Object.entries(workingData)) {
-            for (let [id, lang] of seriesLangs) {
+        for (const [wlang, wdata] of Object.entries(workingData)) {
+            for (const [id, lang] of seriesLangs) {
                 if (!(id in wdata.series)) {
                     await this.data.linkMissingSeriesLangData(wlang as SupportedLanguages, id, lang); 
                 }
@@ -89,25 +89,25 @@ export class StaticDataSingleton {
 
     private async loadStaticData() {
         // Load cards
-        let cards: Record<string, CardData> =
+        const cards: Record<string, CardData> =
             await fs.readFile(path.join(GENERATED_DIR, "backend", "cards.json"), "utf-8").then(data => JSON.parse(data));
 
         this.staticData.cards = cards;
 
         // Load sets
-        let sets: Record<string, SetData> =
+        const sets: Record<string, SetData> =
             // (await import(path.join(getImportRelativePath(__dirname), GENERATED_DIR, "backend", "sets.json"))).default;
             await fs.readFile(path.join(GENERATED_DIR, "backend", "sets.json"), "utf-8").then(data => JSON.parse(data));
 
 
-        for (let [id, set] of Object.entries(sets)) {
-            let staticSet: SetStaticData = {
+        for (const [id, set] of Object.entries(sets)) {
+            const staticSet: SetStaticData = {
                 ...set,
                 cards: {}
             }
 
-            for (let cardId of set.cards) {
-                let card = this.staticData.cards[cardId]
+            for (const cardId of set.cards) {
+                const card = this.staticData.cards[cardId]
                 if (card !== undefined) {
                     staticSet.cards[cardId] = card;
                 } else {
@@ -119,19 +119,19 @@ export class StaticDataSingleton {
         }
 
         // Load series
-        let series: Record<string, SerieData> =
+        const series: Record<string, SerieData> =
             // (await import(path.join(getImportRelativePath(__dirname), GENERATED_DIR, "backend", "series.json"))).default;
             await fs.readFile(path.join(GENERATED_DIR, "backend", "series.json"), "utf-8").then(data => JSON.parse(data));
 
 
-        for (let [id, serie] of Object.entries(series)) {
-            let staticSet: SerieStaticData = {
+        for (const [id, serie] of Object.entries(series)) {
+            const staticSet: SerieStaticData = {
                 ...serie,
                 sets: {}
             }
 
-            for (let setId of serie.sets) {
-                let set = this.staticData.sets[setId]
+            for (const setId of serie.sets) {
+                const set = this.staticData.sets[setId]
                 if (set !== undefined) {
                     staticSet.sets[setId] = set;
                 } else {
@@ -144,20 +144,20 @@ export class StaticDataSingleton {
     }
 
     private async loadStaticLangDataStore(lang: SupportedLanguages) : Promise<WorkingLangData> {
-        let workingData: WorkingLangData = {
+        const workingData: WorkingLangData = {
             sets: {},
             series: {},
             missingSeriesList: []
         };
 
-        let langData = {
+        const langData = {
             series: {} as Record<string, SerieStaticLangData>,
             sets: {} as Record<string, SetStaticLangData>,
             cards: {} as Record<string, CardStaticLangData>
         };
         
         // Load lang cards
-        let cards: Record<string, CardLangData> =
+        const cards: Record<string, CardLangData> =
             // (await import(path.join(getImportRelativePath(__dirname), GENERATED_DIR, "lang", lang, "cards.json"))).default;
             await fs.readFile(path.join(GENERATED_DIR, "lang", lang, "cards.json"), "utf-8").then(data => JSON.parse(data));
 
@@ -165,15 +165,15 @@ export class StaticDataSingleton {
         langData.cards = cards;
 
         // Load lang sets
-        let sets: Record<string, SetLangData> =
+        const sets: Record<string, SetLangData> =
             // (await import(path.join(getImportRelativePath(__dirname), GENERATED_DIR, "lang", lang, "sets.json"))).default;
             await fs.readFile(path.join(GENERATED_DIR, "lang", lang, "sets.json"), "utf-8").then(data => JSON.parse(data));
 
         // this.staticLangDataStore.sets[lang] = {};
         // let langSets = this.staticLangDataStore.sets[lang];
 
-        for (let [id, set] of Object.entries(sets)) {
-            let staticSet: SetStaticLangData = {
+        for (const [id, set] of Object.entries(sets)) {
+            const staticSet: SetStaticLangData = {
                 ...set,
                 cards: {}
             }
@@ -185,15 +185,15 @@ export class StaticDataSingleton {
 
 
         // Load lang series
-        let series: Record<string, SerieLangData> =
+        const series: Record<string, SerieLangData> =
             // (await import(path.join(getImportRelativePath(__dirname), GENERATED_DIR, "lang", lang, "series.json"))).default;
             await fs.readFile(path.join(GENERATED_DIR, "lang", lang, "series.json"), "utf-8").then(data => JSON.parse(data));
 
         // this.staticLangDataStore.series[lang] = {};
         // let langSeries = this.staticLangDataStore.series[lang];
 
-        for (let [id, serie] of Object.entries(series)) {
-            let staticSet: SerieStaticLangData = {
+        for (const [id, serie] of Object.entries(series)) {
+            const staticSet: SerieStaticLangData = {
                 ...serie,
                 sets: {}
             }
@@ -209,28 +209,28 @@ export class StaticDataSingleton {
     }
 
     private async linkSetsLangData(lang: SupportedLanguages, workingData: WorkingLangData) {
-        let langData = this.staticLangDataStore[lang];
+        const langData = this.staticLangDataStore[lang];
 
         if (langData === undefined) {
             console.error(`No lang ${lang} ?`);
             return;
         }
 
-        for (let [setId, cards] of Object.entries(workingData.sets)) {
-            let set = langData.sets[setId];
+        for (const [setId, cards] of Object.entries(workingData.sets)) {
+            const set = langData.sets[setId];
             if (set === undefined) {
                 console.warn(`No set ${setId} for lang ${lang} !`)
                 continue;
             }
 
-            for (let [cardId, cardLang] of cards) {
-                let currLangCards = this.staticLangDataStore[cardLang]?.cards;
+            for (const [cardId, cardLang] of cards) {
+                const currLangCards = this.staticLangDataStore[cardLang]?.cards;
                 if (currLangCards === undefined) {
                     console.warn(`Unkown lang '${cardLang}' for cards`);
                     continue;
                 }
 
-                let card = currLangCards[cardId];
+                const card = currLangCards[cardId];
                 if (card !== undefined) {
                     set.cards[cardId] = card;
 
@@ -246,35 +246,35 @@ export class StaticDataSingleton {
     }
 
     private async linkSeriesLangData(lang: SupportedLanguages, workingData: WorkingLangData) {
-        let langData = this.staticLangDataStore[lang];
+        const langData = this.staticLangDataStore[lang];
 
         if (langData === undefined) {
             console.error(`No lang ${lang} ?`);
             return;
         }
 
-        for (let [serieId, sets] of Object.entries(workingData.series)) {
-            let serie = langData.series[serieId];
+        for (const [serieId, sets] of Object.entries(workingData.series)) {
+            const serie = langData.series[serieId];
             if (serie === undefined) {
                 console.warn(`No serie ${serieId} for lang ${lang} !`)
                 continue;  
             }
 
-            for (let [setId, setLang] of sets) {
-                let currLangSets = this.staticLangDataStore[setLang]?.sets;
+            for (const [setId, setLang] of sets) {
+                const currLangSets = this.staticLangDataStore[setLang]?.sets;
                 if (currLangSets === undefined) {
                     console.warn(`Unkown lang '${setLang}' for sets`);
                     continue;
                 }
 
-                let set = currLangSets[setId]
+                const set = currLangSets[setId]
                 if (set !== undefined) {
                     serie.sets[setId] = set;
 
                     if (setLang !== lang) {
                         langData.sets[setId] = set;
 
-                        for (let [cardId, card] of Object.entries(set.cards)) {
+                        for (const [cardId, card] of Object.entries(set.cards)) {
                             langData.cards[cardId] = card;
                         }
 
@@ -290,14 +290,14 @@ export class StaticDataSingleton {
     }
 
     private async linkMissingSeriesLangData(lang: SupportedLanguages, serieId: string, destLang: SupportedLanguages) {
-        let langData = this.staticLangDataStore[lang];
+        const langData = this.staticLangDataStore[lang];
 
         if (langData === undefined) {
             console.error(`No lang ${lang} ?`);
             return;
         }
 
-        let destSerie = this.staticLangDataStore[destLang]?.series[serieId];
+        const destSerie = this.staticLangDataStore[destLang]?.series[serieId];
         if (destSerie === undefined) {
             console.error(`No serie ${serieId} or lang ${destLang}`);
             return;
@@ -305,10 +305,10 @@ export class StaticDataSingleton {
 
         langData.series[serieId] = destSerie;
 
-        for (let [setId, set] of Object.entries(destSerie.sets)) {
+        for (const [setId, set] of Object.entries(destSerie.sets)) {
             langData.sets[setId] = set;
 
-            for (let [cardId, card] of Object.entries(set.cards)) {
+            for (const [cardId, card] of Object.entries(set.cards)) {
                 langData.cards[cardId] = card;
             }
         }

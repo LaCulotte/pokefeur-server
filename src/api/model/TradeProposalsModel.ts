@@ -37,9 +37,9 @@ export class TradeProposalsModel {
 
     attachToUsers() {
         const dataInstance = DataModel.getInstance();
-        let toRemove: string[] = [];
+        const toRemove: string[] = [];
 
-        for (let proposal of Object.values(this.data)) {
+        for (const proposal of Object.values(this.data)) {
             const fromUser = dataInstance.users[proposal.from.uid];
             const toUser = dataInstance.users[proposal.to.uid];
             
@@ -53,7 +53,7 @@ export class TradeProposalsModel {
             toUser.trades.data.proposals[proposal.uid] = proposal;
         }
 
-        for (let uid of toRemove) {
+        for (const uid of toRemove) {
             delete this.data[uid];
         }
     }
@@ -64,7 +64,7 @@ export class TradeProposalsModel {
             uid = uuidv4();
         }
         
-        let proposal: TradeProposal = {
+        const proposal: TradeProposal = {
             uid: uid,
             from: {
                 uid: fromUser.data.uid,

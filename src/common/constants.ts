@@ -41,7 +41,7 @@ export enum Type {
 }
 
 export function parseType(typeStr: string): Type | undefined{
-    let parsed = parseInt(typeStr);
+    const parsed = parseInt(typeStr);
 
     if (parsed >= 0 && parsed < Type.TYPE_COUNT) {
         return parsed as Type;

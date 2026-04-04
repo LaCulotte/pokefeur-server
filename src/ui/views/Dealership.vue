@@ -93,7 +93,7 @@ const showRedeemed = ref(false);
 const redeemed: Ref<InventoryItem | null> = ref(null);
 
 async function redeem(dealUid: string) {
-    let res = await user.redeemDeal(dealUid);
+    const res = await user.redeemDeal(dealUid);
 
     if (!res.has_value()) {
         console.error("Oh no :(");

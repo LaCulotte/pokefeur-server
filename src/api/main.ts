@@ -5,7 +5,7 @@ import { setupLoginEnpoints } from "./endpoints/login";
 
 import session from "express-session"
 import fileStore from "session-file-store";
-let FileStore = fileStore(session);
+const FileStore = fileStore(session);
 
 import "./common"
 import { DataModel } from "./model/DataModel";
@@ -19,13 +19,13 @@ import { setupTradeProposalEndpoints } from "./endpoints/tradeProposal";
 import { GENERATED_DIR } from "../common/constants";
 import path from "path"
 
-let a = Date.now();
+const a = Date.now();
 await StaticDataSingleton.load();
 await DataModel.load();
 console.log(`Loaded data in ${Date.now() - a} ms`)
 
 // TODO : more generic ?
-for (let user of Object.values(DataModel.getInstance().users)) {
+for (const user of Object.values(DataModel.getInstance().users)) {
     initUserDeals(user);    // TODO : Do it on create as well !!
 }
 console.log(`Loaded controllers in ${Date.now() - a} ms`)
@@ -39,17 +39,17 @@ app.get("/api/static/pokemons", (req, res) => {
 
 app.get("/api/static/keys/*path", (req, res) => {
     //@ts-ignore
-    let pathArray: string[] = req.params.path;
+    const pathArray: string[] = req.params.path;
 
     if (!pathArray || pathArray.length === 0) {
         res.status(400).json({ error: "No path provided" });
         return;
     }
 
-    let isLang = pathArray[0] == "lang";
+    const isLang = pathArray[0] == "lang";
     let currData: any = isLang ? StaticDataSingleton.getInstance().staticLangDataStore : StaticDataSingleton.getInstance().staticData;
 
-    for (let i of pathArray.slice(1)) {
+    for (const i of pathArray.slice(1)) {
         if (currData[i] === undefined) {
             res.status(404).json({ error: `Path component '${i}' not found` });
             return;
@@ -64,17 +64,17 @@ app.get("/api/static/keys/*path", (req, res) => {
 // Endpoint that loops over any number of path component
 app.get("/api/static/*path", (req, res) => {
     //@ts-ignore
-    let pathArray: string[] = req.params.path;
+    const pathArray: string[] = req.params.path;
 
     if (!pathArray || pathArray.length === 0) {
         res.status(400).json({ error: "No path provided" });
         return;
     }
 
-    let isLang = pathArray[0] == "lang";
+    const isLang = pathArray[0] == "lang";
     let currData: any = isLang ? StaticDataSingleton.getInstance().staticLangDataStore : StaticDataSingleton.getInstance().staticData;
 
-    for (let i of pathArray.slice(1)) {
+    for (const i of pathArray.slice(1)) {
         if (currData[i] === undefined) {
             res.status(404).json({ error: `Path component '${i}' not found` });
             return;

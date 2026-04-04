@@ -25,32 +25,32 @@ const LANG_INDEX = 1;
 const POKEMON_NAME_INDEX = 2;
 
 export async function getPokemonData(path: string): Promise<PokemonData> {
-    let csvData = await fs.readFile(path, "utf-8");
-    let records = parse(csvData, {
+    const csvData = await fs.readFile(path, "utf-8");
+    const records = parse(csvData, {
         skip_empty_lines: true
     });
     
-    let data: PokemonData = {};
+    const data: PokemonData = {};
 
     records.shift();
-    for (let record of records) {
+    for (const record of records) {
         if (record.length < 3) {
             console.warn(`Invalid record in pokemon csv : ${record}`);
             continue;
         }
 
-        let id = parseInt(record[POKEMON_ID_INDEX]!);
+        const id = parseInt(record[POKEMON_ID_INDEX]!);
 
-        let langs = parseInt(record[LANG_INDEX]!);
-        let langList = ID_TO_LANG[langs];
+        const langs = parseInt(record[LANG_INDEX]!);
+        const langList = ID_TO_LANG[langs];
         if (langList === undefined) {
             console.warn(`Unknown language id '${langs}' for pokemon '${record[POKEMON_NAME_INDEX]}' !`);
             continue;
         }
         
-        let name = record[POKEMON_NAME_INDEX]!;
+        const name = record[POKEMON_NAME_INDEX]!;
 
-        for (let lang of langList) {
+        for (const lang of langList) {
             if (data[lang] === undefined) {
                 data[lang] = {
                     id_to_name: {},

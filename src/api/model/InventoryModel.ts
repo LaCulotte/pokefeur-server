@@ -76,7 +76,7 @@ export class InventoryModel {
             itemUid = uuidv4();
         }
 
-        let item: InventoryItem = {
+        const item: InventoryItem = {
             type,
             id,
             uid: itemUid
@@ -94,7 +94,7 @@ export class InventoryModel {
             return unexpected(`No item of uid ${itemUid} in the inventory of user ${this.user.uid}`, true);
         }
 
-        let item = structuredClone(this.data.items[itemUid]);
+        const item = structuredClone(this.data.items[itemUid]);
         delete this.data.items[itemUid];
 
         await this.saveInventory();
@@ -107,9 +107,9 @@ export class InventoryModel {
             return expected([]);
         }
 
-        let uidsToDelete = []
+        const uidsToDelete = []
 
-        for (let [currUid, item] of Object.entries(this.data.items)) {
+        for (const [currUid, item] of Object.entries(this.data.items)) {
             if (id == item.id && type == item.type) {
                 uidsToDelete.push(currUid);
 
@@ -119,8 +119,8 @@ export class InventoryModel {
             }
         }
 
-        let deleted: Array<InventoryItem> = [];
-        for (let uid of uidsToDelete) {
+        const deleted: Array<InventoryItem> = [];
+        for (const uid of uidsToDelete) {
             deleted.push(structuredClone(this.data.items[uid]) as InventoryItem);
             delete this.data.items[uid];
         }

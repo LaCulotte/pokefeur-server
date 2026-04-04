@@ -11,7 +11,7 @@ export class UiStaticDataSingleton {
     private static data: UiStaticDataSingleton = new UiStaticDataSingleton();
 
     static async load(lang: SupportedLanguages) : Promise<string | undefined> {
-        let staticLangData = await fetch(`/api/static/lang/${lang}`)
+        const staticLangData = await fetch(`/api/static/lang/${lang}`)
                 .then((res) => {
                     if (res.status != 200) {
                         return undefined;
@@ -26,7 +26,7 @@ export class UiStaticDataSingleton {
 
         this.data.staticLangDataStore[lang] = staticLangData;
 
-        let pokemonData = await fetch(`/api/static/pokemons`)
+        const pokemonData = await fetch(`/api/static/pokemons`)
                 .then((res) => {
                     if (res.status != 200) {
                         return undefined;

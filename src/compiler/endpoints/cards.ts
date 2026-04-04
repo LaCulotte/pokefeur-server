@@ -17,10 +17,10 @@ const __dirname = path.dirname(__filename);
 
 export async function getCard(filePath: string) : Promise<CardData> {
     // let rawCard: RawCard = await fs.readFile(filePath, "utf-8").then(data => JSON.parse(data));;
-    let rawCard: RawCard = (await import(path.join(getImportRelativePath(__dirname), filePath))).default;
-    let localId = path.basename(filePath, ".ts");
+    const rawCard: RawCard = (await import(path.join(getImportRelativePath(__dirname), filePath))).default;
+    const localId = path.basename(filePath, ".ts");
 
-    let card = deserializeRawCard(rawCard, localId);
+    const card = deserializeRawCard(rawCard, localId);
 
     saveCard(card);
 
@@ -34,7 +34,7 @@ export async function getCard(filePath: string) : Promise<CardData> {
 }
 
 function deserializeRawCard(data: RawCard, localId: string) : CardData {
-    let card: CardData = {
+    const card: CardData = {
         id:  `${data.set.id}-${localId}`,
         setId: data.set.id,
         localId: localId,
@@ -53,7 +53,7 @@ function deserializeRawCard(data: RawCard, localId: string) : CardData {
 }
 
 function getAvailableLangs(rawData: RawCard) : Set<SupportedLanguages> {
-    let ret: Set<SupportedLanguages> = new Set();
+    const ret: Set<SupportedLanguages> = new Set();
 
     Object.keys(rawData.name).forEach((key) => {ret.add(key as SupportedLanguages)});
     
@@ -74,7 +74,7 @@ function createCardLang(rawData: RawCard, card: CardData, lang: SupportedLanguag
             description = Object.values(rawData.description)[0];
     }
 
-    let langData: CardLangData = {
+    const langData: CardLangData = {
         lang: lang,
         id: card.id,
         name: name ?? "",

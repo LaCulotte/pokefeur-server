@@ -59,7 +59,7 @@ function costUnitToItem(costUnit: DealCostUnit): InventoryItem {
 }
 
 function getSetLogo(setId: string): string {
-    let setData = getSetLangData(setId).value;
+    const setData = getSetLangData(setId).value;
     return setData?.logo?.length > 0 ? `${setData.logo}.webp` : "/static/images/placeholders/missing_asset/logo.webp";
 };
 
