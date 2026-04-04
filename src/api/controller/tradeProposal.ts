@@ -16,7 +16,7 @@ export async function makeTradeProposal(fromUserUid: string,
     const dataInstance = DataModel.getInstance();
 
     const fromUser = dataInstance.getUser(fromUserUid);
-    if (fromUser === null) {
+    if (fromUser === undefined) {
         return unexpected(`No user of uid ${fromUserUid}`, true);
     }
 
@@ -31,7 +31,7 @@ export async function makeTradeProposal(fromUserUid: string,
     }
 
     const toUser = dataInstance.getUser(toUserUid);
-    if (toUser === null) {
+    if (toUser === undefined) {
         return unexpected(`No user of uid ${toUserUid}`, true);
     }
 
@@ -76,12 +76,12 @@ export async function acceptTradeProposal(userUid: string, proposalUid: string):
     const fromUser = dataInstance.getUser(proposal.from.uid);
     const toUser = dataInstance.getUser(proposal.to.uid);
 
-    if (fromUser === null || toUser === null) {
+    if (fromUser === undefined || toUser === undefined) {
         return unexpected(`Invalid proposal of uid ${proposalUid} : unknown users`, true);
     }
 
-    const user = fromUser.data.uid === userUid ? fromUser : toUser.data.uid === userUid ? toUser : null;
-    if (user === null) {
+    const user = fromUser.data.uid === userUid ? fromUser : toUser.data.uid === userUid ? toUser : undefined;
+    if (user === undefined) {
         return unexpected(`User ${userUid} is not part of proposal ${proposalUid} !`, true);
     }
 
@@ -131,12 +131,12 @@ export async function refuseTradeProposal(userUid: string, proposalUid: string):
     const fromUser = dataInstance.getUser(proposal.from.uid);
     const toUser = dataInstance.getUser(proposal.to.uid);
 
-    if (fromUser === null || toUser === null) {
+    if (fromUser === undefined || toUser === undefined) {
         return unexpected(`Invalid proposal of uid ${proposalUid} : unknown users`, true);
     }
 
-    const user = fromUser.data.uid === userUid ? fromUser : toUser.data.uid === userUid ? toUser : null;
-    if (user === null) {
+    const user = fromUser.data.uid === userUid ? fromUser : toUser.data.uid === userUid ? toUser : undefined;
+    if (user === undefined) {
         return unexpected(`User ${userUid} is not part of proposal ${proposalUid} !`, true);
     }
 
@@ -172,7 +172,7 @@ export async function completeTradeProposal(userUid: string, proposalUid: string
     }
 
     const user = dataInstance.getUser(userUid);
-    if (user === null) {
+    if (user === undefined) {
         return unexpected(`No user of uid ${userUid}`, true);
     }
 

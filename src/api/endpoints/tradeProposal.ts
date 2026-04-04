@@ -11,7 +11,7 @@ async function getTradeProposalsRequest(req: express.Request, res: express.Respo
     }
 
     let user = DataModel.getUser(req.session.userUid);
-    if (user === null) {
+    if (user === undefined) {
         res.status(400).json({errors: [`Unknown user ${user}`]});
         return;
     }

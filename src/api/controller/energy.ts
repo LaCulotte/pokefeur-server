@@ -13,7 +13,7 @@ export async function recycleCards(userUid: string, cardUids: Array<string>) : P
     const staticDataInstance = StaticDataSingleton.getInstance();
 
     const user = dataInstance.getUser(userUid);
-    if (user === null) {
+    if (user === undefined) {
         return unexpected(`No user of uid ${userUid}`, true);
     }
 

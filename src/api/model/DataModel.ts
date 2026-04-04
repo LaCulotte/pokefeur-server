@@ -1,13 +1,13 @@
 import fs from "fs/promises"
 import { v4 as uuidv4 } from "uuid"
 
-import type { User, UserType } from "./interfaces"
+import type { User, UserSearchResult, UserType } from "./interfaces"
 import { UserModel } from "./UserModel";
 import { TradeProposalsModel } from "./TradeProposalsModel";
 
 export class DataModel {
     users: Record<string, UserModel> = {};
-    nameToUid: Record<string, string> = {};
+    nameToUser: Record<string, UserModel> = {};
 
     tradeProposals: TradeProposalsModel = new TradeProposalsModel();
 
@@ -49,7 +49,7 @@ export class DataModel {
         
         for (let [uid, user] of Object.entries(this.instance.users)) {
             await user.loadUserData();
-            this.instance.nameToUid[user.data.username] = uid;
+            this.instance.nameToUser[user.data.username] = user;
         }
 
         await this.instance.tradeProposals.loadProposals();
@@ -88,6 +88,7 @@ export class DataModel {
         let newUserModel = new UserModel(newUser); 
 
         this.users[uid] = newUserModel
+        this.nameToUser[username] = newUserModel;
         
         this.saveUsers();
         newUserModel.saveUserData();
@@ -97,34 +98,30 @@ export class DataModel {
         return newUserModel;
     }
 
-    getUserByName(query: string) : UserModel | null {
-        const userUid = Object.entries(this.nameToUid)
+    getUserByName(query: string) : UserModel | undefined {
+        return Object.entries(this.nameToUser)
             .find(([username, _]) => { return username == query; })
             ?.[1];
-
-        if (!userUid)
-            return null
-        
-        return this.users[userUid] ?? null;
     }
 
-    static getUserByName(username: string) : UserModel | null {
+    static getUserByName(username: string) : UserModel | undefined {
         return DataModel.getInstance().getUserByName(username);
     }
 
-    getUser(uid: string) : UserModel | null {
-        if (this.users[uid] !== undefined) {
-            return this.users[uid];
-        }
-
-        return null;
+    getUser(uid: string) : UserModel | undefined {
+        return this.users[uid];
     }
 
-    static getUser(uid: string) : UserModel | null {
+    static getUser(uid: string) : UserModel | undefined {
         return DataModel.getInstance().getUser(uid);
     }
 
     changeDescription(uid: string, newDescription: string) : boolean {
+        if (newDescription.length > 500) {
+            // TODO: use expected ??
+            return false;
+        }
+        
         const user = DataModel.getUser(uid);
         if (!user) {
             return false;
@@ -135,10 +132,16 @@ export class DataModel {
         return true;
     }
 
-    searchUsers(usernameQuery: string): {username: string, uid: string}[] {
+    searchUsers(usernameQuery: string): UserSearchResult[] {
         const safeQuery = usernameQuery.toLocaleLowerCase()
-        return Object.entries(this.nameToUid)
+        return Object.entries(this.nameToUser)
             .filter(([username, _]) => username.toLowerCase().includes(safeQuery))
-            .map(([username, uid]) => { return { username, uid }; });
+            .map(([username, user]) => {
+                return {
+                    username,
+                    uid: user.data.uid,
+                    description: user.data.description
+                }; 
+            });
     }
 };

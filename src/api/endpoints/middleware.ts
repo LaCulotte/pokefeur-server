@@ -19,7 +19,7 @@ export function adminUserMiddleware(req: express.Request, res: express.Response,
     }
 
     const user = DataModel.getUser(req.session.userUid);
-    if (user === null || user.data.type !== "admin") {
+    if (user === undefined || user.data.type !== "admin") {
         res.status(403).json({ message: "Not an admin" });
         return;
     }

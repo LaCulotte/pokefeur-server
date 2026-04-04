@@ -15,7 +15,7 @@ async function addItemToInventoryRequest(req: express.Request, res: express.Resp
     }
 
     let user = DataModel.getUser(req.session.userUid);
-    if (user === null) {
+    if (user === undefined) {
         res.status(400).json({errors: [`Unknown user ${user}`]});
         return;
     }
@@ -35,7 +35,7 @@ async function removeItemFromInventoryRequest(req: express.Request, res: express
     }
 
     let user = DataModel.getUser(req.session.userUid);
-    if (user === null) {
+    if (user === undefined) {
         res.status(400).json({errors: [`Unknown user ${user}`]});
         return;
     }

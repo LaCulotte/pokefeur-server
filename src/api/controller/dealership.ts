@@ -594,7 +594,7 @@ export async function acceptDeal(userUid: string, dealUid: string, payment: Paym
     const dataInstance = DataModel.getInstance();
 
     const user = dataInstance.getUser(userUid);
-    if (user === null) {
+    if (user === undefined) {
         return unexpected(`No user of uid ${userUid}`, true);
     }
 
@@ -652,7 +652,7 @@ export async function redeemDeal(userUid: string, dealUid: string) : Promise<Exp
     const dataInstance = DataModel.getInstance();
 
     const user = dataInstance.getUser(userUid);
-    if (user === null) {
+    if (user === undefined) {
         return unexpected(`No user of uid ${userUid}`, true);
     }
 

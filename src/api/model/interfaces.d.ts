@@ -107,6 +107,8 @@ export interface User {
     type: UserType
 }
 
+export type UserSearchResult = Pick<User, 'uid' | 'username' | 'description'>
+
 export interface FullUser extends User {
     inventory: {
         items: Record<string, InventoryItem>,

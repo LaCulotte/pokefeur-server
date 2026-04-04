@@ -17,8 +17,8 @@ function login(req: express.Request, res: express.Response) {
 
     let username: string = req.body.username;
 
-    let user: UserModel | null = DataModel.getUserByName(username);
-    if (user === null) {
+    let user: UserModel | undefined = DataModel.getUserByName(username);
+    if (user === undefined) {
         user = DataModel.getInstance().createUser(username, "admin");
         initUserDeals(user);
     }
@@ -34,18 +34,16 @@ function logout(req: express.Request, res: express.Response) {
 
 function getUserRequest(req: express.Request, res: express.Response) {
     if (req.session.userUid === undefined) {
-        res.json({ user: null });
+        res.json({ user: undefined });
         return;
     }
 
-    const user: UserModel | null = DataModel.getUser(req.session.userUid);
-    if (user === null) {
+    const user: UserModel | undefined = DataModel.getUser(req.session.userUid);
+    if (user === undefined) {
         req.session.userUid = undefined;
-        res.json({ user: null });
-        return;
     }
 
-    res.json({ user: user.data });
+    res.json({ user: user?.data });
 }
 
 function getFullUser(req: express.Request, res: express.Response) {
@@ -53,10 +51,10 @@ function getFullUser(req: express.Request, res: express.Response) {
         throw new Error("Logged state not validated !");
     }
 
-    const user: UserModel | null = DataModel.getUser(req.session.userUid);
-    if (user === null) {
+    const user: UserModel | undefined = DataModel.getUser(req.session.userUid);
+    if (user === undefined) {
         req.session.userUid = undefined;
-        res.json({ user: null });
+        res.json({ user: undefined });
         return;
     }
 

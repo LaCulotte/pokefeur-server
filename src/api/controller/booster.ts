@@ -9,7 +9,7 @@ export async function openBooster(userUid: string, boosterUid: string) : Promise
     const staticDataInstance = StaticDataSingleton.getInstance();
 
     const user = dataInstance.getUser(userUid);
-    if (user === null) {
+    if (user === undefined) {
         return unexpected(`No user of uid ${userUid}`, true);
     }
 
