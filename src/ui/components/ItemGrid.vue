@@ -8,7 +8,14 @@ import { useRouter } from 'vue-router';
 
 const router = useRouter();
 
-const {items, minItemHeightRatio, maxItemHeightRatio, scrollElem, compact = false, focusItemUid, focusTrigger} = defineProps<{
+const {items,
+    minItemHeightRatio,
+    maxItemHeightRatio,
+    scrollElem = undefined,
+    compact = false,
+    focusItemUid = undefined,
+    focusTrigger = undefined
+} = defineProps<{
     items: Array<T>,
     minItemHeightRatio: number,
     maxItemHeightRatio: number,
