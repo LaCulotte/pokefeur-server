@@ -4,9 +4,13 @@ import Room from './views/Room.vue';
 import Collection from './views/Collection.vue';
 import Login from './views/Login.vue';
 import Dealership from './views/Dealership.vue';
+import ProfileEdit from './views/ProfileEdit.vue';
+import UserSearch from './views/UserSearch.vue';
 
 // Vuetify
 import '@mdi/font/css/materialdesignicons.css';
+
+//@ts-expect-error I don't know why the compiler complains about this
 import 'vuetify/styles';
 import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
@@ -21,6 +25,8 @@ const routes = [
     { path: '/collection', component: Collection },
     { path: '/login', component: Login },
     { path: '/dealership', component: Dealership },
+    { path: '/profile-edit', component: ProfileEdit },
+    { path: '/user-search', component: UserSearch },
 ];
 
 export const router = createRouter({

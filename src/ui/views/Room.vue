@@ -4,15 +4,6 @@ import { useRouter } from 'vue-router'
 document.title = "Room";
 
 const router = useRouter()
-
-function goToCollection() {
-    router.push("/collection")
-}
-
-function goToDealership() {
-    router.push("/dealership")
-}
-
 </script>
 
 <template>
@@ -23,16 +14,15 @@ function goToDealership() {
                 class="d-flex flex-column justify-center"
             >
                 <div class="pa-6">
-                    <v-progress-linear
+                    <!-- <v-progress-linear
                         color="light-green-darken-4"
                         height="30"
                         model-value="50"
                         striped
                         rounded="xl"
                         style="box-shadow: 0 0 10px;"
-                    >
                         <strong style="color: white">Booster en cours; 69 mins restantes ...</strong>
-                    </v-progress-linear>
+                    </v-progress-linear> -->
                 </div>
             </div>
 
@@ -53,7 +43,7 @@ function goToDealership() {
             style="top: 5%; right: 5%;"
             rounded="xl"
             icon="mdi-account"
-            to="/collection"
+            to="/user-search"
         />
         <v-btn
             class="position-absolute"

@@ -4,22 +4,24 @@ import type { AcceptDealSummary, RedeemDealSummary } from "@/api/controller/inte
 import { expected, unexpected, type Expected } from "../../../common/utils";
 import type { UserTradesModel } from "@/api/model/UserTradesModel";
 
-export class UserData {
-    data: FullUser = {
-        uid: "",
-        username: "",
-        type: "guest",
+const defaultUserData: FullUser = {
+    uid: "",
+    username: "",
+    type: "guest",
 
-        inventory: {
-            items: {},
-            inTradeItems: {},
-            energies: {}
-        },
-        deals: {},
-        trades: {
-            proposals: {}
-        }
-    };
+    inventory: {
+        items: {},
+        inTradeItems: {},
+        energies: {}
+    },
+    deals: {},
+    trades: {
+        proposals: {}
+    }
+};
+
+export class UserData {
+    data: FullUser = defaultUserData;
 
     lastAuthenticated: number = -1;
     isAuthenticatedFlag: boolean = false;
@@ -54,7 +56,7 @@ export class UserData {
             if (res.status == 200) {
                 this.lastAuthenticated = Date.now();
                 this.isAuthenticatedFlag = true;
-                return this.launchLoad();
+                await this.launchLoad();
             } else if (res.status == 400) {
                 return res.json().then((data) => {
                     throw new Error(JSON.stringify(data.errors));
@@ -82,6 +84,7 @@ export class UserData {
         .then((res) => {
             if (res.status == 200) {
                 this.isAuthenticatedFlag = false;
+                this.data = defaultUserData;
             } else if (res.status == 400) {
                 return res.json().then((data) => {
                     throw new Error(data.errors);
@@ -122,6 +125,32 @@ export class UserData {
             this.isAuthenticatedFlag = false;
             this.lastAuthenticated = 0;
             return false;
+        });
+    }
+
+    changeDescription(newDescription: string | undefined) {
+        if (newDescription === undefined) {
+            return;
+        }
+
+        fetch("/api/changeDescription",
+            {
+                method: "POST",
+                body: JSON.stringify({newDescription}),
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            }
+        ).then((res) => {
+            if (res.status == 200) {
+                this.data.description = newDescription;
+            } else if (res.status == 400) {
+                return res.json().then((err) => { throw JSON.stringify(err["errors"]); });
+            } else if (res.status == 401) {
+                return res.json().then((err) => { throw err["message"]; });
+            }
+        }).catch((err) => {
+            console.error(`Cannot update description : ${err}`);
         });
     }
 
