@@ -39,7 +39,7 @@ watch(() => user.data.description, (newDesc, oldDesc) => {
                         <v-btn
                             rounded="xl"
                             icon="mdi-arrow-left"
-                            to="/user-search"
+                            @click="router.back()"
                         />
                     </div>
                 </div>

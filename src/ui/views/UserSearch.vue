@@ -30,6 +30,17 @@ function searchUsers() {
         searchResult.value = unexpected(error);
         loading.value = false;
     });
+
+    router.replace(router.currentRoute.value.path + "?" + new window.URLSearchParams({ search : search.value }).toString());
+}
+
+if (router.currentRoute.value.query.search !== undefined) {
+    search.value = router.currentRoute.value.query.search as string;
+    searchUsers();
+}
+
+function showUserProfile(userUid: string) {
+    router.push('/profile?userUid=' + userUid);
 }
 </script>
 
@@ -108,6 +119,7 @@ function searchUsers() {
                     v-for="res of searchResult.value()"
                     :key="res.uid"
                     :res="res"
+                    @click="showUserProfile(res.uid)"
                 />
             </div>
         </v-card>

@@ -28,7 +28,6 @@ watch(() => username, computeAvatarUrl);
 <template>
     <v-avatar
         :size="size"
-        class="mb-4"
     >
         <v-img
             v-if="avatarUrl"
