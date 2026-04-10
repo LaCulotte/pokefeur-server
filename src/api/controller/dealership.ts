@@ -7,11 +7,11 @@ import type {
     FullDeal,
     ItemType,
     Payment } from "../model/interfaces";
-import type { AcceptDealSummary, RedeemDealSummary } from "./interfaces.dealership"
+import type { AcceptDealSummary, RedeemDealSummary } from "./interfaces.dealership";
 import { Type, parseType, SUPPORTED_ENERGY_TYPES } from "../../common/constants";
 import type { UserModel } from "../model/UserModel";
 import { DealsModel } from "../model/DealsModel";
-import type { DealSchema, DealershipSchema } from "../../../resources/dealership/dealership-data.interfaces"
+import type { DealSchema, DealershipSchema } from "../../../resources/dealership/dealership-data.interfaces";
 import { ItemCostController, EnergyCostController, costControllerFactory } from "./cost";
 import { UserItemsController, type BaseItemsController,  } from "./item";
 
@@ -101,7 +101,7 @@ const DEAL_SCHEMAS: DealershipSchema = {
             ]
         },
     },
-}
+};
 
 
 class DealController {
@@ -116,7 +116,7 @@ class DealController {
     cost: {
         energies: Partial<Record<Type, EnergyCostController>>,
         items: Array<ItemCostController>
-    }
+    };
 
     constructor(deals: DealsModel, type: string) {
         this.deals = deals;
@@ -190,7 +190,7 @@ class DealController {
                for (let i = 0; this.schema.cost["cards-of-pokemon"] !== undefined && i < this.schema.cost["cards-of-pokemon"].count; i++) {
             const sets = this.schema.cost["cards-of-pokemon"].sets;
             if (sets.length === 0) {
-                throw new Error(`Error on generateCost for dealType ${this.type} : 'cost.cards-of-pokemon.count != 0' while 'cost.cards-of-pokemon.sets.length == 0' !`)
+                throw new Error(`Error on generateCost for dealType ${this.type} : 'cost.cards-of-pokemon.count != 0' while 'cost.cards-of-pokemon.sets.length == 0' !`);
             }
 
             const availablePokemonIds: Set<number> = new Set();
@@ -221,7 +221,7 @@ class DealController {
         for (let i = 0; this.schema.cost.energies !== undefined && i < this.schema.cost.energies.count; i++) {
             const types: Array<Type> = this.schema.cost.energies.types;
             if (types.length === 0) {
-                throw new Error(`Error on generateCost for dealType ${this.type} : 'cost.energies.count != 0' while 'cost.energies.types.length == 0' !`)
+                throw new Error(`Error on generateCost for dealType ${this.type} : 'cost.energies.count != 0' while 'cost.energies.types.length == 0' !`);
             }
 
             const costType = types[Math.floor(Math.random() * types.length)]!;
@@ -237,7 +237,7 @@ class DealController {
         for (let i = 0; this.schema.cost["cards-of-type"] !== undefined && i < this.schema.cost["cards-of-type"].count; i++) {
             const types: Array<Type> = this.schema.cost["cards-of-type"].types;
             if (types.length === 0) {
-                throw new Error(`Error on generateCost for dealType ${this.type} : 'cost.cards-of-type.count != 0' while 'cost.cards-of-type.types.length == 0' !`)
+                throw new Error(`Error on generateCost for dealType ${this.type} : 'cost.cards-of-type.count != 0' while 'cost.cards-of-type.types.length == 0' !`);
             }
 
             const costType = types[Math.floor(Math.random() * types.length)]!;
@@ -248,19 +248,19 @@ class DealController {
         for (let i = 0; this.schema.cost.cards !== undefined && i < this.schema.cost.cards.count; i++) {
             const sets = this.schema.cost.cards.sets;
             if (sets.length === 0) {
-                throw new Error(`Error on generateCost for dealType ${this.type} : 'cost.cards.count != 0' while 'cost.cards.sets.length == 0' !`)
+                throw new Error(`Error on generateCost for dealType ${this.type} : 'cost.cards.count != 0' while 'cost.cards.sets.length == 0' !`);
             }
 
             const costSetId = sets[Math.floor(Math.random() * sets.length)]!;
 
             const set = staticDataInstance.staticData.sets[costSetId];
             if (set === undefined) {
-                throw new Error(`Error on generateCost for dealType ${this.type} : cannot get set '${costSetId}' !`)
+                throw new Error(`Error on generateCost for dealType ${this.type} : cannot get set '${costSetId}' !`);
             }
 
             const cardsIds = Object.keys(set.cards);
             if (cardsIds.length == 0) {
-                throw new Error(`Error on generateCost for dealType ${this.type} : no card in set '${costSetId}'! (cards : ${set.cards})`)
+                throw new Error(`Error on generateCost for dealType ${this.type} : no card in set '${costSetId}'! (cards : ${set.cards})`);
             }
 
             const costCardId = cardsIds[Math.floor(Math.random() * cardsIds.length)]!;
@@ -271,7 +271,7 @@ class DealController {
         for (let i = 0; this.schema.cost.boosters !== undefined && i < this.schema.cost.boosters.count; i++) {
             const sets = this.schema.cost.boosters.sets;
             if (sets.length === 0) {
-                throw new Error(`Error on generateCost for dealType ${this.type} : 'cost.boosters.count != 0' while 'cost.boosters.sets.length == 0' !`)
+                throw new Error(`Error on generateCost for dealType ${this.type} : 'cost.boosters.count != 0' while 'cost.boosters.sets.length == 0' !`);
             }
 
             const costSetId = sets[Math.floor(Math.random() * sets.length)]!;
@@ -282,7 +282,7 @@ class DealController {
         for (let i = 0; this.schema.cost["cards-of-set"] !== undefined && i < this.schema.cost["cards-of-set"].count; i++) {
             const sets = this.schema.cost["cards-of-set"].sets;
             if (sets.length === 0) {
-                throw new Error(`Error on generateCost for dealType ${this.type} : 'cost.cards-of-set.count != 0' while 'cost.cards-of-set.sets.length == 0' !`)
+                throw new Error(`Error on generateCost for dealType ${this.type} : 'cost.cards-of-set.count != 0' while 'cost.cards-of-set.sets.length == 0' !`);
             }
 
             const costSetId = sets[Math.floor(Math.random() * sets.length)]!;
@@ -303,7 +303,7 @@ class DealController {
         const reward: {type: ItemType, id: string} = {
             type: "booster",
             id: ""
-        }
+        };
 
         const rewardSeed = Math.floor(Math.random() * (rewardSchema.boosters.length + rewardSchema.cards.length));
         if (rewardSeed < rewardSchema.boosters.length) {
@@ -369,7 +369,7 @@ class DealController {
         const deal = dealExp.value();
         const now = Math.floor(Date.now() / 1000);
         if (deal.state !== "accepted" && deal.proposedDate + deal.timeoutDuration < now) {
-            console.log("Deal expired. Regenerating it")
+            console.log("Deal expired. Regenerating it");
             delete this.deals.data[this.dealUid ?? ""];
             
             await this.generateDeal();
@@ -439,7 +439,7 @@ class DealController {
             }
 
             if (unit.costIndex < 0 || unit.costIndex > costItems.length) {
-                return unexpected(`Cost index ${unit.costIndex} is not in range ! Expected between 0 and ${costItems.length - 1}.`)
+                return unexpected(`Cost index ${unit.costIndex} is not in range ! Expected between 0 and ${costItems.length - 1}.`);
             }
 
             const cost = costItems[unit.costIndex]!;
@@ -496,8 +496,8 @@ class DealController {
 }
 
 class UserDealsController {
-    user: UserModel
-    dealControllers: Array<DealController>
+    user: UserModel;
+    dealControllers: Array<DealController>;
 
     private constructor(user: UserModel) {
         this.user = user;

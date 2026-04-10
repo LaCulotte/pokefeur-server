@@ -4,7 +4,7 @@ import { check } from "express-validator";
 import { execValidationMiddleware, loggedUserMiddleware } from "./middleware";
 import { DataModel } from "../model/DataModel";
 
-import "../common"
+import "../common";
 import { openBooster } from "../controller/booster";
 import { recycleCards } from "../controller/energy";
 
@@ -20,7 +20,7 @@ async function addItemToInventoryRequest(req: express.Request, res: express.Resp
         return;
     }
     
-    const expItem = await user.inventory.addItemToInventory(req.body.type, req.body.id)
+    const expItem = await user.inventory.addItemToInventory(req.body.type, req.body.id);
 
     if (expItem.has_value()) {
         res.status(200).json(expItem.value());

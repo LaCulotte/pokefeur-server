@@ -4,7 +4,7 @@ import { check, checkSchema } from "express-validator";
 import { execValidationMiddleware, loggedUserMiddleware } from "./middleware";
 import { DataModel } from "../model/DataModel";
 
-import "../common"
+import "../common";
 import { acceptDeal, redeemDeal } from "../controller/dealership";
 
 import { Type, TypeMap } from "../../common/constants";

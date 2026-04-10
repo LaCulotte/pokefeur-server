@@ -1,14 +1,14 @@
-import fs from "fs/promises"
-import { v4 as uuidv4 } from "uuid"
+import fs from "fs/promises";
+import { v4 as uuidv4 } from "uuid";
 
-import type { ItemType, Deal, User, FullDeal, DealCostUnit } from "./interfaces"
+import type { ItemType, Deal, User, FullDeal, DealCostUnit } from "./interfaces";
 import { StaticDataSingleton } from "../staticData/loader";
 import { Expected, expected, unexpected } from "../../common/utils";
 
 export class DealsModel {
-    user: User
+    user: User;
 
-    data: Record<string, FullDeal>
+    data: Record<string, FullDeal>;
 
     currLock: Promise<unknown> | undefined;
     
@@ -27,7 +27,7 @@ export class DealsModel {
 
     async loadDeals() {
         try {
-            this.data = await fs.readFile(`./data/deals/${this.user.uid}.json`, "utf-8").then((data) => { return JSON.parse(data) });
+            this.data = await fs.readFile(`./data/deals/${this.user.uid}.json`, "utf-8").then((data) => { return JSON.parse(data); });
 
             // TODO : sanatize deals ?
             // TODO : reset deal data <= ?
@@ -65,7 +65,7 @@ export class DealsModel {
             totalWaitTime: deal.totalWaitTime,
             proposedDate: deal.proposedDate,
             startDate: deal.startDate,
-        }
+        };
     }
 
     getReducedData() : Record<string, Deal> {
@@ -99,7 +99,7 @@ export class DealsModel {
             
             itemType,
             itemId
-        }
+        };
 
         this.data[uid] = newDeal;
 

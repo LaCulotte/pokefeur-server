@@ -272,7 +272,7 @@ export class UserData {
 
     acceptDeal(dealUid: string, payment: Payment) {
         if (!(dealUid in this.data.deals)) {
-            console.log("Why are you running ?")
+            console.log("Why are you running ?");
             return;
         }
 

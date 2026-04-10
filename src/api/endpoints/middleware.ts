@@ -1,4 +1,4 @@
-import type express from "express"
+import type express from "express";
 import { validationResult } from "express-validator";
 
 import { DataModel } from "../model/DataModel";

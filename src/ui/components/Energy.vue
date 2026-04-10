@@ -24,7 +24,7 @@ const energy_names: Partial<Record<Type, string>> = {
     [Type.COLORLESS]: "Colorless",
     [Type.DRAGON]: "Dragon",
     [Type.UNDEFINED]: "undefined",
-}
+};
 
 const energy_class: Partial<Record<Type, string>> = {
     [Type.FIRE]: "fire-energy",
@@ -39,7 +39,7 @@ const energy_class: Partial<Record<Type, string>> = {
     [Type.COLORLESS]: "colorless-energy",
     [Type.DRAGON]: "dragon-energy",
     [Type.UNDEFINED]: "undefined-energy",
-}
+};
 </script>
 
 <template>

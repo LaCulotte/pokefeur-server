@@ -6,8 +6,8 @@ import { DataModel } from "../model/DataModel";
 import { UserModel } from "../model/UserModel";
 import { initUserDeals } from "../controller/dealership";
 
-import "../common"
-import type { FullUser } from "../model/interfaces";
+import "../common";
+import type { FullUser, PublicUser, UserSearchResult } from "../model/interfaces";
 
 function login(req: express.Request, res: express.Response) {
     if (req.session.userUid !== undefined) {
@@ -74,8 +74,8 @@ function searchUsers(req: express.Request, res: express.Response) {
     }
     
     const usernameQuery: string = req.query.usernameQuery as string;
-    const ret = DataModel.getInstance().searchUsers(usernameQuery)
-    res.json(ret)
+    const ret = DataModel.getInstance().searchUsers(usernameQuery);
+    res.json(ret);
 }
 
 function changeDescription(req: express.Request, res: express.Response) {
@@ -125,7 +125,7 @@ export function setupLoginEnpoints(app: express.Express) {
         loggedUserMiddleware,
         check("newDescription").isString().notEmpty(),
         changeDescription
-    )
+    );
 
     // app.get("/api/queryUser",
     //     check("uid").isString().notEmpty(),

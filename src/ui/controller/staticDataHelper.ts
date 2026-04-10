@@ -36,13 +36,13 @@ export const unknownSet: SetStaticLangData = {
 
 export function getCardLangData(cardId: string): ComputedRef<CardStaticLangData> {
     return computed(() => {
-        return staticDataStore[lang.value]?.cards[cardId] ?? unknownCard
+        return staticDataStore[lang.value]?.cards[cardId] ?? unknownCard;
     });
 }
 
 export function getSetLangData(boosterId: string): ComputedRef<SetStaticLangData> {
     return computed(() => {
-        return staticDataStore[lang.value]?.sets[boosterId] ?? unknownSet
+        return staticDataStore[lang.value]?.sets[boosterId] ?? unknownSet;
     });
 }
 

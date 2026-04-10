@@ -1,11 +1,11 @@
-import { DATABASE, GENERATED_DIR, POKEMON_NAMES_DATABASE } from "../common/constants"
+import { DATABASE, GENERATED_DIR, POKEMON_NAMES_DATABASE } from "../common/constants";
 import { smartGlob } from './utils';
 import { promises as fs } from 'fs';
-import type { BackendData, CardData, SetData, SerieData, PokemonData } from "./interfaces"
+import type { BackendData, CardData, SetData, SerieData, PokemonData } from "./interfaces";
 import { getSerie } from './endpoints/series';
 import { saveSerie, saveSerieLang, serializeBackendData } from './dataSingleton';
 import { getPokemonData } from "./endpoints/pokemon";
-import path from "path"
+import path from "path";
 
 async function getData() : Promise<BackendData> {
     const files = await smartGlob(`./${DATABASE}/*.ts`);

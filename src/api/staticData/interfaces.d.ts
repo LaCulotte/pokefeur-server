@@ -1,4 +1,4 @@
-import type { SupportedLanguages, ISODate } from "../../../resources/interfaces"
+import type { SupportedLanguages, ISODate } from "../../../resources/interfaces";
 import { Category, Type, Stage, Suffix, Rarity, TrainerType } from "../../common/constants";
 
 export interface CardStaticData {

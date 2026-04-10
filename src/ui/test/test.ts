@@ -1,5 +1,5 @@
-import { createApp } from 'vue'
-import Test from './Test.vue'
+import { createApp } from 'vue';
+import Test from './Test.vue';
 
 // Vuetify
 import '@mdi/font/css/materialdesignicons.css';
@@ -13,8 +13,8 @@ const vuetify = createVuetify({
     directives,
 });
 
-const testApp = createApp(Test)
+const testApp = createApp(Test);
 
 testApp.use(vuetify);
 
-testApp.mount('#test')
+testApp.mount('#test');

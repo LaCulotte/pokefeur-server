@@ -42,20 +42,20 @@ function costUnitToItem(costUnit: DealCostUnit): InventoryItem {
             id: costUnit.id,
             type: costUnit.type,
             uid: ""
-        }
+        };
     } else if (costUnit.type == "card-of-type") {
         return {
             id: TYPE_TO_CARD_ID[costUnit.id],
             type: "card",
             uid: ""
-        }
+        };
     }
 
     return {
         id: "none",
         type: "card",
         uid: ""
-    }
+    };
 }
 
 function getSetLogo(setId: string): string {

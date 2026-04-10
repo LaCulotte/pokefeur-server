@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { useRouter } from 'vue-router'
+import { useRouter } from 'vue-router';
 import { user } from '../data/user/vueUserData';
 
 document.title = "Login";
 
 const username = ref("");
 const errorMessage = ref("");
-const router = useRouter()
+const router = useRouter();
 
 async function action() {
     if (await user.isAuthenticated()) {

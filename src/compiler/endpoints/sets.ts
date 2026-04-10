@@ -1,13 +1,13 @@
-import type { Set as RawSet, SupportedLanguages, ISODate } from "../../../resources/interfaces"
+import type { Set as RawSet, SupportedLanguages, ISODate } from "../../../resources/interfaces";
 import type { SetData, SetLangData } from "../interfaces";
 
 import { doCardExist, saveSet, saveSetLang } from "../dataSingleton";
 import { getCard } from "./cards";
 
-import { getImportRelativePath } from "../../common/utils"
+import { getImportRelativePath } from "../../common/utils";
 import { smartGlob, getLangOrDefault, forEachLang, getPicture } from "../utils";
 
-import path from "path"
+import path from "path";
 import {fileURLToPath} from 'url';
 import { promises as fs } from "fs";
 
@@ -41,7 +41,7 @@ export async function getSet(filePath: string) : Promise<SetData> {
 
     forEachLang(getAvailableLangs(rawSet),
         (lang: SupportedLanguages, defaultVal?: SetLangData) => {
-            return createSetLang(rawSet, set, lang, defaultVal)
+            return createSetLang(rawSet, set, lang, defaultVal);
         }
     );
 
@@ -72,16 +72,16 @@ function deserializeRawSet(data: RawSet) : SetData {
             total: 0,
         },
         cards: [],
-    }
+    };
 
-    console.log(set.id)
+    console.log(set.id);
     return set;
 }
 
 function getAvailableLangs(rawData: RawSet) : Set<SupportedLanguages> {
     const ret: Set<SupportedLanguages> = new Set();
 
-    Object.keys(rawData.name).forEach((key) => {ret.add(key as SupportedLanguages)});
+    Object.keys(rawData.name).forEach((key) => {ret.add(key as SupportedLanguages);});
     
     return ret;
 }
@@ -109,7 +109,7 @@ function createSetLang(rawData: RawSet, set: SetData, lang: SupportedLanguages, 
         cards: {},
         logo: getPicture(set.serieId, set.id, "logo", lang, defaultLangData?.lang),
         symbol: defaultLangData?.symbol ?? getPicture(set.serieId, set.id, "symbol", "univ"),
-    }
+    };
 
     for (const cardId of set.cards) {
         const cardLang = doCardExist(lang, cardId, defaultLangData?.lang);
@@ -124,5 +124,5 @@ function createSetLang(rawData: RawSet, set: SetData, lang: SupportedLanguages, 
     langData.cardCount.total = Object.keys(langData.cards).length;
     saveSetLang(langData);
 
-    return langData
+    return langData;
 }

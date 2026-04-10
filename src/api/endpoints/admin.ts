@@ -1,4 +1,4 @@
-import express from "express"
+import express from "express";
 import { DataModel } from "../model/DataModel";
 import { adminUserMiddleware } from "./middleware";
 

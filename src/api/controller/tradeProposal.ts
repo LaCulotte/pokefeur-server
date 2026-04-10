@@ -111,7 +111,7 @@ export async function acceptTradeProposal(userUid: string, proposalUid: string):
             await toUser.inventory.removeTradeItem(item.uid);
         }
 
-        proposal.acceptedDate = Math.floor(Date.now() / 1000)
+        proposal.acceptedDate = Math.floor(Date.now() / 1000);
     }
 
     // TODO : auto-refuse all un-acceptable trade requests ?

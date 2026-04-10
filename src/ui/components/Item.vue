@@ -2,7 +2,7 @@
 import type { CardItem, BoosterItem, InventoryItem } from "@/api/model/interfaces";
 import BoosterItemElem from "./BoosterItem.vue";
 
-import Card from "./Card.vue"
+import Card from "./Card.vue";
 import { user } from "../data/user/vueUserData";
 
 const props = defineProps<{

@@ -1,7 +1,7 @@
 import type { ExecException } from "child_process";
 import path from "path";
 
-export function getImportRelativePath(dirname: string) { return path.relative(dirname, process.cwd()) }
+export function getImportRelativePath(dirname: string) { return path.relative(dirname, process.cwd()); }
 
 type ExpectedState<T> =
   | { expected: true; val: T }
@@ -33,7 +33,7 @@ export class Expected<T> {
 
     transform<U> (transformLambda: (val: T) => Expected<U>): Expected<U> {
         if (this.state.expected) {
-            return transformLambda(this.state.val)
+            return transformLambda(this.state.val);
         } else {
             return this.as_error();
         }

@@ -3,11 +3,11 @@ import express from "express";
 import { StaticDataSingleton } from "./staticData/loader";
 import { setupLoginEnpoints } from "./endpoints/login";
 
-import session from "express-session"
+import session from "express-session";
 import fileStore from "session-file-store";
 const FileStore = fileStore(session);
 
-import "./common"
+import "./common";
 import { DataModel } from "./model/DataModel";
 import { initUserDeals } from "./controller/dealership";
 
@@ -17,21 +17,21 @@ import { setupDealershipEndpoints } from "./endpoints/dealership";
 import { setupTradeProposalEndpoints } from "./endpoints/tradeProposal";
 
 import { GENERATED_DIR } from "../common/constants";
-import path from "path"
+import path from "path";
 
 const a = Date.now();
 await StaticDataSingleton.load();
 await DataModel.load();
-console.log(`Loaded data in ${Date.now() - a} ms`)
+console.log(`Loaded data in ${Date.now() - a} ms`);
 
 // TODO : more generic ?
 for (const user of Object.values(DataModel.getInstance().users)) {
     initUserDeals(user);    // TODO : Do it on create as well !!
 }
-console.log(`Loaded controllers in ${Date.now() - a} ms`)
+console.log(`Loaded controllers in ${Date.now() - a} ms`);
 
 const app = express();
-app.use(express.json())
+app.use(express.json());
 
 app.get("/api/static/pokemons", (req, res) => {
     res.sendFile(path.join(path.resolve(), GENERATED_DIR, "pokemons.json"));

@@ -6,7 +6,7 @@ import type { StaticData, StaticLangDataStore } from "./interfaces";
 import { LANGS, GENERATED_DIR } from "../../common/constants";
 import { getImportRelativePath } from "../../common/utils";
 
-import path from "path"
+import path from "path";
 import {fileURLToPath} from 'url';
 import type { SupportedLanguages } from "../../../resources/interfaces";
 
@@ -38,7 +38,7 @@ export class StaticDataSingleton {
     static async load() {
         await this.data.loadStaticData();
 
-        const workingData: Partial<Record<SupportedLanguages, WorkingLangData>> = {}
+        const workingData: Partial<Record<SupportedLanguages, WorkingLangData>> = {};
         for (const lang of LANGS) {
             // TODO : promise.all to 'semi-parallelize'
             workingData[lang] = await this.data.loadStaticLangDataStore(lang);
@@ -104,10 +104,10 @@ export class StaticDataSingleton {
             const staticSet: SetStaticData = {
                 ...set,
                 cards: {}
-            }
+            };
 
             for (const cardId of set.cards) {
-                const card = this.staticData.cards[cardId]
+                const card = this.staticData.cards[cardId];
                 if (card !== undefined) {
                     staticSet.cards[cardId] = card;
                 } else {
@@ -128,10 +128,10 @@ export class StaticDataSingleton {
             const staticSet: SerieStaticData = {
                 ...serie,
                 sets: {}
-            }
+            };
 
             for (const setId of serie.sets) {
-                const set = this.staticData.sets[setId]
+                const set = this.staticData.sets[setId];
                 if (set !== undefined) {
                     staticSet.sets[setId] = set;
                 } else {
@@ -176,7 +176,7 @@ export class StaticDataSingleton {
             const staticSet: SetStaticLangData = {
                 ...set,
                 cards: {}
-            }
+            };
 
             workingData.sets[id] = Object.entries(set.cards);
 
@@ -196,7 +196,7 @@ export class StaticDataSingleton {
             const staticSet: SerieStaticLangData = {
                 ...serie,
                 sets: {}
-            }
+            };
 
             workingData.series[id] = Object.entries(serie.sets);
 
@@ -219,7 +219,7 @@ export class StaticDataSingleton {
         for (const [setId, cards] of Object.entries(workingData.sets)) {
             const set = langData.sets[setId];
             if (set === undefined) {
-                console.warn(`No set ${setId} for lang ${lang} !`)
+                console.warn(`No set ${setId} for lang ${lang} !`);
                 continue;
             }
 
@@ -256,7 +256,7 @@ export class StaticDataSingleton {
         for (const [serieId, sets] of Object.entries(workingData.series)) {
             const serie = langData.series[serieId];
             if (serie === undefined) {
-                console.warn(`No serie ${serieId} for lang ${lang} !`)
+                console.warn(`No serie ${serieId} for lang ${lang} !`);
                 continue;  
             }
 
@@ -267,7 +267,7 @@ export class StaticDataSingleton {
                     continue;
                 }
 
-                const set = currLangSets[setId]
+                const set = currLangSets[setId];
                 if (set !== undefined) {
                     serie.sets[setId] = set;
 

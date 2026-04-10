@@ -25,9 +25,9 @@ const renewMessage: ComputedRef<string> = computed(() => {
     
     const timeRemaining = (props.deal.proposedDate ?? 0) + props.deal.timeoutDuration - props.now;
     if (timeRemaining > 0) {
-        return `Renewed in ${timeRemaining}s ...`
+        return `Renewed in ${timeRemaining}s ...`;
     } else {
-        return "Renewing ..."
+        return "Renewing ...";
     }
 });
 
@@ -82,14 +82,14 @@ function costClick(_: DealCostUnit, costIndex: number) {
 }
 
 function itemClick(item: InventoryItem) {
-    const itemPayment = getPaymentFromItem(item.uid)
+    const itemPayment = getPaymentFromItem(item.uid);
     if (itemPayment !== undefined) {
         // const index = payment.value.items.findIndex((payment) => { return payment.itemUid == item.uid; });
         // if (index > -1) {
         //     payment.value.items.splice(index, 1);
         // }
         if (selectedCostIndex.value == itemPayment.costIndex) {
-            removeItemPayment(item.uid)
+            removeItemPayment(item.uid);
         } else {
             selectedCostIndex.value = itemPayment.costIndex;
             focusedItem.value = undefined;
@@ -149,7 +149,7 @@ function close() {
     payment.value = {
         energies: {},
         items: []
-    }
+    };
     selectedCostIndex.value = 0;
 }
 
@@ -171,21 +171,21 @@ const displayInventory: ComputedRef<Array<InventoryItem>> = computed(() => {
         if (staticData !== undefined) {
             filter = (item) => {
                 return isCardOfType(staticData, item.id, costUnit.id);
-            }
+            };
         }
     } else if (costUnit.type == "card-of-set") {
         const staticData = currLangData.value;
         if (staticData !== undefined) {
             filter = (item) => {
                 return isCardOfSet(staticData, item.id, costUnit.id);
-            }
+            };
         }
     } else if (costUnit.type == "card-of-pokemon") {
         const staticData = currLangData.value;
         if (staticData !== undefined) {
             filter = (item) => {
                 return isCardOfPokemon(staticData, item.id, costUnit.id);
-            }
+            };
         }
     }
 

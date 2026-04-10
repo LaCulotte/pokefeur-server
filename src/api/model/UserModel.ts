@@ -1,13 +1,13 @@
-import type { User } from "./interfaces"
+import type { User } from "./interfaces";
 import { InventoryModel } from "./InventoryModel";
 import { DealsModel } from "./DealsModel";
 import { UserTradesModel } from "./UserTradesModel";
 
 export class UserModel {
-    data: User
-    inventory: InventoryModel
-    deals: DealsModel
-    trades: UserTradesModel
+    data: User;
+    inventory: InventoryModel;
+    deals: DealsModel;
+    trades: UserTradesModel;
 
     constructor(user: User) {
         this.data = user;

@@ -1,15 +1,15 @@
-import type { SupportedLanguages, Card, Types } from "../../resources/interfaces"
+import type { SupportedLanguages, Card, Types } from "../../resources/interfaces";
 
 export const DEFAULT_LANG: SupportedLanguages = "en";
 export const LANGS: Array<SupportedLanguages> = ["en", "fr"];
 export const ALL_LANGS: Array<SupportedLanguages> = [
     'en', 'fr', 'es', 'es-mx', 'it', 'pt', 'pt-br', 'pt-pt', 'de', 'nl', 'pl', 'ru',
     'ja', 'ko', 'zh-tw', 'id', 'th', 'zh-cn'
-]
+];
 
 export const DATABASE: string = "resources/cards-data";
 export const POKEMON_NAMES_DATABASE: string = "resources/pokemon_species_names.csv";
-export const GENERATED_DIR: string = "resources/generated"
+export const GENERATED_DIR: string = "resources/generated";
 
 export enum Category {
     UNDEFINED = -1,
@@ -22,7 +22,7 @@ export const CategoryMap: Record<Card["category"], Category> = {
     "Pokemon": Category.POKEMON,
     "Trainer": Category.TRAINER,
     "Energy": Category.ENERGY,
-}
+};
 
 export enum Type {
     UNDEFINED = -1,
@@ -62,7 +62,7 @@ export const TypeMap: Record<Types, Type> = {
     "Metal": Type.METAL,
     "Psychic": Type.PSYCHIC,
     "Water": Type.WATER,
-}
+};
 
 export enum Stage {
     UNDEFINED = -1,
@@ -91,7 +91,7 @@ export const StageMap: Record<NonNullable<Card["stage"]>, Stage> = {
     "V-UNION": Stage.V_UNION,
     "VMAX": Stage.VMAX,
     "VSTAR": Stage.VSTAR,
-}
+};
 
 export enum Suffix {
     UNDEFINED = -1,
@@ -112,7 +112,7 @@ export const SuffixMap: Record<NonNullable<Card["suffix"]>, Suffix> = {
     "SP": Suffix.SP,
     "TAG TEAM-GX": Suffix.TAG_TEAM_GX,
     "V": Suffix.V,
-}
+};
 
 export enum Rarity {
     UNDEFINED = -1,
@@ -199,7 +199,7 @@ export const RarityMap: Record<Card["rarity"], Rarity> = {
     // "Three Shiny": Rarity.THREE_SHINY,
     "Black White Rare": Rarity.BLACK_WHITE_RARE,
     "Mega Hyper Rare": Rarity.MEGA_HYPER_RARE,
-}
+};
 
 export enum TrainerType {
     UNDEFINED = -1,
@@ -222,7 +222,7 @@ export const TrainerTypeMap: Record<NonNullable<Card["trainerType"]>, TrainerTyp
     "Supporter": TrainerType.SUPPORTER,
     "Technical Machine": TrainerType.TECHNICAL_MACHINE,
     "Tool": TrainerType.TOOL,
-}
+};
 
 export const SUPPORTED_ENERGY_TYPES: Array<Type> = [
     Type.COLORLESS,
@@ -232,6 +232,6 @@ export const SUPPORTED_ENERGY_TYPES: Array<Type> = [
     Type.LIGHTNING,
     Type.PSYCHIC,
     Type.WATER,
-]
+];
 
 export const MAX_POKEMON_ID = 1025;

@@ -1,7 +1,7 @@
-import fs from "fs/promises"
-import { v4 as uuidv4 } from "uuid"
+import fs from "fs/promises";
+import { v4 as uuidv4 } from "uuid";
 
-import type { FullUser, InventoryItem, InventoryItemT, ItemType, User } from "./interfaces"
+import type { FullUser, InventoryItem, InventoryItemT, ItemType, User } from "./interfaces";
 import { StaticDataSingleton } from "../staticData/loader";
 import { Expected, expected, unexpected } from "../../common/utils";
 import { SUPPORTED_ENERGY_TYPES, Type } from "../../common/constants";
@@ -13,11 +13,11 @@ const DEFAULT_INVENTORY: InventoryDataStructure = {
     items: {},
     energies: SUPPORTED_ENERGY_TYPES
                 .reduce((acc, e) => (acc[e] = 0, acc), {} as InventoryDataStructure["energies"])
-}
+};
 
 export class InventoryModel {
-    user: User
-    data: InventoryDataStructure
+    user: User;
+    data: InventoryDataStructure;
 
     constructor(user: User) {
         this.user = user;
@@ -80,7 +80,7 @@ export class InventoryModel {
             type,
             id,
             uid: itemUid
-        }
+        };
 
         this.data.items[itemUid] = item;
 
@@ -107,7 +107,7 @@ export class InventoryModel {
             return expected([]);
         }
 
-        const uidsToDelete = []
+        const uidsToDelete = [];
 
         for (const [currUid, item] of Object.entries(this.data.items)) {
             if (id == item.id && type == item.type) {

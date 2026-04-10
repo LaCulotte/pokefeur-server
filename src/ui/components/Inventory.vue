@@ -4,7 +4,7 @@ import Energy from './Energy.vue';
 
 import { computed, ref, onMounted, type ComputedRef } from 'vue';
 import { user } from '../data/user/vueUserData';
-import { useDisplay } from 'vuetify'
+import { useDisplay } from 'vuetify';
 import { Category, SUPPORTED_ENERGY_TYPES, Type } from '../../common/constants';
 import type { CardItem, InventoryItem } from '@/api/model/interfaces';
 
@@ -20,13 +20,13 @@ const emit = defineEmits<{
     removeItem: []
 }>();
 
-const { xlAndUp, lgAndUp, smAndDown } = useDisplay()
+const { xlAndUp, lgAndUp, smAndDown } = useDisplay();
 
 const energyColsSize = computed(() => {
     return xlAndUp.value ? 2
         : lgAndUp.value ? 2
         : smAndDown.value ? 4
-        : 3
+        : 3;
 });
 
 // TODO : make this function common

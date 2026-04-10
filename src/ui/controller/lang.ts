@@ -17,7 +17,7 @@ if (staticDataStore[lang.value] === undefined) {
 
 export const currLangData: ComputedRef<StaticLangData | undefined> = computed(() => {
     return staticDataStore[lang.value];
-})
+});
 
 watch(lang, () => {
     localStorage.setItem("lang", lang.value);

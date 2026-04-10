@@ -1,21 +1,21 @@
-import fs from "fs/promises"
-import type { PathLike } from "fs"
-import path from "path"
+import fs from "fs/promises";
+import type { PathLike } from "fs";
+import path from "path";
 
-import type interfaces from "./interfaces"
-import type { SupportedLanguages } from "../../resources/interfaces"
+import type interfaces from "./interfaces";
+import type { SupportedLanguages } from "../../resources/interfaces";
 
 const backendData: interfaces.BackendData = {
     series: {},
     sets: {},
     cards: {},
-}
+};
 
 const langData: interfaces.LangData = {
     series: {},
     sets: {},
     cards: {},
-}
+};
 
 export function saveCard(card: interfaces.CardData) {
     backendData.cards[card.id] = card;
@@ -46,7 +46,7 @@ export function saveSetLang(set: interfaces.SetLangData) {
     if (sets === undefined) {
         langData.sets[set.lang] = {
             [`${set.id}`]: set
-        }
+        };
     } else {
         sets[set.id] = set;
     }
@@ -57,7 +57,7 @@ export function saveSerieLang(serie: interfaces.SerieLangData) {
     if (series === undefined) {
         langData.series[serie.lang] = {
             [`${serie.id}`]: serie
-        }
+        };
     } else {
         series[serie.id] = serie;
     }
@@ -153,7 +153,7 @@ async function mkdir(path: PathLike) {
 }
 
 export async function serializeBackendData(outDir: string) {
-    const promises: Array<Promise<unknown>> = []
+    const promises: Array<Promise<unknown>> = [];
 
     const backendDir = path.join(outDir, "backend");
     const langDir = path.join(outDir, "lang");

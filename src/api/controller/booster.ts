@@ -25,7 +25,7 @@ export async function openBooster(userUid: string, boosterUid: string) : Promise
 
     const set = staticDataInstance.staticData.sets[boosterItem.id];
     if (set === undefined) {
-        return unexpected(`Cannot open booster : ${boosterItem.id} is not a valid set id`)
+        return unexpected(`Cannot open booster : ${boosterItem.id} is not a valid set id`);
     }
 
     const cardsKeys = Object.keys(set.cards);

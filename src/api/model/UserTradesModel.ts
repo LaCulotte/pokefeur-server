@@ -1,14 +1,14 @@
-import fs from "fs/promises"
-import { v4 as uuidv4 } from "uuid"
+import fs from "fs/promises";
+import { v4 as uuidv4 } from "uuid";
 
 import { type FullUser, type TradeProposal, type TradeProposalSide, type User } from "./interfaces";
 import { expected, unexpected, type Expected } from "../../common/utils";
 
-type TradesDataStructures = FullUser["trades"]
+type TradesDataStructures = FullUser["trades"];
 
 export class UserTradesModel {
-    user: User
-    data: TradesDataStructures
+    user: User;
+    data: TradesDataStructures;
 
     constructor(user: User) {
         this.user = user;

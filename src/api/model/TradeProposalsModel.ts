@@ -1,5 +1,5 @@
-import fs from "fs/promises"
-import { v4 as uuidv4 } from "uuid"
+import fs from "fs/promises";
+import { v4 as uuidv4 } from "uuid";
 
 import type { InventoryItem, TradeProposal } from "./interfaces";
 import { expected, unexpected, type Expected } from "../../common/utils";
@@ -8,7 +8,7 @@ import { DataModel } from "./DataModel";
 import type { UserModel } from "./UserModel";
 
 export class TradeProposalsModel {
-    data: Record<string, TradeProposal>
+    data: Record<string, TradeProposal>;
 
     constructor() {
         this.data = {};
@@ -22,7 +22,7 @@ export class TradeProposalsModel {
 
     async loadProposals() {
         try {
-            this.data = await fs.readFile(`./data/tradeProposals.json`, "utf-8").then((data) => { return JSON.parse(data) });
+            this.data = await fs.readFile(`./data/tradeProposals.json`, "utf-8").then((data) => { return JSON.parse(data); });
         } catch (e) {
             console.warn(`Could not load trade proposals !`);
 
@@ -78,7 +78,7 @@ export class TradeProposalsModel {
             },
             proposalDate: Math.floor(Date.now() / 1000),
             acceptedDate: undefined
-        }
+        };
 
         this.data[proposal.uid] = proposal;
         fromUser.trades.data.proposals[proposal.uid] = proposal;

@@ -1,13 +1,13 @@
-import type { ISODate, Serie as RawSerie, SupportedLanguages } from "../../../resources/interfaces"
+import type { ISODate, Serie as RawSerie, SupportedLanguages } from "../../../resources/interfaces";
 import type { SerieData, SerieLangData, SetData } from "../interfaces";
 
 import { doSetExist, saveSerie, saveSerieLang } from "../dataSingleton";
 import { getSet } from "./sets";
 
-import { getImportRelativePath } from "../../common/utils"
+import { getImportRelativePath } from "../../common/utils";
 import { smartGlob, getLangOrDefault, forEachLang } from "../utils";
 
-import path from "path"
+import path from "path";
 import {fileURLToPath} from 'url';
 import { promises as fs } from "fs";
 
@@ -32,7 +32,7 @@ export async function getSerie(filePath: string) : Promise<[string, SerieData, A
             setList.push([setData.releaseDate, setData.id]);
         }
         
-        setList.sort((a, b) => { return a[0] > b[0] ? 1 : -1 });
+        setList.sort((a, b) => { return a[0] > b[0] ? 1 : -1; });
 
         serie.sets = setList.map(([date, id]) => id);
         serieDate = setList[0] ? setList[0][0] : "1970-1-1";
@@ -44,7 +44,7 @@ export async function getSerie(filePath: string) : Promise<[string, SerieData, A
 
     const serieLangs = forEachLang(getAvailableLangs(rawSerie),
         (lang: SupportedLanguages, defaultVal?: SerieLangData) => {
-            return createSerieLang(rawSerie, serie, lang, defaultVal)
+            return createSerieLang(rawSerie, serie, lang, defaultVal);
         }
     );
 
@@ -55,7 +55,7 @@ function deserializeRawSerie(data: RawSerie) : SerieData {
     const serie: SerieData = {
         id: data.id,
         sets: [],
-    }
+    };
 
     return serie;
 }
@@ -63,7 +63,7 @@ function deserializeRawSerie(data: RawSerie) : SerieData {
 function getAvailableLangs(rawData: RawSerie) : Set<SupportedLanguages> {
     const ret: Set<SupportedLanguages> = new Set();
 
-    Object.keys(rawData.name).forEach((key) => {ret.add(key as SupportedLanguages)});
+    Object.keys(rawData.name).forEach((key) => {ret.add(key as SupportedLanguages);});
     
     return ret;
 }
@@ -81,7 +81,7 @@ function createSerieLang(rawData: RawSerie, serie: SerieData, lang: SupportedLan
         id: serie.id,
         name: name ?? "",
         sets: {}
-    }
+    };
 
     for (const setId of serie.sets) {
         const setLang = doSetExist(lang, setId, defaultLangData?.lang);

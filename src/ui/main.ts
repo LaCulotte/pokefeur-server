@@ -37,7 +37,7 @@ export const router = createRouter({
 router.beforeEach(async (to, from) => {
     if (!(await user.isAuthenticated()) && to.path !== '/login') {
         localStorage.setItem("login-dest", to.path);
-        return { path: '/login' }
+        return { path: '/login' };
     } else if (to.path !== '/login') {
         localStorage.removeItem("login-dest");
     }

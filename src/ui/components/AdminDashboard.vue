@@ -8,7 +8,7 @@ import { lang } from '../controller/lang';
 import type { SerieStaticLangData, SetStaticLangData, CardStaticLangData } from '@/api/staticData/interfaces';
 import { useDisplay } from 'vuetify';
 
-const type: Ref<ItemType> = ref("card")
+const type: Ref<ItemType> = ref("card");
 
 const serie: Ref<SerieStaticLangData | null> = ref(null);
 const set: Ref<SetStaticLangData | null> = ref(null);
@@ -51,8 +51,8 @@ const setsAutocomplete = computed(() => {
         return {
             title: `${set.name} (${set.id})`,
             value: set
-        }
-    })
+        };
+    });
 });
 
 const cardsAutocomplete = computed(() => {
@@ -64,8 +64,8 @@ const cardsAutocomplete = computed(() => {
         return {
             title: `${card.name} (${card.localId})`,
             value: card
-        }
-    })
+        };
+    });
 });
 
 const id = computed(() => {
@@ -78,7 +78,7 @@ const id = computed(() => {
     return '';
 });
 
-const { xlAndUp, lgAndUp, smAndDown } = useDisplay()
+const { xlAndUp } = useDisplay();
 const cols = computed(() => {
     return xlAndUp.value ? 6
         : 12;

@@ -1,4 +1,4 @@
-import type { SupportedLanguages } from "../../../resources/interfaces"
+import type { SupportedLanguages } from "../../../resources/interfaces";
 
 import { parse } from "csv-parse/sync";
 import fs from "fs/promises";
@@ -18,7 +18,7 @@ const ID_TO_LANG: Record<number, Array<SupportedLanguages>> = {
     11: ["ja"],
     12: ["zh-cn"],
     13: ["pt", "pt-pt", "pt-br"]
-}
+};
 
 const POKEMON_ID_INDEX = 0;
 const LANG_INDEX = 1;
@@ -55,7 +55,7 @@ export async function getPokemonData(path: string): Promise<PokemonData> {
                 data[lang] = {
                     id_to_name: {},
                     name_to_id: {}
-                }
+                };
             }
 
             data[lang].id_to_name[id] = name;

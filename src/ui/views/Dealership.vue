@@ -5,7 +5,7 @@ import Item from '../components/Item.vue';
 import { user } from '../data/user/vueUserData';
 
 import { ref, type Ref, computed, onUnmounted, onMounted, type ComputedRef } from 'vue';
-import { useRouter } from 'vue-router'
+import { useRouter } from 'vue-router';
 import { on } from 'events';
 import Energy from '../components/Energy.vue';
 import DealProposal from '../components/DealProposal.vue';

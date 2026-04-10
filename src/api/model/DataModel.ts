@@ -1,7 +1,7 @@
-import fs from "fs/promises"
-import { v4 as uuidv4 } from "uuid"
+import fs from "fs/promises";
+import { v4 as uuidv4 } from "uuid";
 
-import type { User, UserSearchResult, UserType } from "./interfaces"
+import type { User, UserSearchResult, UserType } from "./interfaces";
 import { UserModel } from "./UserModel";
 import { TradeProposalsModel } from "./TradeProposalsModel";
 
@@ -36,7 +36,7 @@ export class DataModel {
         await this.createDirs();
 
         try {
-            const users: Record<string, User> = await fs.readFile("./data/users.json", "utf-8").then((data) => { return JSON.parse(data) });
+            const users: Record<string, User> = await fs.readFile("./data/users.json", "utf-8").then((data) => { return JSON.parse(data); });
 
             for (const [uid, user] of Object.entries(users)) {
                 this.instance.users[uid] = new UserModel(user);
@@ -87,7 +87,7 @@ export class DataModel {
 
         const newUserModel = new UserModel(newUser); 
 
-        this.users[uid] = newUserModel
+        this.users[uid] = newUserModel;
         this.nameToUser[username] = newUserModel;
         
         this.saveUsers();
@@ -133,7 +133,7 @@ export class DataModel {
     }
 
     searchUsers(usernameQuery: string): UserSearchResult[] {
-        const safeQuery = usernameQuery.toLocaleLowerCase()
+        const safeQuery = usernameQuery.toLocaleLowerCase();
         return Object.entries(this.nameToUser)
             .filter(([username, _]) => username.toLowerCase().includes(safeQuery))
             .map(([username, user]) => {

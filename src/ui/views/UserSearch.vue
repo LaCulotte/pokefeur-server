@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
+import { useRouter } from 'vue-router';
 
 import { user } from '../data/user/vueUserData';
 import UserAvatar from '../components/users/UserAvatar.vue';

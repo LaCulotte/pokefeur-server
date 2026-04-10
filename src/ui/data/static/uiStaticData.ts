@@ -16,7 +16,7 @@ export class UiStaticDataSingleton {
                     if (res.status != 200) {
                         return undefined;
                     } else {
-                        return res.json()
+                        return res.json();
                     }
                 });
 
@@ -31,7 +31,7 @@ export class UiStaticDataSingleton {
                     if (res.status != 200) {
                         return undefined;
                     } else {
-                        return res.json()
+                        return res.json();
                     }
                 });
                 

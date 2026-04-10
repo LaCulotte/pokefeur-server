@@ -2,7 +2,7 @@ import type { Type } from "../../common/constants";
 
 // TODO : use enum ?
 export type UserType = "guest" | "user" | "admin" | "moderator" | "banned";
-export type ItemType = "card" | "booster"
+export type ItemType = "card" | "booster";
 
 export interface CardItem {
     type: "card"
@@ -16,11 +16,11 @@ export interface BoosterItem {
     uid: string
 }
 
-export type InventoryItem = CardItem | BoosterItem
+export type InventoryItem = CardItem | BoosterItem;
 export type InventoryItemT<T> = 
                 T extends "card" ? CardItem : 
                 T extends "booster" ? BoosterItem :
-                never
+                never;
 
 export interface DealCostCard {
     type: "card"
@@ -53,7 +53,7 @@ export interface DealCostEnergy {
     count: number
 }
 
-export type DealCostUnit = DealCostCard | DealCostBooster | DealCostCardOfSet | DealCostCardOfType | DealCostCardOfPokemon // | DealCostEnergy
+export type DealCostUnit = DealCostCard | DealCostBooster | DealCostCardOfSet | DealCostCardOfType | DealCostCardOfPokemon; // | DealCostEnergy
 export type DealCostUnitT<T> = 
                 T extends "card" ? DealCostCard : 
                 T extends "card-of-type" ? DealCostCardOfType : 
@@ -61,7 +61,7 @@ export type DealCostUnitT<T> =
                 T extends "card-of-pokemon" ? DealCostCardOfPokemon :
                 T extends "booster" ? DealCostBooster : 
                 T extends "energy" ? DealCostEnergy :
-                never
+                never;
 
 export type DealState = "proposed" | "accepted" | "redeemed";
 
@@ -107,7 +107,7 @@ export interface User {
     type: UserType
 }
 
-export type UserSearchResult = Pick<User, 'uid' | 'username' | 'description'>
+export type UserSearchResult = Pick<User, 'uid' | 'username' | 'description'>;
 
 export interface FullUser extends User {
     inventory: {
@@ -117,7 +117,7 @@ export interface FullUser extends User {
     }
     deals: Record<string, Deal>
     trades: {
-        proposals: Record<string, TradeProposal>        
+        proposals: Record<string, TradeProposal>
     }
 }
 
@@ -147,4 +147,4 @@ export interface TradeProposal {
     }
 }
 
-export type TradeProposalSide = TradeProposal["to"] | TradeProposal["from"]
+export type TradeProposalSide = TradeProposal["to"] | TradeProposal["from"];

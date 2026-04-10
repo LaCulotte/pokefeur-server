@@ -67,7 +67,7 @@ export abstract class ItemCostController {
 }
 
 export abstract class ItemCostControllerT<CostT extends DealCostUnit> extends ItemCostController {
-    data: CostT
+    data: CostT;
 
     constructor(costUnit: CostT) {
         super();
@@ -211,12 +211,12 @@ class CardOfPokemonCostController extends ItemCostControllerT<DealCostCardOfPoke
 function typeEraseConstructor<CostT extends DealCostUnit> (constructor: new (args: CostT) => ItemCostControllerT<CostT>) 
     : (args: DealCostUnit) => ItemCostControllerT<CostT>
 {
-    return (args: DealCostUnit) => { return new constructor(args as CostT) };
+    return (args: DealCostUnit) => { return new constructor(args as CostT); };
 }
 
 type ConstructorMap = {
     [K in DealCostUnit['type']]: (args: DealCostUnit) => ItemCostControllerT<DealCostUnitT<K>>
-}
+};
 
 const CONTROLLER_CONSTRUCTOR_MAP: ConstructorMap = {
     "booster": typeEraseConstructor(BoosterCostController),
@@ -224,7 +224,7 @@ const CONTROLLER_CONSTRUCTOR_MAP: ConstructorMap = {
     "card-of-type": typeEraseConstructor(CardOfTypeCostController),
     "card-of-set": typeEraseConstructor(CardOfSetCostController),
     "card-of-pokemon": typeEraseConstructor(CardOfPokemonCostController),
-}
+};
 
 function buildCostController<T extends DealCostUnit['type']> (type: T, args: DealCostUnitT<T>): ItemCostControllerT<DealCostUnitT<T>> {
     return CONTROLLER_CONSTRUCTOR_MAP[type](args);

@@ -12,7 +12,7 @@ import { promises as fs } from "fs";
 // export const IMPORT_RELATIVE_PATH = path.relative(__dirname, process.cwd());
 // export function getImportRelativePath(dirname: string) { return path.relative(dirname, process.cwd()) }
 
-const globCache: Record<string, Array<string>> = {}
+const globCache: Record<string, Array<string>> = {};
 
 
 // File containing info about card pictures
@@ -37,17 +37,17 @@ const file = await fs.stat(`${DATABASE}/datas.json`).then((stats) => {
     }).catch(async () => {
         console.log("Fetching new datas.json from tcgdex");
 
-        const signal = new AbortController()
+        const signal = new AbortController();
 
         const finished = setTimeout(() => {
-            signal.abort()
+            signal.abort();
         }, 60 * 1000);
         
         const data = await fetch('https://assets.tcgdex.net/datas.json', {
             signal: signal.signal
-        }).then((res) => { return res.json() });
+        }).then((res) => { return res.json(); });
         
-        clearTimeout(finished)
+        clearTimeout(finished);
 
         await fs.writeFile(
             `${DATABASE}/datas.json`,
@@ -62,9 +62,9 @@ const file = await fs.stat(`${DATABASE}/datas.json`).then((stats) => {
 
 export async function smartGlob(query: string) : Promise<Array<string>> {
     if (!globCache[query]) {
-        globCache[query] = await glob(query)
+        globCache[query] = await glob(query);
     }
-    return globCache[query]
+    return globCache[query];
 }
 
 export function forEachLang<Type>(allLangs: Set<SupportedLanguages>, callback: (lang: SupportedLanguages, defaultVal?: Type) => Type) : Array<Type> {
@@ -108,7 +108,7 @@ function pictureExists(serieId: string, setId: string, localId: string, lang: Su
 export function getPicture(serieId: string, setId: string, localId: string, lang: SupportedLanguages | "univ", defaultLang?: SupportedLanguages) : string {
     const langPic = pictureExists(serieId, setId, localId, lang);
     if (langPic !== undefined) {
-        return langPic
+        return langPic;
     }
 
     if (defaultLang !== undefined) {

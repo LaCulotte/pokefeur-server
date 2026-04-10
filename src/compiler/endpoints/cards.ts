@@ -1,14 +1,14 @@
-import type { Card as RawCard, SupportedLanguages } from "../../../resources/interfaces"
+import type { Card as RawCard, SupportedLanguages } from "../../../resources/interfaces";
 import type { CardData, CardLangData } from "../interfaces";
 import { CategoryMap, Category, TypeMap, Type, StageMap, Stage, SuffixMap, Suffix, RarityMap, Rarity, TrainerTypeMap, TrainerType } from "../../common/constants";
 
 import { saveCard, saveCardLang } from "../dataSingleton";
 
-import { getImportRelativePath } from "../../common/utils"
+import { getImportRelativePath } from "../../common/utils";
 
 import { getPicture, forEachLang, stringToEnum } from "../utils";
 
-import path from "path"
+import path from "path";
 import {fileURLToPath} from 'url';
 import { promises as fs } from "fs";
 
@@ -26,7 +26,7 @@ export async function getCard(filePath: string) : Promise<CardData> {
 
     forEachLang(getAvailableLangs(rawCard),
         (lang: SupportedLanguages, defaultVal?: CardLangData) => {
-            return createCardLang(rawCard, card, lang, defaultVal)
+            return createCardLang(rawCard, card, lang, defaultVal);
         }
     );
 
@@ -55,7 +55,7 @@ function deserializeRawCard(data: RawCard, localId: string) : CardData {
 function getAvailableLangs(rawData: RawCard) : Set<SupportedLanguages> {
     const ret: Set<SupportedLanguages> = new Set();
 
-    Object.keys(rawData.name).forEach((key) => {ret.add(key as SupportedLanguages)});
+    Object.keys(rawData.name).forEach((key) => {ret.add(key as SupportedLanguages);});
     
     return ret;
 }
@@ -91,9 +91,9 @@ function createCardLang(rawData: RawCard, card: CardData, lang: SupportedLanguag
         suffix: card.suffix,
         dexId: card.dexId,
         trainerType: card.trainerType,
-    }
+    };
 
     saveCardLang(langData);
 
-    return langData
+    return langData;
 }

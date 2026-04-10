@@ -66,22 +66,22 @@ const isBodyValid = computed(() => {
     }
 
     try {
-        JSON.parse(body.value)
+        JSON.parse(body.value);
         return true;
     } catch(_) {
         return false;
     }
-})
+});
 
 const fetchUrl = computed(() => {
     if (method.value != "GET") {
         return url.value;
     } else if (body.value && isBodyValid.value) {
-        return url.value + "?" + new window.URLSearchParams(JSON.parse(body.value)).toString()
+        return url.value + "?" + new window.URLSearchParams(JSON.parse(body.value)).toString();
     }
 
     return url.value;
-})
+});
 
 function easyFetch() {
     // if (method.value == "GET" && !!body.value) {
@@ -97,7 +97,7 @@ function easyFetch() {
         } : {}
     })
     .then((res) => {
-        return res.text()
+        return res.text();
     })
     .then((t) => {
         res.value = JSON.stringify(JSON.parse(t), null, 2).slice(0, 10000);

@@ -1,20 +1,20 @@
 <script setup lang="ts">
 import AdminDashboard from "../components/AdminDashboard.vue";
-import Inventory from "../components/Inventory.vue"
+import Inventory from "../components/Inventory.vue";
 
-import { useRouter } from 'vue-router'
-import { onMounted, onUnmounted, useTemplateRef, ref } from 'vue'
+import { useRouter } from 'vue-router';
+import { onMounted, onUnmounted, useTemplateRef, ref } from 'vue';
 
 document.title = "Collection";
 
-const router = useRouter()
+const router = useRouter();
 
 function goToDealership() {
-    router.push("/dealership")
+    router.push("/dealership");
 }
 
 function goToHome() {
-    router.push("/")
+    router.push("/");
 }
 
 const lastElem = useTemplateRef("last-elem");

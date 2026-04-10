@@ -33,18 +33,18 @@ const mainElem = useTemplateRef("main");
 
 // TODO : handle resize
 const height = computed(() => {
-    return window.visualViewport?.height ?? window.innerHeight
+    return window.visualViewport?.height ?? window.innerHeight;
 });
 const width = computed(() => {
-    return mainElem.value?.getBoundingClientRect().width ?? window.visualViewport?.width ?? window.innerWidth
+    return mainElem.value?.getBoundingClientRect().width ?? window.visualViewport?.width ?? window.innerWidth;
 });
 
 const minItemHeight = computed(() => {
     return height.value * minItemHeightRatio; 
-})
+});
 const maxItemHeight = computed(() => {
     return height.value * maxItemHeightRatio; 
-})
+});
 
 const numCols = computed(() => {
     const minWidth = (minItemHeight.value * ASPECT_RATIO) + 8;
@@ -150,7 +150,7 @@ async function focusItem(itemId: string | undefined) {
     focusedUid.value = itemId;
     focusedClass.value = ["border-smooth"];
 
-    const itemIndex = items.findIndex((item) => { return item.uid == itemId; })
+    const itemIndex = items.findIndex((item) => { return item.uid == itemId; });
 
     if (itemIndex != -1) {
         const dest = Math.floor((itemIndex / numCols.value) * itemSize.value.height);

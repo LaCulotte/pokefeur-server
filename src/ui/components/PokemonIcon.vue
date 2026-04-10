@@ -32,8 +32,8 @@ const style = computed(() => {
 
     let style = `width: ${targetWidth}px; height: ${targetHeight}px; `;
 
-    style += `background-size: ${(targetWidth / ICON_WIDTH) * BACKGROUND_WIDTH}px ${(targetHeight / ICON_HEIGHT) * BACKGROUND_HEIGHT}px;`
-    style += "background-position: "
+    style += `background-size: ${(targetWidth / ICON_WIDTH) * BACKGROUND_WIDTH}px ${(targetHeight / ICON_HEIGHT) * BACKGROUND_HEIGHT}px;`;
+    style += "background-position: ";
 
     if (id < 1 || id > 1025) {
         style += "0px 0px";

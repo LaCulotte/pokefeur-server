@@ -7,7 +7,7 @@ const avatarUrl: Ref<string | undefined> = ref(undefined);
 const { username, size = 128 } = defineProps<{
     username: string | undefined,
     size?: number
-}>()
+}>();
 
 async function computeAvatarUrl(newUsername: string | undefined) {
     if (newUsername) {
