@@ -101,7 +101,7 @@ function showUserProfile(userUid: string) {
                 Please search a user
             </v-container>
             <v-container
-                v-else-if="!searchResult.has_value()" 
+                v-else-if="!searchResult.has_value" 
                 class="h-100 w-100 d-flex flex-row align-center justify-center"
             >
                 Error while searching users : {{ searchResult.error() }}

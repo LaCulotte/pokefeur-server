@@ -26,7 +26,7 @@ async function createTradeProposalRequest(req: express.Request, res: express.Res
     
     const expProposal = await makeTradeProposal(req.session.userUid, req.body.toUserUid, req.body.offeredItemUids, req.body.requestedItemUids);
     
-    if (expProposal.has_value()) {
+    if (expProposal.has_value) {
         res.status(200).json(expProposal.value());
     } else {
         res.status(400).json({errors: [expProposal.error()]});
@@ -40,7 +40,7 @@ async function acceptTradeProposalRequest(req: express.Request, res: express.Res
     
     const expAccepted = await acceptTradeProposal(req.session.userUid, req.body.proposalUid);
 
-    if (expAccepted.has_value()) {
+    if (expAccepted.has_value) {
         res.status(200).json(expAccepted.value());
     } else {
         res.status(400).json({errors: [expAccepted.error()]});
@@ -54,7 +54,7 @@ async function refuseTradeProposalRequest(req: express.Request, res: express.Res
     
     const expRefused = await refuseTradeProposal(req.session.userUid, req.body.proposalUid);
 
-    if (expRefused.has_value()) {
+    if (expRefused.has_value) {
         res.status(200).json(expRefused.value());
     } else {
         res.status(400).json({errors: [expRefused.error()]});
@@ -68,7 +68,7 @@ async function completeTradeProposalRequest(req: express.Request, res: express.R
     
     const expCompleted = await completeTradeProposal(req.session.userUid, req.body.proposalUid);
 
-    if (expCompleted.has_value()) {
+    if (expCompleted.has_value) {
         res.status(200).json(expCompleted.value());
     } else {
         res.status(400).json({errors: [expCompleted.error()]});

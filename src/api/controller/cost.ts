@@ -1,6 +1,6 @@
 import type { Payment, InventoryItem, DealCostEnergy, DealCostCard, DealCostCardOfType, ItemPayment, DealCostCardOfSet, DealCostCardOfPokemon, DealCostUnitT } from "../model/interfaces";
 import type { DealCostUnit, DealCostBooster } from "../model/interfaces";
-import { Expected, expected, unexpected } from "../../common/utils";
+import { type Expected, expected, unexpected } from "../../common/utils";
 import { UserModel } from "../model/UserModel";
 import type { Type } from "../../common/constants";
 import { StaticDataSingleton } from "../staticData/loader";
@@ -54,7 +54,7 @@ export abstract class ItemCostController {
         }
 
         const itemExp = items.getItem(payment.itemUid);
-        if (!itemExp.has_value()) {
+        if (!itemExp.has_value) {
             return unexpected(`Cannot get payment item of uid ${payment.itemUid} : ${itemExp.error()}`);
         }
 

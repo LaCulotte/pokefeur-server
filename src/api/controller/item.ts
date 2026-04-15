@@ -1,5 +1,5 @@
 import type { InventoryItem } from "../model/interfaces";
-import { Expected, expected, unexpected } from "../../common/utils";
+import { type Expected, expected, unexpected } from "../../common/utils";
 import { UserModel } from "../model/UserModel";
 import type { Type } from "../../common/constants";
 

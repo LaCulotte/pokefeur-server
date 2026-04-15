@@ -19,7 +19,7 @@ export async function openBooster(userUid: string, boosterUid: string) : Promise
     }
 
     const expRemoved = await user.inventory.removeItemFromInventory(boosterUid);
-    if (!expRemoved.has_value()) {
+    if (!expRemoved.has_value) {
         return unexpected(`Cannot open booster : ${expRemoved.error()}`, true);
     }
 
@@ -51,7 +51,7 @@ export async function openBooster(userUid: string, boosterUid: string) : Promise
     for (const id of generatedIds) {
         const generatedCard = await user.inventory.addItemToInventory("card", id);
 
-        if (generatedCard.has_value()) {
+        if (generatedCard.has_value) {
             ret.push(generatedCard.value());
         } else {
             return unexpected(`Got error while trying to add cards to inventory : ${generatedCard.error()}`, true);   // TODO : continue generating cards ?

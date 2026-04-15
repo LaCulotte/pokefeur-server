@@ -49,9 +49,9 @@ export class UserTradesModel {
         throw unexpected(`Proposal of uid '${proposalUid}' does not involve the user ${this.user.uid} !?`);
     }
 
-    async acceptProposal(proposalUid: string): Promise<Expected<TradeProposalSide>> {
+    async acceptProposal(proposalUid: string): Promise<ReturnType<UserTradesModel["getProposalSide"]>> {
         const expectedSide = this.getProposalSide(proposalUid);
-        if (!expectedSide.has_value()) {
+        if (!expectedSide.has_value) {
             return unexpected(`Cannot accept proposal : ${expectedSide.error()}`);
         }
         const userSide = expectedSide.value().current;
@@ -63,12 +63,13 @@ export class UserTradesModel {
         userSide.accepted = "accepted";
         // TODO : trigger save ?
 
-        return expectedSide.transform((sides) => expected(sides.current));
+        return expectedSide;
+        // return expectedSide.transform((sides) => expected(sides.current));
     }
 
-    async refuseProposal(proposalUid: string): Promise<Expected<TradeProposalSide>> {
+    async refuseProposal(proposalUid: string): Promise<ReturnType<UserTradesModel["getProposalSide"]>> {
         const expectedSide = this.getProposalSide(proposalUid);
-        if (!expectedSide.has_value()) {
+        if (!expectedSide.has_value) {
             return unexpected(`Cannot refuse proposal : ${expectedSide.error()}`);
         }
         const userSide = expectedSide.value().current;
@@ -81,12 +82,13 @@ export class UserTradesModel {
         userSide.accepted = "refused";
         // TODO : trigger save ?
 
-        return expectedSide.transform((sides) => expected(sides.current));
+        return expectedSide;
+        // return expectedSide.transform((sides) => expected(sides.current));
     }
 
-    async completeProposal(proposalUid: string): Promise<Expected<TradeProposalSide>> {
+    async completeProposal(proposalUid: string): Promise<ReturnType<UserTradesModel["getProposalSide"]>> {
         const expectedSide = this.getProposalSide(proposalUid);
-        if (!expectedSide.has_value()) {
+        if (!expectedSide.has_value) {
             return unexpected(`Cannot refuse proposal : ${expectedSide.error()}`);
         }
         const userSide = expectedSide.value().current;
@@ -98,7 +100,8 @@ export class UserTradesModel {
         userSide.accepted = "completed";
         // TODO : trigger save ?
 
-        return expectedSide.transform((sides) => expected(sides.current));
+        return expectedSide;
+        // return expectedSide.transform((sides) => expected(sides.current));
     }
 
     async removeProposal(proposalUid: string): Promise<Expected<void>> {

@@ -47,13 +47,13 @@ export async function makeTradeProposal(fromUserUid: string,
 
     const proposalExp = await dataInstance.tradeProposals.createProposal(fromUser, toUser, fromItems, toItems);
 
-    if (!proposalExp.has_value()) {
+    if (!proposalExp.has_value) {
         return unexpected(`Error while creating trade proposal : ${proposalExp.error()}`, true);
     }
 
     for (const item of fromItems) {
         const expRemoved = await fromUser.inventory.moveItemToTrade(item.uid);
-        if (!expRemoved.has_value()) {
+        if (!expRemoved.has_value) {
             for (const rollbackItem of fromItems) {
                 fromUser.inventory.moveItemFromTrade(rollbackItem.uid);
             }
@@ -87,14 +87,14 @@ export async function acceptTradeProposal(userUid: string, proposalUid: string):
 
     const acceptProposalExp = await user.trades.acceptProposal(proposalUid);
     await dataInstance.tradeProposals.saveProposals();
-    if (!acceptProposalExp.has_value()) {
+    if (!acceptProposalExp.has_value) {
         return unexpected(`Error while accepting trade proposal of uid ${proposalUid} for user ${userUid} : ${acceptProposalExp.error()}`, true);
     }
 
-    for (const item of acceptProposalExp.value().items) {
+    for (const item of acceptProposalExp.value().current.items) {
         const expMoved = await user.inventory.moveItemToTrade(item.uid);
-        if (!expMoved.has_value()) {
-            for (const rollbackItem of acceptProposalExp.value().items) {
+        if (!expMoved.has_value) {
+            for (const rollbackItem of acceptProposalExp.value().current.items) {
                 await user.inventory.moveItemFromTrade(rollbackItem.uid);
             }
 
@@ -142,7 +142,7 @@ export async function refuseTradeProposal(userUid: string, proposalUid: string):
 
     const refuseProposalExp = await user.trades.refuseProposal(proposalUid);
     await dataInstance.tradeProposals.saveProposals();
-    if (!refuseProposalExp.has_value()) {
+    if (!refuseProposalExp.has_value) {
         return unexpected(`Error while refusing trade proposal of uid ${proposalUid} for user ${userUid} : ${refuseProposalExp.error()}`, true);
     }
 
@@ -179,14 +179,14 @@ export async function completeTradeProposal(userUid: string, proposalUid: string
     const completeProposalExp = await user.trades.completeProposal(proposalUid);
     await dataInstance.tradeProposals.saveProposals();
 
-    if (!completeProposalExp.has_value()) {
+    if (!completeProposalExp.has_value) {
         return unexpected(`Error while completing trade proposal of uid ${proposalUid} for user ${userUid} : ${completeProposalExp.error()}`, true);
     }
 
-    const { opposite: oppositeSide } = user.trades.getProposalSide(proposalUid).value();
+    const { opposite: oppositeSide } = completeProposalExp.value();
     for (const item of oppositeSide.items) {
         const exp = await user.inventory.addItemToInventory(item.type, item.id);
-        if (!exp.has_value()) {
+        if (!exp.has_value) {
             console.error(`Error while adding item ${JSON.stringify(item)} to inventory of user ${userUid} during completion of trade proposal ${proposalUid} : ${exp.error()}`);
         }
     }

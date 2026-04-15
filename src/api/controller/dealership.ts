@@ -339,12 +339,12 @@ class DealController {
         const waitTime = this.schema.waittime;
 
         const expReward = this.generateReward();
-        if (!expReward.has_value()) {
+        if (!expReward.has_value) {
             throw new Error(`Cannot generate reward ! Reason : ${expReward.error()}`);
         }
         const expDeal = await this.deals.addDeal(this.type, this.generateCost(), expReward.value().type, expReward.value().id, timeout, waitTime);
 
-        if (!expDeal.has_value()) {
+        if (!expDeal.has_value) {
             // TODO : do not generate an error ?
             throw new Error(`Cannot generate new deal ?? Reason : ${expDeal.error()}`);
         }
@@ -361,7 +361,7 @@ class DealController {
 
     async init() {
         const dealExp = this.getDeal();
-        if (!dealExp.has_value()) {
+        if (!dealExp.has_value) {
             await this.generateDeal();
             return;
         }
@@ -381,7 +381,7 @@ class DealController {
     
     async handleExpired() {
         const dealExp = this.getDeal();
-        if (!dealExp.has_value()) {
+        if (!dealExp.has_value) {
             await this.generateDeal();
             return;
         }
@@ -400,7 +400,7 @@ class DealController {
 
     async handleRedeemed() {
         const dealExp = this.getDeal();
-        if (!dealExp.has_value()) {
+        if (!dealExp.has_value) {
             await this.generateDeal();
             // save
             return;
@@ -445,7 +445,7 @@ class DealController {
             const cost = costItems[unit.costIndex]!;
             const res = cost.checkPayment(items, unit, paid);
 
-            if (!res.has_value()) {
+            if (!res.has_value) {
                 return unexpected(`Payment invalid for deal cost unit ${JSON.stringify(cost.getData())} : ${res.error()}; Payment: ${JSON.stringify(paymentItems)}`);
             }
 
@@ -467,7 +467,7 @@ class DealController {
             }
 
             const ret = costController.checkPayment(items, paymentEnergies[parsedType], paid);
-            if (!ret.has_value()) {
+            if (!ret.has_value) {
                 return ret.as_error();
             }
 
@@ -479,12 +479,12 @@ class DealController {
     checkCost(items: BaseItemsController, payment: Payment): Expected<Payment> {
         // Items
         const expItems = this.checkItemCost(items, payment["items"]);
-        if (!expItems.has_value()) {
+        if (!expItems.has_value) {
             return expItems.as_error();
         }
 
         const expEnergies = this.checkEnergyCost(items, payment["energies"]);
-        if (!expEnergies.has_value()) {
+        if (!expEnergies.has_value) {
             return expEnergies.as_error();
         }
 
@@ -579,7 +579,7 @@ export async function initUserDeals(user: UserModel) {
 
 //     for (let costUnit of deal.cost) {
 //         let res = costControllerFactory(costUnit).checkPayment(user, payment, paid);
-//         if (!res.has_value()) {
+//         if (!res.has_value) {
 //             return unexpected(`Payment invalid for deal cost unit ${JSON.stringify(costUnit)} : ${res.error()}; Payment: ${payment}`);
 //         }
 
@@ -603,7 +603,7 @@ export async function acceptDeal(userUid: string, dealUid: string, payment: Paym
     }
 
     const dealExp = dealController.getDeal();
-    if (!dealExp.has_value()) {
+    if (!dealExp.has_value) {
         return unexpected(`Could not get deal associated to uid ${dealUid} : ${dealExp.error()}`, true);
     }
 
@@ -615,7 +615,7 @@ export async function acceptDeal(userUid: string, dealUid: string, payment: Paym
 
     // check if payment is valid
     const expPaid = dealController.checkCost(new UserItemsController(user), payment);
-    if (!expPaid.has_value()) {
+    if (!expPaid.has_value) {
         // TODO : log cost and actual payment
         return unexpected(`Payment invalid for proposed deal of type ${deal.type} : ${expPaid.error()}`, true);
     }
@@ -623,21 +623,21 @@ export async function acceptDeal(userUid: string, dealUid: string, payment: Paym
     // remove paid items / energies from user inventory
     for (const unitPayment of expPaid.value().items) {
         const ret = await user.inventory.removeItemFromInventory(unitPayment.itemUid);
-        if (!ret.has_value()) {
+        if (!ret.has_value) {
             return unexpected(`An item could not be removed from inventory : ${ret.error()}. The deal acceptance is cancelled !`, true);
         }
     }
 
     for (const [type, count] of Object.entries(expPaid.value().energies)) {
         const ret = await user.inventory.removeEnergy(parseType(type)!, count);
-        if (!ret.has_value()) {
+        if (!ret.has_value) {
             return unexpected(`Energies could not be removed from inventory : ${ret.error()}. The deal acceptance is cancelled !`, true);
         }
     }
 
     // accept the deal
     const acceptedDealExp = await user.deals.acceptDeal(deal.uid);  // TODO : on controller instead of model ?
-    if (!acceptedDealExp.has_value()) {
+    if (!acceptedDealExp.has_value) {
         return unexpected(`The deal could not be accepted : ${acceptedDealExp.error()}`, true);
     }
     
@@ -661,7 +661,7 @@ export async function redeemDeal(userUid: string, dealUid: string) : Promise<Exp
     }
 
     const redeemedDealExp = await user.deals.redeemDeal(dealUid);
-    if (!redeemedDealExp.has_value()) {
+    if (!redeemedDealExp.has_value) {
         return unexpected(`Error when redeeming deal of id ${dealUid}, on redeeming : ${redeemedDealExp.error()}`);
     }
 
@@ -669,7 +669,7 @@ export async function redeemDeal(userUid: string, dealUid: string) : Promise<Exp
     await dealController.handleRedeemed();
 
     const itemExp = await user.inventory.addItemToInventory(redeemedDeal.itemType, redeemedDeal.itemId);
-    if (!itemExp.has_value()) {
+    if (!itemExp.has_value) {
         return unexpected(`Error when redeeming deal of id ${dealUid}, on adding item to inventory : ${itemExp.error()}`);
     }
 

@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import type { ItemType, Deal, User, FullDeal, DealCostUnit } from "./interfaces";
 import { StaticDataSingleton } from "../staticData/loader";
-import { Expected, expected, unexpected } from "../../common/utils";
+import { type Expected, expected, unexpected } from "../../common/utils";
 
 export class DealsModel {
     user: User;

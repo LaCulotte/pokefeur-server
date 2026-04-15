@@ -16,7 +16,7 @@ export async function acceptDealRequest(req: express.Request, res: express.Respo
 
     const expAddDeal = await acceptDeal(req.session.userUid, req.body.dealUid, req.body.payment);
 
-    if (expAddDeal.has_value()) {
+    if (expAddDeal.has_value) {
         res.status(200).json(expAddDeal.value());
     } else {
         res.status(400).json({errors: [expAddDeal.error()]});  // TODO : errors in the same format as "check"
@@ -30,7 +30,7 @@ export async function redeemDealRequest(req: express.Request, res: express.Respo
 
     const expRedeemDeal = await redeemDeal(req.session.userUid, req.body.dealUid);
 
-    if (expRedeemDeal.has_value()) {
+    if (expRedeemDeal.has_value) {
         res.status(200).json(expRedeemDeal.value());
     } else {
         res.status(400).json({errors: [expRedeemDeal.error()]});  // TODO : errors in the same format as "check"

@@ -49,7 +49,7 @@ would produce an energy of type ${energy} which is not currently supported.`, tr
 
     for (const energy of energies) {
         const expEnergy = await user.inventory.addEnergy(energy);
-        if (!expEnergy.has_value()) {
+        if (!expEnergy.has_value) {
             return unexpected(`Got error when recycling cards ${cardUids} : ${expEnergy.error()}`, true);
         }
     }

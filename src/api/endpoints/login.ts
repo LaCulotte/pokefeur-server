@@ -7,7 +7,7 @@ import { UserModel } from "../model/UserModel";
 import { initUserDeals } from "../controller/dealership";
 
 import "../common";
-import type { FullUser, PublicUser, UserSearchResult } from "../model/interfaces";
+import type { FullUser, UserSearchResult } from "../model/interfaces";
 
 function login(req: express.Request, res: express.Response) {
     if (req.session.userUid !== undefined) {

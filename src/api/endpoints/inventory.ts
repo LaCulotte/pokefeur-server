@@ -22,7 +22,7 @@ async function addItemToInventoryRequest(req: express.Request, res: express.Resp
     
     const expItem = await user.inventory.addItemToInventory(req.body.type, req.body.id);
 
-    if (expItem.has_value()) {
+    if (expItem.has_value) {
         res.status(200).json(expItem.value());
     } else {
         res.status(400).json({errors: [expItem.error()]});  // TODO : errors in the same format as "check"
@@ -42,7 +42,7 @@ async function removeItemFromInventoryRequest(req: express.Request, res: express
 
     const expItem = await user.inventory.removeItemFromInventory(req.body.itemUid);
 
-    if (expItem.has_value()) {
+    if (expItem.has_value) {
         res.status(200).json(expItem.value());
     } else {
         res.status(400).json({errors: [expItem.error()]});  // TODO : errors in the same format as "check"
@@ -56,7 +56,7 @@ async function openBoosterRequest(req: express.Request, res: express.Response) {
 
     const expOpenedCards = await openBooster(req.session.userUid, req.body.itemUid);
 
-    if (expOpenedCards.has_value()) {
+    if (expOpenedCards.has_value) {
         res.status(200).json(expOpenedCards.value());
     } else {
         res.status(400).json({errors: [expOpenedCards.error()]});  // TODO : errors in the same format as "check"
@@ -70,7 +70,7 @@ async function recycleCardsRequest(req: express.Request, res: express.Response) 
 
     const expEnergies = await recycleCards(req.session.userUid, req.body.cardUids);
 
-    if (expEnergies.has_value()) {
+    if (expEnergies.has_value) {
         res.status(200).json(expEnergies.value());
     } else {
         res.status(400).json({errors: [expEnergies.error()]});  // TODO : errors in the same format as "check"
