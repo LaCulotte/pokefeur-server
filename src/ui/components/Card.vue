@@ -29,7 +29,6 @@ const name = computed(() => {
 function temp_replace(url: string): string {
     return url.replace("https://assets.tcgdex.net", `http://${window.location.hostname}:8000`);
 }
-
 </script>
 
 <template>
@@ -45,11 +44,11 @@ function temp_replace(url: string): string {
                 class="w-100 h-100"
                 style="aspect-ratio: 245/337;"
             >
-                <v-img
+                <img
                     class="position-absolute top-0 w-100 h-100"
                     :src="temp_replace(image)"
                     :title="name"
-                />
+                >
                 <slot />
             </v-responsive>
         </div>

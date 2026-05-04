@@ -8,21 +8,20 @@ import { useRouter } from 'vue-router';
 
 const router = useRouter();
 
-const {items,
+const {
+    itemCount,
     minItemHeightRatio,
     maxItemHeightRatio,
     scrollElem = undefined,
-    compact = false,
-    focusItemUid = undefined,
-    focusTrigger = undefined
+    compact = false,    // TODO: change padding ?
+    focusItemIndex = undefined,
 } = defineProps<{
-    items: Array<T>,
+    itemCount: number,
     minItemHeightRatio: number,
     maxItemHeightRatio: number,
     scrollElem?: HTMLDivElement | null,
     compact?: boolean,
-    focusItemUid?: string,
-    focusTrigger?: number,
+    focusItemIndex?: number,
 }>();
 
 defineEmits(['item-click']);
@@ -40,10 +39,10 @@ const width = computed(() => {
 });
 
 const minItemHeight = computed(() => {
-    return height.value * minItemHeightRatio; 
+    return height.value * minItemHeightRatio;
 });
 const maxItemHeight = computed(() => {
-    return height.value * maxItemHeightRatio; 
+    return height.value * maxItemHeightRatio;
 });
 
 const numCols = computed(() => {
@@ -64,7 +63,7 @@ const itemSize = computed(() => {
 });
 
 const numRows = computed(() => {
-    return Math.ceil(items.length / numCols.value);
+    return Math.ceil(itemCount / numCols.value);
 });
 
 const ROW_MARGIN = 2;
@@ -74,10 +73,39 @@ const numVirtRows = computed(() => {
     return Math.ceil(height.value / itemSize.value.height) + ROW_MARGIN * 2;
 });
 
+const mainSize = computed(() => {
+    return numRows.value * itemSize.value.height;
+});
+
 const firstElem = ref(0);
 const translateMain = ref(0);
 
-// const 
+const numElems = computed(() => {
+    return numCols.value * (numVirtRows.value + ROW_MARGIN * 2);
+});
+
+const maxFirstElem = computed(() => {
+    if (itemCount < numElems.value) {
+        return 0;
+    }
+
+    let itemsInView = numCols.value * (numVirtRows.value + ROW_MARGIN);
+    if (itemCount % numCols.value != 0)  {
+        itemsInView += (itemCount % numCols.value) - numCols.value;
+    }
+
+    return itemCount - itemsInView;
+});
+
+const currNumElems = computed(() => {
+    if (itemCount < firstElem.value) {
+        return 0;
+    } else if (firstElem.value + numElems.value >= itemCount) {
+        return itemCount - firstElem.value;
+    } else {
+        return numElems.value;
+    }
+});
 
 function scrollBehaviour() {
     if (mainElem.value === null) {
@@ -96,92 +124,59 @@ function scrollBehaviour() {
     firstElem.value = numRowBegin * numCols.value;
 
     translateMain.value = numRowBegin * itemSize.value.height;
+
+    if (firstElem.value >= maxFirstElem.value) {
+        firstElem.value = maxFirstElem.value;
+        translateMain.value = (firstElem.value / numCols.value) * itemSize.value.height;
+    }
 }
 
-const shownItems: ComputedRef<Array<T>> = computed(() => {
-    const ret: Array<T> = [];
-
-    let maxElem = firstElem.value + numCols.value * (numVirtRows.value + ROW_MARGIN * 2);
-    if (maxElem > items.length) {
-        maxElem = items.length;
-    }
-
-    for (let i = firstElem.value; i < maxElem; i++) {
-        ret.push(items[i]!);
-    }
-
-
-    return ret;
-});
-
 const itemStyle = computed(() => {
-    return `
-    height: ${itemSize.value.height}px;
-    width: ${itemSize.value.width}px;
-    grid-column: span 1;
-    `;
+    return {        
+        height: `${itemSize.value.height}px`,
+        width: `${itemSize.value.width}px`,
+        'grid-column': 'span 1'
+    };
 });
 
 const mainStyle = computed(() => {
-    return `
-    height: ${numRows.value * itemSize.value.height}px;
-    width: 100%;
-    `;
+    return {        
+        height: `${mainSize.value}px`,
+        width: '100%'
+    };
 });
 
 const gridStyle = computed(() => {
-    return `
-    display: grid;
-    grid-template-columns: repeat(${numCols.value}, 1fr);
-    transform: translateY(${translateMain.value}px)
-    `;
+    return {        
+        display: 'grid',
+        'grid-template-columns': `repeat(${numCols.value}, 1fr)`,
+        transform: `translateY(${translateMain.value}px)`
+    };
 });
 
-const focusedClass = ref(["border-smooth"]);
-const focusedUid: Ref<string|undefined> = ref(undefined);
-
-async function focusItem(itemId: string | undefined) {
-    if (itemId === undefined) {
+async function focusItem(itemIndex: number | undefined) {
+    if (itemIndex === undefined || itemIndex < 0 || itemIndex > itemCount) {
         return;
     }
 
-    await nextTick();
+    const dest = Math.floor((itemIndex / numCols.value) * itemSize.value.height);
+    const currTop = scrollElem?.scrollTop ?? 0;
 
-    focusedUid.value = itemId;
-    focusedClass.value = ["border-smooth"];
-
-    const itemIndex = items.findIndex((item) => { return item.uid == itemId; });
-
-    if (itemIndex != -1) {
-        const dest = Math.floor((itemIndex / numCols.value) * itemSize.value.height);
-
-        if (dest > 2 * height.value) {
-            (scrollElem ?? window).scrollTo({
-                top: dest - (2 * height.value),
-                behavior: "auto",
-            });
-        }
-
+    if ((dest - currTop) > 2 * height.value) {
         (scrollElem ?? window).scrollTo({
-            top: dest - 100,    // TODO : hacky, to avoid the item to be hidden behind the header, find a better solution
-            behavior: "smooth",
+            top: dest - (2 * height.value),
+            behavior: "auto",
         });
-
-        setTimeout(() => {
-            focusedClass.value.push("border-hide");
-        }, 1500);
     }
+
+    (scrollElem ?? window).scrollTo({
+        top: dest - 100,    // TODO : hacky, to avoid the item to be hidden behind the header, find a better solution
+        behavior: "smooth",
+    });
 }
 
-watch(() => focusItemUid, (newItemId: string | undefined) => {
-    // if (focusTrigger === undefined) {
-    //     focusItem(newItemId);
-    // }
-    focusItem(newItemId);
-});
-
-watch(() => focusTrigger, () => {
-    // focusItem(focusItemUid);
+watch(() => focusItemIndex, (newItemIndex: number | undefined) => {
+    focusItem(newItemIndex);
 });
 
 // TODO : use other lifecycle operator !!
@@ -194,35 +189,7 @@ onMounted(async () => {
         }
 
         scrollBehaviour();
-        const focusedItemId = router.currentRoute.value.query.itemId;
-        if (focusedItemId !== undefined) {
-            // focusedUid.value = focusedItemId!.toString();
-            focusItem(focusedItemId!.toString());
-
-            // let itemIndex = items.findIndex((item) => { return item.uid == focusedItemId; })
-
-            // if (itemIndex != -1) {
-            //     let dest = Math.floor((itemIndex / numCols.value) * itemSize.value.height);
-
-            //     if (dest > 3 * height.value) {
-            //         (scrollElem ?? window).scrollTo({
-            //             top: dest - (3 * height.value),
-            //             behavior: "auto",
-            //         });
-            //     }
-
-            //     (scrollElem ?? window).scrollTo({
-            //         top: dest,
-            //         behavior: "smooth",
-            //     });
-
-            //     setTimeout(() => {
-            //         // document.getElementById(`${to.hash.slice(1, to.hash.length)}-overlay`)?.classList.add("border-smooth");
-            //         focusedClass.value.push("border-hide");
-            //     }, 1500);
-            // }
-        }
-    }, 200);
+    }, 0);
 });
 
 onUnmounted(() => {
@@ -244,45 +211,13 @@ onUnmounted(() => {
             :style="gridStyle"
         >
             <div
-                v-for="obj of shownItems"
-                :cols="Math.ceil(12 / numCols)"
+                v-for="i in currNumElems"
                 class="w-100 d-flex justify-center align-center"
                 style="padding: 4px;"
                 :style="itemStyle"
-                :key="obj.uid"
+                :key="i + firstElem"
             >
-                <item
-                    :id="obj.uid"
-                    :item="obj"
-                    :key="obj.uid"
-                    @click="$emit('item-click', obj)"
-                >
-                    <template v-slot:common-content="{ item }">
-                        <slot
-                            name="common-content"
-                            :item="item"
-                        />
-                        <div
-                            class="position-absolute top-0 h-100 w-100"
-                            :class="obj.uid == focusedUid ? focusedClass : []"
-                            style="pointer-events: none"
-                        />
-                    </template>
-
-                    <template v-slot:booster-content="{ booster }">
-                        <slot
-                            name="booster-content"
-                            :booster="booster"
-                        />
-                    </template>
-
-                    <template v-slot:card-content="{ card }">
-                        <slot
-                            name="card-content"
-                            :card="card"
-                        />
-                    </template>
-                </item>
+                <slot :i="i + firstElem - 1" />
             </div>
         </div>
     </div>

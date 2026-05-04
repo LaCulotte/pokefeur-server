@@ -2,7 +2,6 @@ import type { CardItem, InventoryItem, ItemType, FullUser, User, Payment } from 
 import type { Type } from "../../../common/constants";
 import type { AcceptDealSummary, RedeemDealSummary } from "@/api/controller/interfaces.dealership";
 import { expected, unexpected, type Expected } from "../../../common/utils";
-import type { UserTradesModel } from "@/api/model/UserTradesModel";
 
 const defaultUserData: FullUser = {
     uid: "",

@@ -2,12 +2,11 @@
 import DealCost from './DealCost.vue';
 import Energy from './Energy.vue';
 import { user } from '../data/user/vueUserData';
-import ItemGrid from './ItemGrid.vue';
+import Inventory from './Inventory.vue';
 import LocalScope from './LocalScope.vue';
 
 import { computed, onMounted, ref, type ComputedRef, type Ref, watch, useTemplateRef, nextTick } from 'vue';
 import type { Deal, Payment, InventoryItem, DealCostUnit, ItemPayment } from '../../api/model/interfaces';
-import { recycleCards } from '../../api/controller/energy';
 import type { Type } from '../../common/constants';
 import { currLangData } from '../controller/lang';
 import { isCardOfSet, isCardOfType, isCardOfPokemon } from '../../common/checks';
@@ -208,7 +207,6 @@ const canAccept: ComputedRef<boolean> = computed(() => {
 });
 
 const scrollElem = useTemplateRef("scroll-elem");
-// const itemGrid = useTemplateRef("item-grid");
 </script>
 
 <template>
@@ -402,24 +400,14 @@ const scrollElem = useTemplateRef("scroll-elem");
                                     </v-row>
                                 </energy>
                                 <v-divider />
-
-                                <item-grid
+                                <inventory
                                     v-if="scrollElem !== null"
+                                    :scroll-elem="scrollElem.$el"
                                     :items="displayInventory"
-                                    :max-item-height-ratio="0.2"
-                                    :min-item-height-ratio="0.2"
-                                    :scroll-elem="scrollElem?.$el"
-                                    compact
-                                    @item-click="itemClick"
-                                    ref="item-grid"
                                     :focus-item-uid="focusedItem"
-                                    :focus-trigger="focusTrigger"
+                                    @item-click="itemClick"
                                 >
                                     <template v-slot:common-content="{ item }">
-                                        <!-- <local-scope
-                                            :payment-item="getPaymentFromItem(item.uid)"
-                                            v-slot="{paymentItem}"
-                                        > -->
                                         <local-scope
                                             :scope="{ paymentItem: getPaymentFromItem(item.uid) }"
                                             v-slot="{ paymentItem }"
@@ -429,7 +417,7 @@ const scrollElem = useTemplateRef("scroll-elem");
                                                 :class="[(currentCostCompleted && paymentItem?.costIndex != selectedCostIndex) || (paymentItem !== undefined && paymentItem?.costIndex != selectedCostIndex) ? 'show' : '']"
                                                 style="background-color: rgba(0, 0, 0, 0.5);"
                                             />
-                                                
+
                                             <v-sheet
                                                 v-if="paymentItem?.costIndex == selectedCostIndex"
                                                 class="position-absolute top-0 w-100 h-100"
@@ -463,14 +451,12 @@ const scrollElem = useTemplateRef("scroll-elem");
                                             </v-btn>
                                         </local-scope>
                                     </template>
-                                </item-grid>
+                                </inventory>
 
                                 <div v-if="displayInventory.length == 0">
                                     No available item :c
                                 </div>
                             </v-sheet>
-                            <!-- </div> -->
-                            <!-- </div> -->
                         </v-sheet>
                     </template>
                 </v-dialog>

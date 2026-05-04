@@ -1,161 +1,81 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends InventoryItem">
 import ItemGrid from './ItemGrid.vue';
-import Energy from './Energy.vue';
 
-import { computed, ref, onMounted, type ComputedRef } from 'vue';
-import { user } from '../data/user/vueUserData';
-import { useDisplay } from 'vuetify';
-import { Category, SUPPORTED_ENERGY_TYPES, Type } from '../../common/constants';
+import Item from './Item.vue';
+
+import { computed, ref, onMounted, type ComputedRef, type Ref, watch } from 'vue';
 import type { CardItem, InventoryItem } from '@/api/model/interfaces';
 
-import { staticDataStore } from '../data/static/vueStaticData';
-import { lang } from '../controller/lang';
+defineEmits(['item-click']);
 
 const props = defineProps<{
-    maxItemHeight?: string,
     scrollElem?: HTMLDivElement | null,
+    items: T[],
+    focusItemUid?: string
 }>();
 
-const emit = defineEmits<{
-    removeItem: []
-}>();
-
-const { xlAndUp, lgAndUp, smAndDown } = useDisplay();
-
-const energyColsSize = computed(() => {
-    return xlAndUp.value ? 2
-        : lgAndUp.value ? 2
-        : smAndDown.value ? 4
-        : 3;
-});
-
-// TODO : make this function common
-function isCardRecyclable(card: CardItem) {
-    const cardData = staticDataStore[lang.value]?.cards[card.id];
-
-    if (cardData === undefined) {
-        return false;
+const focusItemIndex: Ref<number | undefined> = ref(undefined);
+watch(() => props.focusItemUid, () => {
+    if (props.focusItemUid === undefined) {
+        focusItemIndex.value = undefined;
+        return;
     }
 
-    if(![Category.POKEMON, Category.ENERGY].includes(cardData.category) || (cardData.types === undefined)) {
-        return false;
-    }
-
-    for (const type of cardData.types) {
-        if (!SUPPORTED_ENERGY_TYPES.includes(type)) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-function removeItem(uid: string) {
-    user.removeItem(uid);
-    emit("removeItem");
-}
-
-type DisplayInventoryItem = InventoryItem & { isInTrade: boolean };
-const items: ComputedRef<Array<DisplayInventoryItem>> = computed(() => {
-    const ret: Array<DisplayInventoryItem> = [];
-
-    for (const item of Object.values(user.data.inventory.items)) {
-        ret.push({
-            ...item,
-            isInTrade: false
-        });
-    }
-    for (const item of Object.values(user.data.inventory.inTradeItems)) {
-        ret.push({
-            ...item,
-            isInTrade: true
-        });
-    }
-
-    return ret;
+    const index = props.items.findIndex((item) => item.uid == props.focusItemUid );
+    
+    focusItemIndex.value = index >= 0 ? index : undefined;
 });
 </script>
 
 <template>
-    <div>
-        <!-- Energies table -->
-        <v-row
-            class="w-100 ma-0"
-            style="margin-bottom: 1vh !important"
-        >
-            <v-col
-                :cols="energyColsSize"
-                v-for="energyType in SUPPORTED_ENERGY_TYPES"
-                :key="energyType"
-                class="d-flex justify-center align-center"
+    <item-grid
+        v-if="items.length > 0"
+        :item-count="items.length"
+        :max-item-height-ratio="0.25"
+        :min-item-height-ratio="0.25"
+        :scroll-elem="scrollElem"
+        :focus-item-index="focusItemIndex"
+        class="mt-2"
+    >
+        <template v-slot="{ i }">
+            <item
+                :item="items[i]!"
+                :key="i"
+                @click="$emit('item-click', items[i])"
             >
-                <energy :type="energyType">
-                    {{ user.data.inventory.energies[energyType] ?? -1 }}
-                </energy>
-            </v-col>
-        </v-row>
-        <v-divider />
-        <item-grid
-            :items="items"
-            :max-item-height-ratio="0.25"
-            :min-item-height-ratio="0.25"
-            :scroll-elem="scrollElem"
-            class="mt-2"
-        >
-            <template v-slot:common-content="{ item }">
-                <v-btn
-                    v-if="!item.isInTrade"
-                    class="position-absolute close-btn-pos"
-                    @click="removeItem(item.uid)"
-                    color="error"
-                    density="compact"
-                    size="small"
-                    :icon="`mdi-cross`"
-                >
-                    x
-                </v-btn>
-
-                <div
-                    class="position-absolute top-0 h-100 w-100 d-flex justify-center align-center"
-                    :style="item.isInTrade ? 'background-color: rgba(0, 0, 0, 0.25);' : ''"
-                    style="pointer-events: none"
-                >
+                <template v-slot:common-content="{ item }">
+                    <slot
+                        name="common-content"
+                        :item="item"
+                    />
                     <div
-                        v-if="item.isInTrade"
-                        style="color: red; font-weight: 800; font-size: 25px; text-align: center;"
-                    >
-                        IN TRADE
-                    </div>
-                </div>
-            </template>
+                        :class="item.uid == focusItemUid ? 'border-highlight' : ''"
+                        class="position-absolute top-0 h-100 w-100 d-flex justify-center align-center"
+                        style="pointer-events: none"
+                    />
+                </template>
 
-            <template v-slot:booster-content="{ booster }">
-                <v-btn
-                    v-if="!booster.isInTrade"
-                    class="pa-2 position-absolute"
-                    style="top: 75%; left: 50%; transform: translate(-50%, -50%);"
-                    @click="user.openBooster(booster.uid)"
-                >
-                    Open
-                </v-btn>
-            </template>
+                <template v-slot:booster-content="{ booster }">
+                    <slot
+                        name="booster-content"
+                        :booster="booster"
+                    />
+                </template>
 
-            <template v-slot:card-content="{ card }">
-                <v-btn
-                    v-if="!card.isInTrade && isCardRecyclable(card)"
-                    class="pa-2 position-absolute"
-                    style="top: 75%; left: 50%; transform: translate(-50%, -50%);"
-                    @click="user.recycleCard(card.uid)"
-                >
-                    Recycle
-                </v-btn>
-            </template>
-        </item-grid>
-    </div>
+                <template v-slot:card-content="{ card }">
+                    <slot
+                        name="card-content"
+                        :card="card"
+                    />
+                </template>
+            </item>
+        </template>
+    </item-grid>
 </template>
 
 <style lang="css">
 /** Item aspect ratio is 245:337 */
+/** TODO : make it a css variable */
 
 .close-btn-pos {
     --pos: 2%;
@@ -165,12 +85,18 @@ const items: ComputedRef<Array<DisplayInventoryItem>> = computed(() => {
 </style>
 
 <style>
-.border-smooth {
-    border: solid 3px red;
-    transition: border 500ms ease;
-    will-change: boder;
+@keyframes border-pulse {
+    0% {
+        border-color: rgba(255, 0, 0, 1);
+    }
+    100% {
+        border-color: rgba(255, 0, 0, 0);
+    }
 }
-.border-smooth.border-hide {
-    border: solid 3px rgba(0,0,0,0);
+
+.border-highlight {
+    border: solid 3px red;
+    animation: border-pulse 1000ms 2s forwards;
+    will-change: border-color;
 }
 </style>
