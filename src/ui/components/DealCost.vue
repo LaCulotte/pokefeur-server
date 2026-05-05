@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import Energy from './Energy.vue';
-import type { Deal, DealCostUnit, InventoryItem } from '../../api/model/interfaces';
-import { isCardOfType } from '../../common/checks';
-import { Type } from '../../common/constants';
-import Item from './Item.vue';
-import { computed, type ComputedRef } from 'vue';
-import BoosterBase from './BoosterBase.vue';
-import Card from './Card.vue';
-import { getSetLangData } from '../controller/staticDataHelper';
+import BaseItemComponent from './item/BaseItemComponent.vue';
+import BoosterComponentBase from './item/BoosterComponentBase.vue';
+import Card from './item/CardComponent.vue';
 import PokemonIcon from './PokemonIcon.vue';
+
+import { Type } from '../../common/constants';
+import type { Deal, DealCostUnit, InventoryItem } from '../../api/model/interfaces';
+import { getSetLangData } from '../controller/staticDataHelper';
 
 const {
     items = [],
@@ -72,7 +71,7 @@ function getSetLogo(setId: string): string {
             :key="idx"
             :class="['cost-item', 'position-relative', 'card']"
         >
-            <item
+            <base-item-component
                 v-if="cost.type == 'booster' || cost.type == 'card' || cost.type == 'card-of-type'"
                 :key="`${idx}-item`"
                 :item="costUnitToItem(cost)"
@@ -85,7 +84,7 @@ function getSetLogo(setId: string): string {
                         :idx="idx"
                     />
                 </template>
-            </item>
+            </base-item-component>
             <!-- <div
                 v-else-if="cost.type == 'card-of-set'"
                 :key="`${idx}-of-set`"
@@ -118,7 +117,7 @@ function getSetLogo(setId: string): string {
                     :idx="idx"
                 />
             </card>
-            <booster-base
+            <booster-component-base
                 v-else-if="cost.type == 'card-of-pokemon'"
                 :key="`${idx}-of-pokemon`"
                 logo=""
@@ -133,7 +132,7 @@ function getSetLogo(setId: string): string {
                     :cost="cost"
                     :idx="idx"
                 />
-            </booster-base>
+            </booster-component-base>
             <div v-else>
                 {{ 
                     //@ts-ignore

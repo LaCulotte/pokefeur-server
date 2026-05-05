@@ -1,12 +1,8 @@
 <script setup lang="ts">
-import type { BoosterItem } from '@/api/model/interfaces';
-import { staticDataStore } from '../data/static/vueStaticData';
 import { computed, type ComputedRef } from 'vue';
-import { lang } from '../controller/lang';
-import type { SetLangData } from '@/compiler/interfaces';
 
-import BoosterBase from './BoosterBase.vue';
-import { getSetLangData } from '../controller/staticDataHelper';
+import BoosterComponentBase from './BoosterComponentBase.vue';
+import { getSetLangData } from '../../controller/staticDataHelper';
 
 const props = defineProps<{
     boosterId: string
@@ -33,10 +29,10 @@ function temp_replace(url: string): string {
 </script>
 
 <template>
-    <booster-base
+    <booster-component-base
         :logo="temp_replace(logo)"
         :name="name"
     >
         <slot />
-    </booster-base>
+    </booster-component-base>
 </template>

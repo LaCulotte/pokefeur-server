@@ -1,9 +1,5 @@
-<script setup lang="ts" generic="T extends InventoryItem">
-
-import type { InventoryItem, BoosterItem, CardItem } from '../../api/model/interfaces';
-import Item from './Item.vue';
-
-import { computed, onMounted, onUnmounted, ref, useTemplateRef, type ComputedRef, type Ref, watch, nextTick } from 'vue';
+<script setup lang="ts">
+import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();

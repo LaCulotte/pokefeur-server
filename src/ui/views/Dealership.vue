@@ -1,13 +1,11 @@
 <script setup lang="ts">
-import BoosterBase from '../components/BoosterBase.vue';
-import Item from '../components/Item.vue';
+import BoosterComponentBase from '../components/item/BoosterComponentBase.vue';
+import BaseItemComponent from '../components/item/BaseItemComponent.vue';
 
 import { user } from '../data/user/vueUserData';
 
 import { ref, type Ref, computed, onUnmounted, onMounted, type ComputedRef } from 'vue';
 import { useRouter } from 'vue-router';
-import { on } from 'events';
-import Energy from '../components/Energy.vue';
 import DealProposal from '../components/DealProposal.vue';
 import type { FullDeal, InventoryItem } from '@/api/model/interfaces';
 import { getItemLangData } from '../controller/staticDataHelper';
@@ -157,7 +155,7 @@ async function testRedeem() {
                         <div
                             class="booster-css"
                         >
-                            <booster-base 
+                            <booster-component-base 
                                 ref="booster"
                                 logo="https://upload.wikimedia.org/wikipedia/commons/5/5a/Black_question_mark.png" 
                                 name=""
@@ -165,7 +163,7 @@ async function testRedeem() {
                                 @dragstart.prevent
                             >
                                 <div class="position-absolute top-0 h-100 w-100" />
-                            </booster-base>
+                            </booster-component-base>
                         </div>
                     </div>
                 </div>
@@ -293,7 +291,7 @@ async function testRedeem() {
                     </div>
                 </v-col>
             </v-row>
-            <item
+            <base-item-component
                 class="mb-3 flex-1-1"
                 :item="redeemed"
                 style="max-height: 20vh;"

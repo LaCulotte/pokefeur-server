@@ -10,8 +10,7 @@ import UserSearch from './views/UserSearch.vue';
 // Vuetify
 import '@mdi/font/css/materialdesignicons.css';
 
-//@ts-expect-error I don't know why the compiler complains about this
-import 'vuetify/styles';
+import 'vuetify/styles/main.css';
 import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';

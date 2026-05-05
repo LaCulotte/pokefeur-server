@@ -1,7 +1,6 @@
 <script setup lang="ts" generic="T extends InventoryItem">
 import ItemGrid from './ItemGrid.vue';
-
-import Item from './Item.vue';
+import BaseItemComponent from './item/BaseItemComponent.vue';
 
 import { computed, ref, onMounted, type ComputedRef, type Ref, watch } from 'vue';
 import type { CardItem, InventoryItem } from '@/api/model/interfaces';
@@ -38,7 +37,7 @@ watch(() => props.focusItemUid, () => {
         class="mt-2"
     >
         <template v-slot="{ i }">
-            <item
+            <base-item-component
                 :item="items[i]!"
                 :key="i"
                 @click="$emit('item-click', items[i])"
@@ -68,7 +67,7 @@ watch(() => props.focusItemUid, () => {
                         :card="card"
                     />
                 </template>
-            </item>
+            </base-item-component>
         </template>
     </item-grid>
 </template>

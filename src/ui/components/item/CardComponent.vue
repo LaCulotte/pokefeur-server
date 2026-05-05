@@ -1,11 +1,6 @@
 <script setup lang="ts">
-import type { CardItem } from '@/api/model/interfaces';
-import { staticDataStore } from '../data/static/vueStaticData';
-import { lang } from '../controller/lang';
 import { computed, type ComputedRef } from 'vue';
-import type { CardLangData } from '@/compiler/interfaces';
-import { Category, Rarity } from '../../common/constants';
-import { getCardLangData } from '../controller/staticDataHelper';
+import { getCardLangData } from '../../controller/staticDataHelper';
 
 const props = defineProps<{
     cardId: string

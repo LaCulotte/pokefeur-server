@@ -4,17 +4,22 @@ import type { Type } from "../../common/constants";
 export type UserType = "guest" | "user" | "admin" | "moderator" | "banned";
 export type ItemType = "card" | "booster";
 
-export interface CardItem {
+export interface Card {
     type: "card"
     id: string
-    uid: string
 }
 
-export interface BoosterItem {
+export interface Booster {
     type: "booster"
     id: string
-    uid: string
 }
+
+export type BaseItem = Card | Booster;
+
+export type Item<T> = T & { uid: string };
+
+export type CardItem = Item<Card>;
+export type BoosterItem = Item<Booster>;
 
 export type InventoryItem = CardItem | BoosterItem;
 export type InventoryItemT<T> = 
@@ -120,6 +125,10 @@ export interface FullUser extends User {
         proposals: Record<string, TradeProposal>
     }
 }
+
+export type PublicUser = UserSearchResult & Pick<FullUser, 'inventory'> & {
+    trades: Pick<FullUser['trades'], 'listings'>
+};
 
 // TODO !
 // export enum AcceptState {
