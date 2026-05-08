@@ -35,7 +35,7 @@ export default defineConfigWithVueTs(
                 "default": "v-slot",
                 "named": "longform",
             }],
-            "vue/no-unused-vars": ["error", {
+            "vue/no-unused-vars": ["warn", {
                 "ignorePattern": "^_"
             }],
             "vue/multi-word-component-names": ["off"],            

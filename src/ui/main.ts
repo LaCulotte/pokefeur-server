@@ -45,6 +45,14 @@ router.beforeEach(async (to, from) => {
 const vuetify = createVuetify({
     components,
     directives,
+    theme: {
+        defaultTheme: 'light',
+    },
+    defaults: {
+        VBtn: {
+        class: 'text-uppercase',
+        },
+    },
 });
 
 const collectionApp = createApp(App);

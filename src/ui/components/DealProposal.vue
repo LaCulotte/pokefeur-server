@@ -211,7 +211,10 @@ const scrollElem = useTemplateRef("scroll-elem");
 
 <template>
     <div>
-        <v-row class="h-100 ma-0">
+        <v-row
+            class="h-100 ma-0"
+            gap="0"
+        >
             <v-col
                 cols="8"
                 class="h-100 pa-0 position-relative"
@@ -399,7 +402,7 @@ const scrollElem = useTemplateRef("scroll-elem");
                                         </v-col>
                                     </v-row>
                                 </energy>
-                                <v-divider />
+                                <v-divider v-if="Object.keys(deal.cost.energies).length > 0" />
                                 <inventory
                                     v-if="scrollElem !== null"
                                     :scroll-elem="scrollElem.$el"
@@ -465,12 +468,11 @@ const scrollElem = useTemplateRef("scroll-elem");
     </div>
 </template>
 
-<style>
+<style scoped>
 .sticky-header {
     position: sticky;
     top: 0;
     z-index: 10;
-    background: none;
 }
 
 .section-title {

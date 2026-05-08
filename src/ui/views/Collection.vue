@@ -172,7 +172,7 @@ onUnmounted(() => {
                 :style="lockedHeight > 0 ? `min-height: ${lockedHeight}px;` : ''"
             >
                 <div
-                    class="pa-3 w-100"
+                    class="pa-2 w-100"
                     ref="inside-elem"
                 >
                     <!-- Energies table -->

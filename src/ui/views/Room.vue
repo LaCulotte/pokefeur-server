@@ -28,7 +28,7 @@ const router = useRouter();
 
             <div style="flex: 3 3; max-height: 90%">
                 <v-img
-                    class="main-img h-100"
+                    class="main-img h-100 w-100"
                     ref="img"
                     src="/static/images/Room-v0.png"
                 />

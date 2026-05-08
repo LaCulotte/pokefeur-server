@@ -5,6 +5,29 @@
     <link rel="icon" href="/favicon.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
+    <style>
+      /* TODO : stylesheet */
+      @layer vuetify-core.reset {
+        ul, ol, figure, details, summary {
+          padding: 0;
+          margin: 0;
+        }
+        
+        h1, h2, h3, h4, h5, h6, p {
+          margin: 0;
+        }
+        
+      }
+      
+      @layer vuetify-components, vuetify-components-overrides;
+      
+      @layer vuetify-components-overrides {
+        .v-btn {
+          letter-spacing: 0.0892857143em;
+          text-indent: 0.0892857143em;
+        }
+      }
+    </style>
   </head>
   <body>
     <div id="app"></div>

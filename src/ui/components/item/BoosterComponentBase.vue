@@ -20,7 +20,7 @@ const props = defineProps<{
             >
                 <v-sheet
                     class="position-absolute top-0 w-100 h-100 pa-1"
-                    elevation="10"
+                    elevation="2"
                     border="opacity-50 xl"
                     color="grey"
                     rounded="lg"

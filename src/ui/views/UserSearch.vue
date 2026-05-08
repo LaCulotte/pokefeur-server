@@ -48,16 +48,16 @@ function showUserProfile(userUid: string) {
     <div class="h-screen d-flex flex-column">
         <div class="sticky-header">
             <v-sheet
-                :elevation="3"
+                :elevation="1"
                 color="transparent"
             >
                 <v-container fluid>
                     <v-form
                         @submit.prevent="searchUsers"
                     >
-                        <v-row class="d-flex justify-center mt-0">
+                        <v-row class="d-flex justify-center mt-0 mb-2">
                             <user-avatar
-                                class="elevation-3"
+                                class="elevation-1"
                                 :username="user.data.username"
                                 :size="64"
                                 @click="router.push('/profile-edit')"

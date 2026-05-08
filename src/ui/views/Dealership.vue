@@ -206,7 +206,7 @@ async function testRedeem() {
             <v-expansion-panel
                 value="panel"
                 style="border-top: 1px solid; border-left: 1px solid; border-right: 1px solid; border-radius: 15px 15px 0px 0px;"
-                elevation="10"
+                elevation="3"
             >
                 <v-expansion-panel-title
                     class=""

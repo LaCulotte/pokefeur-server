@@ -130,7 +130,7 @@ function scrollBehaviour() {
 const itemStyle = computed(() => {
     return {        
         height: `${itemSize.value.height}px`,
-        width: `${itemSize.value.width}px`,
+        // width: `${itemSize.value.width}px`,
         'grid-column': 'span 1'
     };
 });
