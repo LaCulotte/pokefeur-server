@@ -1,13 +1,19 @@
 import { staticDataStore, pokemonData } from '../data/static/vueStaticData';
 import { lang } from '../controller/lang';
 
-import { Category, Rarity } from '../../common/constants';
+import { Category, Rarity, Type } from '../../common/constants';
 import type { CardStaticLangData, SetStaticLangData } from '../../api/staticData/interfaces';
+import type { LangDictionnary } from "../data/lang/interfaces";
+import { langDict } from "../data/lang/langDict";
 
 import { computed, type ComputedRef } from 'vue';
 import type { ItemType } from '@/api/model/interfaces';
+import type { PokemonData } from '@/compiler/interfaces';
+import type { SupportedLanguages } from '../../../resources/interfaces';
 
 export const unknownCard: CardStaticLangData = {
+    types: [ Type.UNDEFINED ],
+    dexId: [0],
     lang: "en",
     id: "0",
     name: "Weird Card",
@@ -54,6 +60,12 @@ export function getItemLangData(itemType: ItemType, id: string): ComputedRef<Set
     }
 }
 
+export function getPokemonData(): ComputedRef<PokemonData[SupportedLanguages] | undefined> {
+    return computed(() => {
+        return pokemonData[lang.value];
+    });
+}
+
 export function getPokemonName(pokemonId: number): ComputedRef<string> {
     return computed(() => {
         return pokemonData[lang.value]?.id_to_name[pokemonId] ?? "MissingNo.";
@@ -63,5 +75,15 @@ export function getPokemonName(pokemonId: number): ComputedRef<string> {
 export function getPokemonId(pokemonName: string): ComputedRef<number> {
     return computed(() => {
         return pokemonData[lang.value]?.name_to_id[pokemonName] ?? 0;
+    });
+}
+
+export function getLangString<T extends keyof LangDictionnary>(key: T, subKey: keyof LangDictionnary[T]): ComputedRef<string> {
+    return computed(() => {
+        let ret = langDict[lang.value]?.[key]?.[subKey] as string | undefined;
+        if (ret === undefined) {
+            ret = langDict.en?.[key]?.[subKey] as string | undefined ?? `missing_${key}_${String(subKey)}`;
+        }
+        return ret;
     });
 }
