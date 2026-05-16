@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import { computed } from 'vue';
+
 import { Type } from '../../common/constants';
+import { getLangString } from '../controller/staticDataHelper';
 
 const {
     type,
@@ -10,21 +13,6 @@ const {
     height?: number
     textProportion?: number
 }>();
-
-const energy_names: Partial<Record<Type, string>> = {
-    [Type.FIRE]: "Fire",
-    [Type.WATER]: "Water",
-    [Type.LIGHTNING]: "Electric",
-    [Type.GRASS]: "Grass",
-    [Type.PSYCHIC]: "Psychic",
-    [Type.FIGHTING]: "Fighting",
-    [Type.DARKNESS]: "Darkness",
-    [Type.METAL]: "Metal",
-    [Type.FAIRY]: "Fairy",
-    [Type.COLORLESS]: "Colorless",
-    [Type.DRAGON]: "Dragon",
-    [Type.UNDEFINED]: "undefined",
-};
 
 const energy_class: Partial<Record<Type, string>> = {
     [Type.FIRE]: "fire-energy",
@@ -40,6 +28,8 @@ const energy_class: Partial<Record<Type, string>> = {
     [Type.DRAGON]: "dragon-energy",
     [Type.UNDEFINED]: "undefined-energy",
 };
+
+const energyClass = computed(() => energy_class[type] ?? energy_class[Type.UNDEFINED]);
 </script>
 
 <template>
@@ -50,8 +40,8 @@ const energy_class: Partial<Record<Type, string>> = {
             :style="`transform: scale(${height / 25}); width: ${(1 - textProportion) * 100}%;`"
         >
             <span
-                :class="`energy ${energy_class[type]}`"
-                :title="energy_names[type]"
+                :class="`energy ${energyClass}`"
+                :title="getLangString('typeNames', type).value"
             />
         </div>
         <div :style="`width: ${textProportion * 100}%;`">

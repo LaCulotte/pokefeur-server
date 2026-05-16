@@ -7,7 +7,7 @@ import { UserModel } from "../model/UserModel";
 import { initUserDeals } from "../controller/dealership";
 
 import "../common";
-import type { FullUser, UserSearchResult } from "../model/interfaces";
+import type { FullUser, PublicUser } from "../model/interfaces";
 
 function login(req: express.Request, res: express.Response) {
     if (req.session.userUid !== undefined) {
@@ -92,6 +92,26 @@ function changeDescription(req: express.Request, res: express.Response) {
     res.json({message: "Description changed successfully"});
 }
 
+function getPublicUser(req: express.Request, res: express.Response) {
+    const userUid: string = req.query.userUid as string;
+    const user: UserModel | undefined = DataModel.getUser(userUid);
+
+    if (user === undefined) {
+        res.status(404).send({message: `Unknown user of uid ${userUid}`});
+        return;
+    }
+
+    const data: PublicUser = {
+        uid: user.data.uid,
+        username: user.data.username,
+        description: user.data.description,
+        inventory: user.inventory.data,
+        trades: { listings: undefined } // TODO
+    };
+
+    return res.json({ user: data });
+}
+
 // TODO : use generic class "endpoint" that handles path, middleware and handler registration
 //        the different endpoints derive from this class and implement their specificities
 export function setupLoginEnpoints(app: express.Express) {
@@ -113,6 +133,12 @@ export function setupLoginEnpoints(app: express.Express) {
     app.get("/api/getFullUser", 
         loggedUserMiddleware,
         getFullUser
+    );
+
+    app.get("/api/getPublicUser",
+        loggedUserMiddleware,
+        check("userUid").isString().notEmpty(),
+        getPublicUser
     );
 
     app.get("/api/searchUsers", 

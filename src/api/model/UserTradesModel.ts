@@ -1,7 +1,7 @@
 import fs from "fs/promises";
 import { v4 as uuidv4 } from "uuid";
 
-import { type FullUser, type TradeProposal, type TradeProposalSide, type User } from "./interfaces";
+import type { FullUser, TradeProposalSide, User } from "./interfaces";
 import { expected, unexpected, type Expected } from "../../common/utils";
 
 type TradesDataStructures = FullUser["trades"];

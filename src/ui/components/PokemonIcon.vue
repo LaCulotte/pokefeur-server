@@ -8,6 +8,7 @@ const {
     id: number,
 }>();
 
+// This depends on the image used
 const ICON_HEIGHT = 90;
 const ICON_WIDTH = 120;
 
@@ -49,7 +50,6 @@ const style = computed(() => {
 const name = computed(() => {
     return getPokemonName(id).value;
 });
-
 </script>
 
 <template>
