@@ -5,7 +5,8 @@ import BoosterComponent from "./BoosterComponent.vue";
 import CardComponent from "./CardComponent.vue";
 
 const props = defineProps<{
-    item: T
+    item: T,
+    highQuality?: boolean
 }>();
 
 </script>
@@ -14,6 +15,7 @@ const props = defineProps<{
     <card-component
         v-if="item.type == 'card'"
         :card-id="item.id"
+        :high-quality="highQuality"
     >
         <slot
             name="card-content"

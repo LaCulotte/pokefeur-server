@@ -2,18 +2,21 @@
 import { computed, type ComputedRef } from 'vue';
 import { getCardLangData } from '../../controller/staticDataHelper';
 
-const props = defineProps<{
-    cardId: string
+const { cardId, highQuality = false } = defineProps<{
+    cardId: string,
+    highQuality?: boolean
 }>();
 
 const itemStaticData = computed(() => {
-    return getCardLangData(props.cardId).value;
+    return getCardLangData(cardId).value;
 });
 
 const image = computed(() => {
+    const suffix = highQuality ? "high" : "low";
+
     return itemStaticData.value.image?.length > 0 
-        ? `${itemStaticData.value.image}/low.webp`
-        : "/static/images/placeholders/missing_asset/card/low.webp";    // TODO : could make it depend on type of underlying card
+        ? `${itemStaticData.value.image}/${suffix}.webp`
+        : `/static/images/placeholders/missing_asset/card/${suffix}.webp`;    // TODO : could make it depend on type of underlying card
 });
 
 const name = computed(() => {
@@ -28,16 +31,15 @@ function temp_replace(url: string): string {
 
 <template>
     <div
-        class="d-flex align-center justify-center w-100 h-100"
+        class="d-flex align-center justify-center w-100 h-100 card-container"
         style="aspect-ratio: 245/337;"
     >
         <div
-            class="h-100"
+            class="card-contained"
             style="aspect-ratio: 245/337;"
         >
             <v-responsive
                 class="w-100 h-100"
-                style="aspect-ratio: 245/337;"
             >
                 <img
                     class="position-absolute top-0 w-100 h-100"
@@ -49,3 +51,21 @@ function temp_replace(url: string): string {
         </div>
     </div>
 </template>
+
+<style scoped>
+.card-container {
+  container: card-container / size;
+}
+
+.card-contained {
+    height: auto;
+    width: 100%; 
+}
+
+@container card-container (aspect-ratio > 245/337) {
+    .card-contained {
+        width: auto !important;
+        height: 100% !important; 
+    }
+}
+</style>
