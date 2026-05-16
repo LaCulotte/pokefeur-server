@@ -40,21 +40,21 @@ const router = useRouter();
 
         <v-btn
             class="position-absolute"
-            style="top: 5%; right: 5%;"
+            style="top: var(--btn-offset); right: var(--btn-offset);"
             rounded="xl"
             icon="mdi-account"
             to="/user-search"
         />
         <v-btn
             class="position-absolute"
-            style="bottom: 5%; left: 5%;"
+            style="bottom: var(--btn-offset); left: var(--btn-offset);"
             rounded="xl"
             icon="mdi-view-grid-outline"
             to="/collection"
         />
         <v-btn
             class="position-absolute"
-            style="bottom: 5%; right: 5%;"
+            style="bottom: var(--btn-offset); right: var(--btn-offset);"
             rounded="xl"
             icon="mdi-currency-usd"
             to="/dealership"
@@ -73,5 +73,10 @@ const router = useRouter();
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+}
+
+/* TODO: in stylesheet and the rest in scoped*/
+html {
+    --btn-offset: calc(0.03 * 100vh)
 }
 </style>

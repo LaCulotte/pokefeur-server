@@ -125,7 +125,7 @@ function showUserProfile(userUid: string) {
         </v-card>
         <v-btn
             class="position-absolute d-flex" 
-            style="bottom: 5%; left: 5%; z-index: 20;"
+            style="bottom: var(--btn-offset); left: var(--btn-offset); z-index: 20;"
             rounded="xl"
             icon="mdi-home"
             to="/"

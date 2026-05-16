@@ -173,7 +173,7 @@ async function testRedeem() {
                         color="light-green-darken-4"
                         :model-value="(((deal.startDate ?? 0) + deal.totalWaitTime - now) / deal.totalWaitTime) * 100"
                         rounded
-                        style="background-color: rgba(0, 0, 0, 0.2);"
+                        style="background-color: rgba(0, 0, 0, 0.2); height: 100%"
 
                         v-if="(deal.startDate ?? 0) + deal.totalWaitTime > now"
                     >
@@ -258,9 +258,9 @@ async function testRedeem() {
             </v-expansion-panel>
         </v-expansion-panels>
 
-        <v-btn 
+        <v-btn
             class="position-absolute d-flex" 
-            style="bottom: calc(0.05 * 100vh); left: 5%; z-index: 20;"
+            style="bottom: var(--btn-offset); left: var(--btn-offset); z-index: 20;"
             rounded="xl"
             icon="mdi-home"
             to="/"

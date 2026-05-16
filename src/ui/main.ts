@@ -4,6 +4,7 @@ import Room from './views/Room.vue';
 import Collection from './views/Collection.vue';
 import Login from './views/Login.vue';
 import Dealership from './views/Dealership.vue';
+import Profile from './views/Profile.vue';
 import ProfileEdit from './views/ProfileEdit.vue';
 import UserSearch from './views/UserSearch.vue';
 
@@ -24,6 +25,7 @@ const routes = [
     { path: '/collection', component: Collection },
     { path: '/login', component: Login },
     { path: '/dealership', component: Dealership },
+    { path: '/profile', component: Profile },
     { path: '/profile-edit', component: ProfileEdit },
     { path: '/user-search', component: UserSearch },
 ];
