@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue';
+import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue';
 import { useRouter } from 'vue-router';
+import { useGoTo } from "vuetify";
 
 const router = useRouter();
+const goTo = useGoTo();
 
 const {
     itemCount,
@@ -28,7 +30,7 @@ const mainElem = useTemplateRef("main");
 
 // TODO : handle resize
 const height = computed(() => {
-    return window.visualViewport?.height ?? window.innerHeight;
+    return /* scrollElem?.getBoundingClientRect().height ?? */ window.visualViewport?.height ?? window.innerHeight;
 });
 const width = computed(() => {
     return mainElem.value?.getBoundingClientRect().width ?? window.visualViewport?.width ?? window.innerWidth;
@@ -155,20 +157,30 @@ async function focusItem(itemIndex: number | undefined) {
         return;
     }
 
-    const dest = Math.floor((itemIndex / numCols.value) * itemSize.value.height);
+    const offset = (mainElem.value?.getBoundingClientRect().top ?? 0) 
+                    - (scrollElem?.getBoundingClientRect().top ?? 0) 
+                    + (scrollElem ?? document.body).scrollTop;
+    const dest = Math.floor((itemIndex / numCols.value)) * itemSize.value.height - offset;
     const currTop = scrollElem?.scrollTop ?? 0;
 
     if ((dest - currTop) > 2 * height.value) {
-        (scrollElem ?? window).scrollTo({
-            top: dest - (2 * height.value),
-            behavior: "auto",
+        // (scrollElem ?? window).scrollTo({
+        //     top: dest - (2 * height.value),
+        //     behavior: "auto",
+        // });
+        goTo(dest, {
+            offset: (2 * height.value),
+            container: (scrollElem ?? document.body),
+            duration: 0
         });
     }
 
-    (scrollElem ?? window).scrollTo({
-        top: dest - 100,    // TODO : hacky, to avoid the item to be hidden behind the header, find a better solution
-        behavior: "smooth",
+    goTo(dest, {
+        offset: itemSize.value.height,
+        container: (scrollElem ?? document.body),
     });
+
+    // setTimeout(() => console.log((scrollElem ?? document.body).scrollTop), 1000);
 }
 
 watch(() => focusItemIndex, (newItemIndex: number | undefined) => {
@@ -177,7 +189,7 @@ watch(() => focusItemIndex, (newItemIndex: number | undefined) => {
 
 // TODO : use other lifecycle operator !!
 onMounted(async () => {
-    setTimeout(() => {
+    nextTick(() => {
         if (!!scrollElem) {
             scrollElem.addEventListener("scroll", scrollBehaviour);
         } else {
@@ -185,7 +197,9 @@ onMounted(async () => {
         }
 
         scrollBehaviour();
-    }, 0);
+    });
+
+    nextTick(() => {focusItem(focusItemIndex);});
 });
 
 onUnmounted(() => {

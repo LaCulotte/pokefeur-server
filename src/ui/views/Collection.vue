@@ -3,7 +3,7 @@ import AdminDashboard from "../components/AdminDashboard.vue";
 import Inventory from "../components/Inventory.vue";
 import Energy from "../components/Energy.vue";
 
-import { onMounted, onUnmounted, useTemplateRef, ref, computed } from 'vue';
+import { onMounted, onUnmounted, useTemplateRef, ref, computed, watch, nextTick } from 'vue';
 import type { Ref, ComputedRef } from 'vue';
 import { useRouter } from 'vue-router';
 import { useDisplay } from 'vuetify';
@@ -14,8 +14,6 @@ import { lang } from '../controller/lang';
 import { Category, SUPPORTED_ENERGY_TYPES, Type } from '../../common/constants';
 
 import type { CardItem, InventoryItem } from '@/api/model/interfaces';
-
-
 
 const router = useRouter();
 
@@ -34,6 +32,7 @@ const energyColsSize = computed(() => {
 const lastElem = useTemplateRef("last-elem");
 const scrollElem = useTemplateRef("scroll-inventory");
 const resizedElem = useTemplateRef("inventory-parent");
+// const insideElem = useTemplateRef("inside-elem");
 const lockedHeight = ref(0);
 const paddingHeight = ref(0);
 
@@ -53,25 +52,15 @@ function scrollBehaviour() {
     // paddingHeight.value = newHeight - (insideElem.value?.getBoundingClientRect().height ?? newHeight);
 }
 
-type DisplayInventoryItem = InventoryItem & { isInTrade: boolean };
-const items: ComputedRef<Array<DisplayInventoryItem>> = computed(() => {
-    const ret: Array<DisplayInventoryItem> = [];
-
-    for (const item of Object.values(user.data.inventory.items)) {
-        ret.push({
-            ...item,
-            isInTrade: false
-        });
-    }
-    for (const item of Object.values(user.data.inventory.inTradeItems)) {
-        ret.push({
-            ...item,
-            isInTrade: true
-        });
-    }
-
-    return ret;
+const style = computed(() => {
+    const h = lockedHeight.value > 0 ? lockedHeight.value : 0;
+    return {
+        // 'min-height': `${h}px`
+    };
 });
+
+const items = computed(() => Object.values(user.data.inventory.items));
+const tradeItems = computed(() => Object.values(user.data.inventory.inTradeItems));
 
 // TODO : make this function common
 function isCardRecyclable(card: CardItem) {
@@ -98,7 +87,6 @@ function removeItem(uid: string) {
     user.removeItem(uid);
 }
 
-
 const focusedItemUid: Ref<string | undefined> = ref(undefined);
 onMounted(() => {
     if (!!scrollElem.value) {
@@ -116,6 +104,12 @@ onMounted(() => {
     }, 200);
 });
 
+function unfocus() {
+    setTimeout(() => {
+        focusedItemUid.value = undefined;
+    }, 2000);
+}
+
 onUnmounted(() => {
     if (!!scrollElem.value) {
         scrollElem.value.removeEventListener("scroll", scrollBehaviour);
@@ -123,6 +117,29 @@ onUnmounted(() => {
         document.removeEventListener("scroll", scrollBehaviour);
     }
 });
+
+// import { useGoTo } from "vuetify";
+
+// const goTo = useGoTo();
+// const scroll = ref(100);
+
+// watch(scroll, async () => {
+//     if (!scrollElem.value) {
+//         return;
+//     }
+
+//     const to = scrollElem.value.scrollHeight * Math.floor(100 - scroll.value) / 100;
+
+//     scrollElem.value.scroll({
+//         'top': to,
+//         'behavior': 'instant'
+//     });
+
+//     // goTo(to, {
+//     //     container: scrollElem.value,
+//     //     easing: 'linear'
+//     // });
+// });
 </script>
 
 <template>
@@ -137,6 +154,17 @@ onUnmounted(() => {
                     </v-expansion-panel-text>
                 </v-expansion-panel>
             </v-expansion-panels>
+            <!-- <v-btn @click="scroll -= 1">
+                v
+            </v-btn>
+            <v-btn @click="scroll += 1">
+                ^
+            </v-btn> -->
+            <!-- <v-slider
+                v-model="scroll"
+                direction="vertical"
+            /> -->
+            <!-- {{ scroll }} -->
         </div>
 
         <div class="position-absolute top-0 w-100 h-screen">
@@ -153,6 +181,7 @@ onUnmounted(() => {
             class="position-absolute d-flex flex-column top-0 w-100 h-100 inventory-scroll"
             ref="scroll-inventory"
             id="scroll-inventory"
+            
             style="background-color: rgba(95, 158, 160, 0.4); overflow: auto;"
         >
             <div
@@ -167,9 +196,10 @@ onUnmounted(() => {
             </div>
 
             <div
-                class="w-100"
+                class="w-100 "
+                id="container"
                 ref="inventory-parent"
-                :style="lockedHeight > 0 ? `min-height: ${lockedHeight}px;` : ''"
+                :style
             >
                 <div
                     class="pa-2 w-100"
@@ -181,9 +211,9 @@ onUnmounted(() => {
                         style="margin-bottom: 1vh !important"
                     >
                         <v-col
-                            :cols="energyColsSize"
                             v-for="energyType in SUPPORTED_ENERGY_TYPES"
                             :key="energyType"
+                            :cols="energyColsSize"
                             class="d-flex justify-center align-center"
                         >
                             <energy :type="energyType">
@@ -197,9 +227,14 @@ onUnmounted(() => {
                         :items="items"
                         :focus-item-uid="focusedItemUid"
                     >
-                        <template v-slot:common-content="{ item }">
+                        <template v-slot:activator-common-content>
+                            <div
+                                class="position-absolute h-100 w-100"
+                                @click="unfocus()"
+                            />
+                        </template>
+                        <template v-slot:item-common-content="{ item }">
                             <v-btn
-                                v-if="!item.isInTrade"
                                 class="position-absolute close-btn-pos"
                                 @click="removeItem(item.uid)"
                                 color="error"
@@ -209,41 +244,49 @@ onUnmounted(() => {
                             >
                                 x
                             </v-btn>
-
-                            <div
-                                class="position-absolute top-0 h-100 w-100 d-flex justify-center align-center"
-                                :style="item.isInTrade ? 'background-color: rgba(0, 0, 0, 0.25);' : ''"
-                                style="pointer-events: none"
-                            >
-                                <div
-                                    v-if="item.isInTrade"
-                                    style="color: red; font-weight: 800; font-size: 25px; text-align: center;"
-                                >
-                                    IN TRADE
-                                </div>
-                            </div>
                         </template>
 
-                        <template v-slot:booster-content="{ booster }">
+                        <template v-slot:item-booster-content="{ booster }">
                             <v-btn
-                                v-if="!booster.isInTrade"
                                 class="pa-2 position-absolute"
-                                style="top: 75%; left: 50%; transform: translate(-50%, -50%);"
+                                style="top: 75%; left: 50%; transform: translate(-50%, -50%); max-width: 75%;"
+                                size="small"
                                 @click="user.openBooster(booster.uid)"
                             >
                                 Open
                             </v-btn>
                         </template>
 
-                        <template v-slot:card-content="{ card }">
+                        <template v-slot:item-card-content="{ card }">
                             <v-btn
-                                v-if="!card.isInTrade && isCardRecyclable(card)"
+                                v-if="isCardRecyclable(card)"
                                 class="pa-2 position-absolute"
-                                style="top: 75%; left: 50%; transform: translate(-50%, -50%);"
+                                style="top: 75%; left: 50%; transform: translate(-50%, -50%); max-width: 75%;"
+                                size="small"
                                 @click="user.recycleCard(card.uid)"
                             >
                                 Recycle
                             </v-btn>
+                        </template>
+                    </inventory>
+                    <v-divider />
+                    <inventory
+                        :scroll-elem="scrollElem"
+                        :items="tradeItems"
+                        :focus-item-uid="focusedItemUid"
+                    >
+                        <template v-slot:activator-common-content>
+                            <div
+                                class="position-absolute top-0 h-100 w-100 d-flex justify-center align-center"
+                                style="pointer-events: none; background-color: rgba(0, 0, 0, 0.25)"
+                                @click="unfocus()"
+                            >
+                                <div
+                                    style="color: red; font-weight: 800; font-size: 25px; text-align: center;"
+                                >
+                                    IN TRADE
+                                </div>
+                            </div>
                         </template>
                     </inventory>
                 </div>
@@ -266,4 +309,39 @@ onUnmounted(() => {
 .v-col:has(.anchor) {
     padding: 0 !important;
 }
+
+/* Custom scrollbar track */
+.scrollbar {
+  position: absolute;
+  top: 0;
+  right: 4px;
+  width: 6px;
+  height: 100%;
+  background: rgba(0,0,0,0.1);
+  border-radius: 10px;
+}
+
+/* Scroll handle */
+.scroll-thumb {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 60px;
+  background: #555;
+  border-radius: 10px;
+  z-index: 1000;
+}
+
+.scroll-container {
+  width: 100%;
+  overflow-y: scroll;
+
+  /* Hide native scrollbar */
+  scrollbar-width: none; /* Firefox */
+}
+
+.scroll-container::-webkit-scrollbar {
+  display: none;
+}
+
 </style>

@@ -5,7 +5,7 @@ import { user } from '../data/user/vueUserData';
 import Inventory from './Inventory.vue';
 import LocalScope from './LocalScope.vue';
 
-import { computed, onMounted, ref, type ComputedRef, type Ref, watch, useTemplateRef, nextTick } from 'vue';
+import { computed, ref, type ComputedRef, type Ref, watch, useTemplateRef, nextTick } from 'vue';
 import type { Deal, Payment, InventoryItem, DealCostUnit, ItemPayment } from '../../api/model/interfaces';
 import type { Type } from '../../common/constants';
 import { currLangData } from '../controller/lang';
@@ -39,6 +39,43 @@ const payment: Ref<Payment> = ref({
     items: []
 });
 
+const itemUidToPayment: Ref<Record<string, ItemPayment>> = ref({});
+const itemBaseToPayments: Ref<Record<string, ItemPayment[]>> = ref({});
+watch(payment, (val) => {
+    itemUidToPayment.value = {};
+    itemBaseToPayments.value = {};
+    
+    for (const payment of val.items) {
+        itemUidToPayment.value[payment.itemUid] = payment;
+
+        const item = user.data.inventory.items[payment.itemUid];
+        if (item) {
+            itemBaseToPayments.value[item.id] ??= [];
+            itemBaseToPayments.value[item.id]?.push(payment);
+        }
+    }
+}, {deep: true});
+
+function darkenActivator(itemId: string, numItems: number): boolean {
+    const payments = itemBaseToPayments.value[itemId];
+    
+    if (selectedCostCompleted.value) {
+        return payments?.find((p) => p.costIndex == selectedCostIndex.value) === undefined;
+    } else {
+        return numItems <= (payments?.length ?? 0);
+    }
+}
+
+function darkenItem(itemUid: string): boolean {
+    const payment = itemUidToPayment.value[itemUid];
+
+    if (selectedCostCompleted.value) {
+        return payment !== undefined ? payment.costIndex !== selectedCostIndex.value : true;
+    } else {
+        return payment !== undefined;
+    }
+}
+
 function getPaymentFromCost(costIndex: number): ItemPayment | undefined {
     return payment.value.items.find((payment) => {
         return payment.costIndex == costIndex;
@@ -51,7 +88,7 @@ function getPaymentFromItem(itemUid: string): ItemPayment | undefined {
     });
 }
 
-const currentCostCompleted = computed(() => {
+const selectedCostCompleted = computed(() => {
     return getPaymentFromCost(selectedCostIndex.value) !== undefined;
 });
 
@@ -66,8 +103,8 @@ function costClick(_: DealCostUnit, costIndex: number) {
     selectedCostIndex.value = costIndex;
 
     const itemPayment = getPaymentFromCost(costIndex);
+    focusedItem.value = undefined;
     if (itemPayment !== undefined) {
-        focusedItem.value = undefined;
         nextTick(() => { focusedItem.value = itemPayment.itemUid; });
         // triggerRef(focusedItem)
         // focusedItem.value = itemPayment.itemUid;
@@ -80,6 +117,7 @@ function costClick(_: DealCostUnit, costIndex: number) {
     }
 }
 
+const dialogActive = ref(false);
 function itemClick(item: InventoryItem) {
     const itemPayment = getPaymentFromItem(item.uid);
     if (itemPayment !== undefined) {
@@ -93,6 +131,7 @@ function itemClick(item: InventoryItem) {
             selectedCostIndex.value = itemPayment.costIndex;
             focusedItem.value = undefined;
             nextTick(() => { focusedItem.value = item.uid; });
+            dialogActive.value = false;
         }
     } else {
         const exitingCost = getPaymentFromCost(selectedCostIndex.value);
@@ -108,6 +147,8 @@ function itemClick(item: InventoryItem) {
             itemUid: item.uid
         });
 
+        dialogActive.value = false;
+
         // let currSelectedCostIndex = selectedCostIndex.value;
     
         // setTimeout(() => {
@@ -119,6 +160,19 @@ function itemClick(item: InventoryItem) {
         //         selectedCostIndex.value ++;
         //     }
         // }, 200);
+    }
+}
+
+function groupClick(itemId: string) {
+    focusedItem.value = undefined;
+
+    if (selectedCostCompleted.value) {
+        const paymentItems = itemBaseToPayments.value[itemId];
+
+        const itemToFocus = paymentItems?.find((p) => p.costIndex == selectedCostIndex.value)?.itemUid;
+        if (itemToFocus) {
+            focusedItem.value = itemToFocus;
+        }
     }
 }
 
@@ -144,7 +198,6 @@ function removeEnergy(energyType: Type) {
 }
 
 function close() {
-    // selectedItemIds.value = [];
     payment.value = {
         energies: {},
         items: []
@@ -152,7 +205,8 @@ function close() {
     selectedCostIndex.value = 0;
 }
 
-const displayInventory: ComputedRef<Array<InventoryItem>> = computed(() => {
+// TODO : this will be filters in inventory component
+const displayInventory: Ref<InventoryItem[]> = computed(() => {
     const costUnit = props.deal.cost.items[selectedCostIndex.value];
     if (costUnit === undefined) {
         return [];
@@ -252,6 +306,7 @@ const scrollElem = useTemplateRef("scroll-elem");
                     transition="slide-y-transition"
                     overlay-transition="slide-y-transition"
                     @after-leave="close()"
+                    content-class="deal-proposal-anchor"
                 >
                     <template v-slot:activator="{ props: activatorProps }">
                         <v-btn
@@ -284,7 +339,6 @@ const scrollElem = useTemplateRef("scroll-elem");
                             <div  class="h-100 w-100"> -->
                             <v-sheet
                                 class="sticky-header"
-                                color="white"
                             >
                                 <v-toolbar class="pl-2 pr-2">
                                     <v-btn
@@ -315,36 +369,25 @@ const scrollElem = useTemplateRef("scroll-elem");
                                     @cost-click="costClick"
                                 >
                                     <template v-slot:item-cost="{ idx }">
-                                        <!-- <local-scope
-                                            :payment-item="getPaymentFromCost(idx)"
-                                            v-slot="{paymentItem}"
-                                        > -->
                                         <local-scope
                                             :scope="{ paymentItem: getPaymentFromCost(idx) }"
                                             v-slot="{ paymentItem }"
                                         >
-                                            <v-sheet
+                                            <div
                                                 v-if="paymentItem !== undefined"
-                                                class="position-absolute top-0 w-100 h-100 d-flex align-center justify-center"
-                                                color="rgba(0,0,0,0)"
+                                                class="cover d-flex align-center justify-center"
                                             >
-                                                <!-- TODO : have a class instead !! -->
-                                                <div
-                                                    style="color: rgb(56, 175, 60); font-family: 'Courier New', Courier, monospace; font-weight: 1000; font-size: 100px;"
-                                                >
+                                                <div class="big-green-text">
                                                     {{ paymentItem.costIndex + 1 }}
                                                 </div>
-                                            </v-sheet>
+                                            </div>
                                             <div
-                                                class="position-absolute top-0 w-100 h-100 fade"
+                                                class="cover darken fade"
                                                 :class="[paymentItem === undefined ? 'show' : '']"
-                                                style="background-color: rgba(0, 0, 0, 0.5);"
                                             />
                                             <v-sheet
                                                 v-if="idx === selectedCostIndex"
-                                                class="position-absolute top-0 w-100 h-100"
-                                                color="rgba(0,0,0,0)"
-                                                style="border: solid 3px rgb(56, 175, 60);"
+                                                class="cover green-border"
                                                 rounded="md"
                                             />
                                         </local-scope>
@@ -408,50 +451,83 @@ const scrollElem = useTemplateRef("scroll-elem");
                                     :scroll-elem="scrollElem.$el"
                                     :items="displayInventory"
                                     :focus-item-uid="focusedItem"
+                                    dialog-anchor="deal-proposal-dialog"
                                     @item-click="itemClick"
+                                    v-model:dialog-active="dialogActive"
                                 >
-                                    <template v-slot:common-content="{ item }">
+                                    <template v-slot:activator-common-content="{ item, groupedItems }">
                                         <local-scope
-                                            :scope="{ paymentItem: getPaymentFromItem(item.uid) }"
-                                            v-slot="{ paymentItem }"
+                                            :scope="{ paymentItems: itemBaseToPayments[item.id] }"
+                                            v-slot="{ paymentItems }"
                                         >
                                             <div
-                                                class="position-absolute top-0 w-100 h-100 fade"
-                                                :class="[(currentCostCompleted && paymentItem?.costIndex != selectedCostIndex) || (paymentItem !== undefined && paymentItem?.costIndex != selectedCostIndex) ? 'show' : '']"
-                                                style="background-color: rgba(0, 0, 0, 0.5);"
+                                                class="cover darken fade"
+                                                :class="darkenActivator(item.id, groupedItems.items.length) ? 'show' : ''"
                                             />
 
                                             <v-sheet
-                                                v-if="paymentItem?.costIndex == selectedCostIndex"
-                                                class="position-absolute top-0 w-100 h-100"
-                                                color="rgba(0,0,0,0)"
-                                                style="border: solid 3px rgb(56, 175, 60);"
+                                                v-if="paymentItems?.find((p) => p.costIndex == selectedCostIndex)"
+                                                class="cover green-border"
                                                 rounded="md"
                                             />
 
-                                            <v-sheet
-                                                v-if="paymentItem !== undefined"
-                                                class="position-absolute top-0 w-100 h-100 d-flex align-center justify-center"
-                                                color="rgba(0,0,0,0)"
+                                            <div
+                                                class="cover pa-1"
+                                                @click="groupClick(item.id)"
                                             >
-                                                <div
-                                                    style="color: rgb(56, 175, 60); font-family: 'Courier New', Courier, monospace; font-weight: 1000; font-size: 100px;"
+                                                <v-chip
+                                                    v-for="p in paymentItems?.sort((pa, pb) => pa.costIndex - pb.costIndex)"
+                                                    :key="p.costIndex"
+                                                    variant="flat"
+                                                    color="green"
+                                                    class="mr-1"
                                                 >
+                                                    {{ p.costIndex + 1 }}
+                                                </v-chip>
+                                            </div>
+                                        </local-scope>
+                                    </template>
+                                    <template v-slot:item-common-content="{ item }">
+                                        <local-scope
+                                            :scope="{ paymentItem: itemUidToPayment[item.uid] }"
+                                            v-slot="{ paymentItem }"
+                                        >
+                                            <div
+                                                class="cover darken fade"
+                                                :class="darkenItem(item.uid) ? 'show' : ''"
+                                            />
+
+                                            <div
+                                                v-if="paymentItem"
+                                                class="cover d-flex align-center justify-center"
+                                            >
+                                                <div class="big-green-text">
                                                     {{ paymentItem.costIndex + 1 }}
                                                 </div>
-                                            </v-sheet>
+                                            </div>
+                                            
+                                            <v-sheet
+                                                v-if="paymentItem?.costIndex == selectedCostIndex"
+                                                class="position-absolute top-0 w-100 h-100 green-border"
+                                                rounded="md"
+                                            />
 
-                                            <v-btn
+                                            <div
+                                                class="cover"
                                                 v-if="paymentItem !== undefined"
-                                                class="position-absolute close-btn-pos"
-                                                @click.stop="removeItemPayment(item.uid)"
-                                                color="error"
-                                                density="compact"
-                                                size="small"
-                                                :icon="`mdi-cross`"
                                             >
-                                                x
-                                            </v-btn>
+                                                <v-btn
+                                                
+                                                    class="position-absolute close-btn-pos"
+                                                    @click.stop="removeItemPayment(item.uid)"
+                                                    color="error"
+                                                    density="compact"
+                                                    size="small"
+                                                    :icon="`mdi-cross`"
+                                                >
+                                                    x
+                                                </v-btn>
+                                            </div>
                                         </local-scope>
                                     </template>
                                 </inventory>
@@ -485,6 +561,26 @@ const scrollElem = useTemplateRef("scroll-elem");
     font-size: 14px;
 }
 
+.cover {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    top: 0;
+    z-index: 10;
+}
+
+.green-border {
+    background-color: rgba(0,0,0,0);
+    border: solid 3px rgb(56, 175, 60);
+}
+
+.big-green-text {
+    color: rgb(56, 175, 60); 
+    font-family: 'Courier New', Courier, monospace; 
+    font-weight: 1000; 
+    font-size: 100px;
+}
+
 .fade {
   opacity: 0;
   transition: opacity 300ms ease;
@@ -495,8 +591,18 @@ const scrollElem = useTemplateRef("scroll-elem");
   opacity: 1;
 }
 
-.on-top > .v-overlay__content {
+.darken {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.on-top > :deep(.v-overlay__content) {
     position: absolute;
     top: 0;
+}
+
+
+
+:deep(.deal-proposal-anchor) {
+    anchor-name: --deal-proposal-dialog;
 }
 </style>
