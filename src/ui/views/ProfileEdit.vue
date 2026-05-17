@@ -67,12 +67,17 @@ watch(() => user.data.description, (newDesc, oldDesc) => {
                         </h2>
                         <div class="w-100 pa-3" />
                         <v-textarea
-                            placeholder="Describe yourself"
                             v-model="desc"
+                            label="Description"
+                            variant="outlined"
+                            placeholder="Describe yourself"
+                            hide-details
+                            color="primary"
                         />
+                        <div class="w-100 pa-3" />
                         <v-btn
                             @click="user.changeDescription(desc)"
-                            color="#5f9ea0"
+                            color="primary"
                         >
                             Update description
                         </v-btn>
