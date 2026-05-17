@@ -63,3 +63,9 @@ Go to [localhost:5173](http://localhost:5173)
 - In checks 
     - Works right now because staticData and staticLangData are compatible.
     - May cause issues in the future
+
+### Data
+
+- Lots of duplication of data when mostly not needed
+    - ex: an item is completely duplicated in user tradeInventory and in trade proposal
+- During a trade proposal, an item is both in the user inventory and in the trade proposal, making it unecessarally duplicated. This is especially 'annoying' because the item is actually loaded twice on startup
