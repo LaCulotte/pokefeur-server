@@ -181,20 +181,6 @@ function toggleAllRarities() {
     }
 }
 
-function save(isActive: Ref<boolean>) {    
-    model.value = {
-        itemTypes: currVal.value.itemTypes,
-        itemId: currVal.value.itemId,
-        name: currVal.value.name,
-        pokemon: new Set(currVal.value.pokemon),
-        sets: new Set(currVal.value.sets),
-        energyType: new Set(currVal.value.energyType),
-        rarity: new Set(currVal.value.rarity),
-    };
-    
-    isActive.value = false;
-}
-
 function clear() {
     currVal.value = {
         itemTypes: undefined,
@@ -256,8 +242,24 @@ function reset() {
     }
 }
 
-function leave() {
+function leave(isActive: Ref<boolean>) {
     reset();
+
+    isActive.value = false;
+}
+
+function save(isActive: Ref<boolean>) {    
+    model.value = {
+        itemTypes: currVal.value.itemTypes,
+        itemId: currVal.value.itemId,
+        name: currVal.value.name,
+        pokemon: new Set(currVal.value.pokemon),
+        sets: new Set(currVal.value.sets),
+        energyType: new Set(currVal.value.energyType),
+        rarity: new Set(currVal.value.rarity),
+    };
+    
+    isActive.value = false;
 }
 
 function temp_replace(url: string): string {
@@ -268,7 +270,7 @@ function temp_replace(url: string): string {
 <template>
     <v-dialog
         class="on-top"
-        @after-leave="leave()"
+        persistent
     >
         <template v-slot:activator="activatorProps">
             <slot
@@ -634,12 +636,30 @@ function temp_replace(url: string): string {
                     </v-tabs-window>
                     <div class="pa-3" />
                     <div class="w-100 d-flex justify-end">
-                        <v-confirm-edit
-                            cancel-text="CLEAR"
-                            :disabled="false"
-                            @cancel="clear"
-                            @save="save(globalIsActive)"
-                        />
+                        <div
+                            class="flex-grow-1 d-flex justify-start"
+                        >
+                            <v-btn
+                                variant="text"
+                                @click="clear"
+                            >
+                                CLEAR
+                            </v-btn>
+                        </div>
+                        <v-btn
+                            variant="text"
+                            color="error"
+                            @click="leave(globalIsActive)"
+                        >
+                            CANCEL
+                        </v-btn>
+                        <v-btn
+                            variant="text"
+                            color="primary"
+                            @click="save(globalIsActive)"
+                        >
+                            OK
+                        </v-btn>
                     </div>
                 </v-container>
             </v-card>
