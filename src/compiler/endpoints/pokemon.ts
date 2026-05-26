@@ -3,6 +3,7 @@ import type { SupportedLanguages } from "../../../resources/interfaces";
 import { parse } from "csv-parse/sync";
 import fs from "fs/promises";
 import type { PokemonData } from "../interfaces";
+import { removeAccents } from "../../common/utils";
 
 const ID_TO_LANG: Record<number, Array<SupportedLanguages>> = {
     1: ["ja"],
@@ -59,7 +60,7 @@ export async function getPokemonData(path: string): Promise<PokemonData> {
             }
 
             data[lang].id_to_name[id] = name;
-            data[lang].name_to_id[name] = id;
+            data[lang].name_to_id[removeAccents(name)] = id;
         }
     }
 

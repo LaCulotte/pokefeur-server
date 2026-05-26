@@ -6,7 +6,7 @@ import type { CardStaticLangData, SetStaticLangData } from '../../api/staticData
 import type { LangDictionnary } from "../data/lang/interfaces";
 import { langDict } from "../data/lang/langDict";
 
-import { computed, type ComputedRef } from 'vue';
+import { computed, watch, type ComputedRef } from 'vue';
 import type { ItemType } from '@/api/model/interfaces';
 import type { PokemonData } from '@/compiler/interfaces';
 import type { SupportedLanguages } from '../../../resources/interfaces';
@@ -87,3 +87,16 @@ export function getLangString<T extends keyof LangDictionnary>(key: T, subKey: k
         return ret;
     });
 }
+
+export let searchPokemonItems: {title: string, value: number, searchName: string}[] = [];
+
+watch([pokemonData, lang], () => {
+    const data = pokemonData[lang.value];
+    searchPokemonItems = Object.entries(data?.name_to_id ?? {}).map(([name, id]) => { 
+        return {
+            title: data?.id_to_name[id] ?? '',
+            value: id,
+            searchName: name
+        }; 
+    });
+});

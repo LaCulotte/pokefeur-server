@@ -156,6 +156,7 @@ export enum Rarity {
     THREE_SHINY,
     BLACK_WHITE_RARE,
     MEGA_HYPER_RARE,
+    RARITY_COUNT,
 }
 
 export const RarityMap: Record<Card["rarity"], Rarity> = {

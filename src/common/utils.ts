@@ -115,3 +115,10 @@ export function expected<T>(val: T): TrueExpected<T> {
     // return Expected.makeExpected<T>(val);
     return new TrueExpected<T>(val);
 }
+
+export function removeAccents(input: string) {
+    return input
+        .toLocaleLowerCase()
+        .normalize("NFD") // split accented chars into base + accent
+        .replace(/[\u0300-\u036f]/g, ""); // remove accent marks
+}
