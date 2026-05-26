@@ -77,16 +77,6 @@ function goToCollection(itemId?: string) {
     });
 }
 
-
-function goToHome(itemId?: string) {
-    router.push({
-        path: "/",
-        query: {
-            itemId
-        }
-    });
-}
-
 const showRedeemed = ref(false);
 const redeemed: Ref<InventoryItem | null> = ref(null);
 

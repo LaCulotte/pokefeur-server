@@ -11,6 +11,7 @@ import { useTemplateRef } from 'vue';
 const { groupedItems, focusItemIndex = undefined } = defineProps<{
     groupedItems: GroupedItems<T>
     focusItemIndex?: number,
+    compact?: boolean
 }>();
 
 const scrollElem = useTemplateRef("scroll-elem");
@@ -35,10 +36,10 @@ const scrollElem = useTemplateRef("scroll-elem");
 
         <v-sheet style="overflow: auto;">
             <item-grid
-                v-if="groupedItems.items.length > 0 && scrollElem !== null"
+                v-if="scrollElem !== null"
                 :item-count="groupedItems.items.length"
-                :max-item-height-ratio="0.20"
-                :min-item-height-ratio="0.20"
+                :max-item-height-ratio="compact ? 0.15 : 0.20"
+                :min-item-height-ratio="compact ? 0.15 : 0.20"
                 :scroll-elem="scrollElem.$el"
                 :focus-item-index="focusItemIndex"
             >

@@ -145,7 +145,7 @@ onUnmounted(() => {
 <template>
     <div>
         <div class="sticky-header pa-2">
-            <v-expansion-panels style="background: none;">
+            <!-- <v-expansion-panels style="background: none;">
                 <v-expansion-panel
                     title="Admin"
                 >
@@ -153,7 +153,7 @@ onUnmounted(() => {
                         <admin-dashboard />
                     </v-expansion-panel-text>
                 </v-expansion-panel>
-            </v-expansion-panels>
+            </v-expansion-panels> -->
             <!-- <v-btn @click="scroll -= 1">
                 v
             </v-btn>
@@ -184,16 +184,16 @@ onUnmounted(() => {
             
             style="background-color: rgba(95, 158, 160, 0.4); overflow: auto;"
         >
-            <div
+            <!-- <div
                 class="sticky-header pa-2"
-                style="z-index: -10; visibility: hidden;"
+                style="z-index: -10; visibility:collapse;"
             >
                 <v-expansion-panels style="background: none;">
                     <v-expansion-panel
                         title="Fake expansion panel"
                     />
                 </v-expansion-panels>
-            </div>
+            </div> -->
 
             <div
                 class="w-100 "

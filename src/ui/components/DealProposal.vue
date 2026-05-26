@@ -10,6 +10,7 @@ import type { Deal, Payment, InventoryItem, DealCostUnit, ItemPayment } from '..
 import type { Type } from '../../common/constants';
 import { currLangData } from '../controller/lang';
 import { isCardOfSet, isCardOfType, isCardOfPokemon } from '../../common/checks';
+import type { Filters } from '../interfaces';
 
 const props = defineProps<{
     deal: Deal,
@@ -206,43 +207,32 @@ function close() {
 }
 
 // TODO : this will be filters in inventory component
-const displayInventory: Ref<InventoryItem[]> = computed(() => {
+const items = computed(() => Object.values(user.data.inventory.items));
+
+const filters = computed(() => {
+    const ret: Partial<Filters> = {};
+
     const costUnit = props.deal.cost.items[selectedCostIndex.value];
     if (costUnit === undefined) {
-        return [];
+        ret.itemId = 'none'; // Show no item
+        return ret;
     }
-
-    let filter: (item: InventoryItem) => boolean = () => { return false; };
 
     if (costUnit.type == "card" || costUnit.type == "booster") {
-        filter = (item: InventoryItem) => {
-            // TODO : use true centralized filters (the same for both backend and frontend)
-            return item.id == costUnit.id;
-        };
+        ret.itemId = costUnit.id;
+        ret.itemTypes = costUnit.type;
     } else if (costUnit.type == "card-of-type") {
-        const staticData = currLangData.value;
-        if (staticData !== undefined) {
-            filter = (item) => {
-                return isCardOfType(staticData, item.id, costUnit.id);
-            };
-        }
+        ret.energyType = new Set([costUnit.id]);
+        ret.itemTypes = 'card';
     } else if (costUnit.type == "card-of-set") {
-        const staticData = currLangData.value;
-        if (staticData !== undefined) {
-            filter = (item) => {
-                return isCardOfSet(staticData, item.id, costUnit.id);
-            };
-        }
+        ret.sets = new Set([costUnit.id]);
+        ret.itemTypes = 'card';
     } else if (costUnit.type == "card-of-pokemon") {
-        const staticData = currLangData.value;
-        if (staticData !== undefined) {
-            filter = (item) => {
-                return isCardOfPokemon(staticData, item.id, costUnit.id);
-            };
-        }
+        ret.pokemon = new Set([costUnit.id]);
+        ret.itemTypes = 'card';
     }
 
-    return Object.values(user.data.inventory.items).filter(filter);
+    return ret;
 });
 
 const canAccept: ComputedRef<boolean> = computed(() => {
@@ -332,14 +322,9 @@ const scrollElem = useTemplateRef("scroll-elem");
                     <template v-slot="{ isActive }">
                         <v-sheet
                             color="rgba(255, 255, 255)"
-                            class="on-top"
-                            ref="scroll-elem"
+                            class="on-top d-flex flex-column"
                         >
-                            <!-- <div style="overflow: auto;" ref="scroll-elem" class="h-100 w-100 ">
-                            <div  class="h-100 w-100"> -->
-                            <v-sheet
-                                class="sticky-header"
-                            >
+                            <v-sheet>
                                 <v-toolbar class="pl-2 pr-2">
                                     <v-btn
                                         variant="outlined"
@@ -398,7 +383,10 @@ const scrollElem = useTemplateRef("scroll-elem");
                             </v-sheet>
                             
                             <!-- <div ></div> -->
-                            <v-sheet style="overflow: auto;">
+                            <v-sheet
+                                style="overflow: auto;"
+                                ref="scroll-elem"
+                            >
                                 <energy
                                     v-for="(count, type) of deal.cost.energies"
                                     :key="type"
@@ -449,7 +437,8 @@ const scrollElem = useTemplateRef("scroll-elem");
                                 <inventory
                                     v-if="scrollElem !== null"
                                     :scroll-elem="scrollElem.$el"
-                                    :items="displayInventory"
+                                    :items="items"
+                                    :default-filters="filters"
                                     :focus-item-uid="focusedItem"
                                     dialog-anchor="deal-proposal-dialog"
                                     @item-click="itemClick"
@@ -532,7 +521,7 @@ const scrollElem = useTemplateRef("scroll-elem");
                                     </template>
                                 </inventory>
 
-                                <div v-if="displayInventory.length == 0">
+                                <div v-if="items.length == 0">
                                     No available item :c
                                 </div>
                             </v-sheet>

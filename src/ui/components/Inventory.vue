@@ -1,5 +1,6 @@
 <script setup lang="ts" generic="T extends InventoryItem">
 import ItemGrid from './ItemGrid.vue';
+import ItemFilters from './ItemFilters.vue';
 import BaseItemComponent from './item/BaseItemComponent.vue';
 
 import { ref, type Ref, watch, computed, watchEffect } from 'vue';
@@ -8,6 +9,11 @@ import type { GroupedItems, GroupedCards, GroupedBoosters } from '@/ui/interface
 import LocalScope from './LocalScope.vue';
 
 import GroupedItemsComponent from './GroupedItemsComponent.vue';
+import { Type } from '../../common/constants';
+import type { Filters } from '../interfaces';
+import { getCardLangData, getSetLangData } from '../controller/staticDataHelper';
+import type { CardStaticLangData, SetStaticLangData } from '../../api/staticData/interfaces';
+import { removeAccents } from '../../common/utils';
 
 defineEmits(['item-click']);
 
@@ -15,16 +21,148 @@ const props = defineProps<{
     scrollElem?: HTMLDivElement | null,
     items: T[],
     focusItemUid?: string,
-    dialogAnchor?: string
+    dialogAnchor?: string,
+    defaultFilters?: Partial<Filters>
 }>();
 
 const isActive = defineModel<boolean>('dialogActive', { default: false });
+
+const filters: Ref<Filters> = ref({
+    pokemon: new Set(),
+    sets: new Set(),
+    energyType: new Set(),
+    rarity: new Set()
+});
+
+function checkPokemon(data: CardStaticLangData) {
+    if (!data.dexId)
+        return false;
+    
+    for (const id of data.dexId) {
+        if ((props.defaultFilters?.pokemon ?? filters.value.pokemon).has(id)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function checkType(data: CardStaticLangData) {
+    if (!data.types)
+        return false;
+    
+    for (const type of data.types) {
+        if ((props.defaultFilters?.energyType ?? filters.value.energyType).has(type)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function checkRarity(data: CardStaticLangData) {
+    return (props.defaultFilters?.rarity ?? filters.value.rarity).has(data.rarity);
+}
+
+function checkName(data: SetStaticLangData | CardStaticLangData) {
+    return removeAccents(data.name).includes(props.defaultFilters?.name ?? filters.value.name ?? '');
+}
+
+function checkItem(data: SetStaticLangData | CardStaticLangData) {
+    return (props.defaultFilters?.itemId ?? filters.value.itemId) == data.id;
+}
+
+function checkCardSet(data: CardStaticLangData) {
+    return (props.defaultFilters?.sets ?? filters.value.sets).has(data.setId);
+}
+
+function checkBoosterSet(data: SetStaticLangData) {
+    return (props.defaultFilters?.sets ?? filters.value.sets).has(data.id);
+}
+
+// To be sorted ?
+const filteredItems = computed(() => {
+    let ret = props.items;
+
+    const cardFilters: ((data: CardStaticLangData) => boolean)[] = [];
+    const boosterFilters: ((data: SetStaticLangData) => boolean)[] = [];
+    const bothFilters: ((data: SetStaticLangData | CardStaticLangData) => boolean)[] = [];
+
+    if ((props.defaultFilters?.itemTypes ?? filters.value.itemTypes) == 'booster') {
+        ret = ret.filter((item) => item.type == 'booster');
+
+    } else if ((props.defaultFilters?.itemTypes ?? filters.value.itemTypes) == 'card') {
+        ret = ret.filter((item) => item.type == 'card');
+
+        if (filters.value.pokemon.size || props.defaultFilters?.pokemon?.size) {
+            cardFilters.push(checkPokemon);
+        }
+
+        if (filters.value.energyType.size || props.defaultFilters?.energyType?.size) {
+            cardFilters.push(checkType);
+        }
+
+        if (filters.value.rarity.size || props.defaultFilters?.rarity?.size) {
+            cardFilters.push(checkRarity);
+        }
+    }
+
+    if (filters.value.sets.size || props.defaultFilters?.sets?.size) {
+        cardFilters.push(checkCardSet);
+        boosterFilters.push(checkBoosterSet);
+    }
+
+
+    if (filters.value.name?.length || props.defaultFilters?.name?.length) {
+        bothFilters.push(checkName);
+    }
+
+    if (filters.value.itemId || props.defaultFilters?.itemId) {
+        bothFilters.push(checkItem);
+    }
+
+    ret = ret.filter((item) => {
+        if (item.type === 'card') {
+            const data = getCardLangData(item.id).value;
+
+            for (const filter of cardFilters) {
+                if (!filter(data)) {
+                    return false;
+                }
+            }
+            for (const filter of bothFilters) {
+                if (!filter(data)) {
+                    return false;
+                }
+            }
+
+            return true;
+        } else {
+            const data = getSetLangData(item.id).value;
+
+            for (const filter of boosterFilters) {
+                if (!filter(data)) {
+                    return false;
+                }
+            }
+            for (const filter of bothFilters) {
+                if (!filter(data)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+    });
+
+    return ret;
+});
 
 // Regroup the items per type & id
 const itemsGroups: Ref<Record<string, GroupedItems<T>>> = computed(() => {
     const ret: Record<string, GroupedItems<T>> = {};
 
-    for (const item of props.items) {
+    for (const item of filteredItems.value) {
         if (item.type === 'card') {
             let group: GroupedCards<T> | undefined = ret[item.id] as GroupedCards<T>;
             
@@ -99,9 +237,6 @@ watch(() => props.focusItemUid, () => {
         localFocusItemIndex.value = undefined;
         focusItemId.value = undefined;
     }
-    
-    // const index = props.items.findIndex((item) => item.uid == props.focusItemUid);
-    // focusItemIndex.value = index >= 0 ? index : undefined;    
 });
 
 // const isActive = ref(false);
@@ -118,15 +253,75 @@ watch(itemsGroups, (val) => {
         isActive.value = false;
     }
 });
+
+const compactGrid = ref(false);
 </script>
 
 <template>
+    <slot
+        name="filter"
+        :filters="filters"
+    >
+        <item-filters
+            v-model="filters"
+            :default-filters="defaultFilters"
+        >
+            <template v-slot:activator="{ props: activatorProps }">
+                <v-card
+                    class="sticky-header"
+                >
+                    <v-row gap="0">
+                        <v-col
+                            cols="auto"
+                        >
+                            <v-card
+                                class="pa-2 elevation-0 rounded-0"
+                                @click="compactGrid = !compactGrid"
+                            >
+                                <v-icon
+                                    v-if="compactGrid"
+                                    size="large"
+                                >
+                                    mdi-grid
+                                </v-icon>
+                                <v-icon
+                                    v-else
+                                    size="large"
+                                >
+                                    mdi-grid-large
+                                </v-icon>
+                            </v-card>
+                        </v-col>
+                        <v-divider vertical />
+                        <v-col
+                            class="pa-2 d-flex align-center justify-center"
+                        >
+                            {{ filteredItems.length }} items
+                        </v-col>
+                        <v-divider vertical />
+                        <v-col
+                            cols="auto"
+                        >
+                            <v-card
+                                v-bind="activatorProps"
+                                class="pa-2 elevation-0 rounded-0"
+                            >
+                                <v-icon size="large">
+                                    mdi-filter
+                                </v-icon>
+                            </v-card>
+                        </v-col>
+                    </v-row>
+                </v-card>
+            </template>
+        </item-filters>
+    </slot>
+
     <div style="position: relative">
         <item-grid
-            v-if="itemsGroupsList.length > 0"
             :item-count="itemsGroupsList.length"
-            :max-item-height-ratio="0.25"
-            :min-item-height-ratio="0.25"
+            :max-item-height-ratio="compactGrid ? 0.15 : 0.25"
+            :min-item-height-ratio="compactGrid ? 0.15 : 0.25"
             :scroll-elem="scrollElem"
             :focus-item-index="globalFocusItemIndex"
             class="mt-2"
@@ -199,6 +394,7 @@ watch(itemsGroups, (val) => {
                 v-if="shownGroupedItemsId && itemsGroups[shownGroupedItemsId]"
                 :grouped-items="itemsGroups[shownGroupedItemsId]!"
                 :focus-item-index="localFocusItemIndex"
+                :compact="compactGrid"
             >
                 <template v-slot="{ item }">
                     <base-item-component
@@ -255,6 +451,23 @@ watch(itemsGroups, (val) => {
 </style>
 
 <style scoped>
+.sticky-header {
+    position: sticky;
+    top: -4px;
+    z-index: 10;
+}
+
+.sticky-header:first-child {
+    top: 0px;
+    margin-top: 0px;
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+}
+
+.sticky-header:not(:first-child) {
+    margin-top: 4px;
+}
+
 .on-top > .v-overlay__content {
     position: absolute;
     top: 50%;
