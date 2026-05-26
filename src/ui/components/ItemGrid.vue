@@ -43,13 +43,19 @@ const maxItemHeight = computed(() => {
     return height.value * maxItemHeightRatio;
 });
 
+let padding = 4;
 const numCols = computed(() => {
-    const minWidth = (minItemHeight.value * ASPECT_RATIO) + 8;
+    let minWidth = (minItemHeight.value * ASPECT_RATIO);
+    padding = Math.floor(minWidth / 33);
+
+    minWidth += padding * 2;
     return Math.ceil(width.value / minWidth);
 });
 
+const minWidth = computed(() => minItemHeight.value * ASPECT_RATIO);
+
 const itemSize = computed(() => {
-    const maxWidth = (width.value / numCols.value) - 8;
+    const maxWidth = (width.value / numCols.value) - padding * 2;
     let calcHeight = maxWidth / ASPECT_RATIO;
 
     if (calcHeight > maxItemHeight.value) {
@@ -133,7 +139,8 @@ const itemStyle = computed(() => {
     return {        
         height: `${itemSize.value.height}px`,
         // width: `${itemSize.value.width}px`,
-        'grid-column': 'span 1'
+        'grid-column': 'span 1',
+        padding: `${padding}px`
     };
 });
 
@@ -157,26 +164,26 @@ async function focusItem(itemIndex: number | undefined) {
         return;
     }
 
-    const offset = (mainElem.value?.getBoundingClientRect().top ?? 0) 
+    const offset = (mainElem.value?.getBoundingClientRect().top ?? 0)
                     - (scrollElem?.getBoundingClientRect().top ?? 0) 
                     + (scrollElem ?? document.body).scrollTop;
-    const dest = Math.floor((itemIndex / numCols.value)) * itemSize.value.height - offset;
+    const dest = Math.floor((itemIndex / numCols.value)) * itemSize.value.height - 0;
     const currTop = scrollElem?.scrollTop ?? 0;
 
     if ((dest - currTop) > 2 * height.value) {
-        // (scrollElem ?? window).scrollTo({
-        //     top: dest - (2 * height.value),
-        //     behavior: "auto",
-        // });
-        goTo(dest, {
-            offset: (2 * height.value),
-            container: (scrollElem ?? document.body),
-            duration: 0
+        (scrollElem ?? window).scrollTo({
+            top: dest - (2 * height.value),
+            behavior: "auto",
         });
+        // goTo(dest, {
+        //     offset: (2 * height.value),
+        //     container: (scrollElem ?? document.body),
+        //     duration: 0
+        // });
     }
 
     goTo(dest, {
-        offset: itemSize.value.height,
+        // offset: itemSize.value.height,
         container: (scrollElem ?? document.body),
     });
 
@@ -219,11 +226,11 @@ onUnmounted(() => {
         <div
             class="w-100 align-content-start ma-0"
             :style="gridStyle"
+            v-if="itemCount > 0"
         >
             <div
                 v-for="i in currNumElems"
                 class="w-100 d-flex justify-center align-center"
-                style="padding: 4px;"
                 :style="itemStyle"
                 :key="i + firstElem"
             >

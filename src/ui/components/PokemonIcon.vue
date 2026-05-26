@@ -21,9 +21,10 @@ const style = computed(() => {
     if (!mainElem.value) {
         return "";
     }
-
-    let targetWidth = mainElem.value.getBoundingClientRect().width;
-    let targetHeight = mainElem.value.getBoundingClientRect().height;
+    
+    const rect = mainElem.value.getBoundingClientRect();;
+    let targetWidth = rect.width;
+    let targetHeight = rect.height;
 
     if (targetWidth / ICON_WIDTH > targetHeight / ICON_HEIGHT) {
         targetWidth = (targetHeight / ICON_HEIGHT) * ICON_WIDTH;
@@ -46,7 +47,7 @@ const style = computed(() => {
 
     return style;
 });
-
+ 
 const name = computed(() => {
     return getPokemonName(id).value;
 });

@@ -11,6 +11,11 @@ if (urlLang && LANGS.includes(urlLang as SupportedLanguages)) {
 
 <template>
     <router-view />
+
+    <div
+        class="icon"
+        style="height: 40px; width: 40px; position: fixed; top: -100px"
+    />
 </template>
 
 <style lang="css">
@@ -24,5 +29,11 @@ if (urlLang && LANGS.includes(urlLang as SupportedLanguages)) {
 
 .hide-scroll::-webkit-scrollbar {
   display: none;
+}
+</style>
+
+<style scoped>
+.icon {
+    background-image: url(/static/images/pokemonicons-large.png);
 }
 </style>
