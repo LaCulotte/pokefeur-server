@@ -118,7 +118,7 @@ function costClick(_: DealCostUnit, costIndex: number) {
     }
 }
 
-const dialogActive = ref(false);
+const dialogActive = ref(props.deal.cost.items.map(() => false));
 function itemClick(item: InventoryItem) {
     const itemPayment = getPaymentFromItem(item.uid);
     if (itemPayment !== undefined) {
@@ -132,7 +132,7 @@ function itemClick(item: InventoryItem) {
             selectedCostIndex.value = itemPayment.costIndex;
             focusedItem.value = undefined;
             nextTick(() => { focusedItem.value = item.uid; });
-            dialogActive.value = false;
+            dialogActive.value.fill(false);
         }
     } else {
         const exitingCost = getPaymentFromCost(selectedCostIndex.value);
@@ -148,7 +148,7 @@ function itemClick(item: InventoryItem) {
             itemUid: item.uid
         });
 
-        dialogActive.value = false;
+        dialogActive.value.fill(false);
 
         // let currSelectedCostIndex = selectedCostIndex.value;
     
@@ -206,34 +206,43 @@ function close() {
     selectedCostIndex.value = 0;
 }
 
-// TODO : this will be filters in inventory component
 const items = computed(() => Object.values(user.data.inventory.items));
 
 const filters = computed(() => {
-    const ret: Partial<Filters> = {};
+    const ret: Partial<Filters>[] = [];
 
-    const costUnit = props.deal.cost.items[selectedCostIndex.value];
-    if (costUnit === undefined) {
-        ret.itemId = 'none'; // Show no item
-        return ret;
-    }
-
-    if (costUnit.type == "card" || costUnit.type == "booster") {
-        ret.itemId = costUnit.id;
-        ret.itemTypes = costUnit.type;
-    } else if (costUnit.type == "card-of-type") {
-        ret.energyType = new Set([costUnit.id]);
-        ret.itemTypes = 'card';
-    } else if (costUnit.type == "card-of-set") {
-        ret.sets = new Set([costUnit.id]);
-        ret.itemTypes = 'card';
-    } else if (costUnit.type == "card-of-pokemon") {
-        ret.pokemon = new Set([costUnit.id]);
-        ret.itemTypes = 'card';
+    for (const costUnit of props.deal.cost.items) {
+    // const costUnit = props.deal.cost.items[selectedCostIndex.value];
+        if (costUnit === undefined) {
+            ret.push({itemId: 'none'});
+            return ret;
+        } else if (costUnit.type == "card" || costUnit.type == "booster") {
+            ret.push({
+                itemTypes: costUnit.type,
+                itemId: costUnit.id,
+            });
+        } else if (costUnit.type == "card-of-type") {
+            ret.push({
+                energyType: new Set([costUnit.id]),
+                itemTypes: 'card',                
+            });
+        } else if (costUnit.type == "card-of-set") {
+            ret.push({
+                sets: new Set([costUnit.id]),
+                itemTypes: 'card',                
+            });
+        } else if (costUnit.type == "card-of-pokemon") {
+            ret.push({
+                pokemon: new Set([costUnit.id]),
+                itemTypes: 'card',
+            });
+        }
     }
 
     return ret;
 });
+
+
 
 const canAccept: ComputedRef<boolean> = computed(() => {
     if (payment.value.items.length != props.deal.cost.items.length) {
@@ -382,9 +391,9 @@ const scrollElem = useTemplateRef("scroll-elem");
                                 <v-divider />
                             </v-sheet>
                             
-                            <!-- <div ></div> -->
                             <v-sheet
                                 style="overflow: auto;"
+                                class="hide-scroll"
                                 ref="scroll-elem"
                             >
                                 <energy
@@ -434,96 +443,107 @@ const scrollElem = useTemplateRef("scroll-elem");
                                     </v-row>
                                 </energy>
                                 <v-divider v-if="Object.keys(deal.cost.energies).length > 0" />
-                                <inventory
-                                    v-if="scrollElem !== null"
-                                    :scroll-elem="scrollElem.$el"
-                                    :items="items"
-                                    :default-filters="filters"
-                                    :focus-item-uid="focusedItem"
-                                    dialog-anchor="deal-proposal-dialog"
-                                    @item-click="itemClick"
-                                    v-model:dialog-active="dialogActive"
+                                <v-window
+                                    v-model="selectedCostIndex"
+                                    style="overflow: visible;"
                                 >
-                                    <template v-slot:activator-common-content="{ item, groupedItems }">
-                                        <local-scope
-                                            :scope="{ paymentItems: itemBaseToPayments[item.id] }"
-                                            v-slot="{ paymentItems }"
+                                    <v-window-item
+                                        v-for="i in deal.cost.items.length"
+                                        :key="i"
+                                        style="overflow: visible;"
+                                    >
+                                        <inventory
+                                            v-if="scrollElem !== null"
+                                            :scroll-elem="scrollElem.$el"
+                                            :items="items"
+                                            :default-filters="filters[i - 1]"
+                                            :focus-item-uid="focusedItem"
+                                            dialog-anchor="deal-proposal-dialog"
+                                            @item-click="itemClick"
+                                            v-model:dialog-active="dialogActive[i - 1]"
                                         >
-                                            <div
-                                                class="cover darken fade"
-                                                :class="darkenActivator(item.id, groupedItems.items.length) ? 'show' : ''"
-                                            />
-
-                                            <v-sheet
-                                                v-if="paymentItems?.find((p) => p.costIndex == selectedCostIndex)"
-                                                class="cover green-border"
-                                                rounded="md"
-                                            />
-
-                                            <div
-                                                class="cover pa-1"
-                                                @click="groupClick(item.id)"
-                                            >
-                                                <v-chip
-                                                    v-for="p in paymentItems?.sort((pa, pb) => pa.costIndex - pb.costIndex)"
-                                                    :key="p.costIndex"
-                                                    variant="flat"
-                                                    color="green"
-                                                    class="mr-1"
+                                            <template v-slot:activator-common-content="{ item, groupedItems }">
+                                                <local-scope
+                                                    :scope="{ paymentItems: itemBaseToPayments[item.id] }"
+                                                    v-slot="{ paymentItems }"
                                                 >
-                                                    {{ p.costIndex + 1 }}
-                                                </v-chip>
-                                            </div>
-                                        </local-scope>
-                                    </template>
-                                    <template v-slot:item-common-content="{ item }">
-                                        <local-scope
-                                            :scope="{ paymentItem: itemUidToPayment[item.uid] }"
-                                            v-slot="{ paymentItem }"
-                                        >
-                                            <div
-                                                class="cover darken fade"
-                                                :class="darkenItem(item.uid) ? 'show' : ''"
-                                            />
+                                                    <div
+                                                        class="cover darken fade"
+                                                        :class="darkenActivator(item.id, groupedItems.items.length) ? 'show' : ''"
+                                                    />
 
-                                            <div
-                                                v-if="paymentItem"
-                                                class="cover d-flex align-center justify-center"
-                                            >
-                                                <div class="big-green-text">
-                                                    {{ paymentItem.costIndex + 1 }}
-                                                </div>
-                                            </div>
+                                                    <v-sheet
+                                                        v-if="paymentItems?.find((p) => p.costIndex == selectedCostIndex)"
+                                                        class="cover green-border"
+                                                        rounded="md"
+                                                    />
+
+                                                    <div
+                                                        class="cover pa-1"
+                                                        @click="groupClick(item.id)"
+                                                    >
+                                                        <v-chip
+                                                            v-for="p in paymentItems?.sort((pa, pb) => pa.costIndex - pb.costIndex)"
+                                                            :key="p.costIndex"
+                                                            variant="flat"
+                                                            color="green"
+                                                            class="mr-1"
+                                                        >
+                                                            {{ p.costIndex + 1 }}
+                                                        </v-chip>
+                                                    </div>
+                                                </local-scope>
+                                            </template>
+                                            <template v-slot:item-common-content="{ item }">
+                                                <local-scope
+                                                    :scope="{ paymentItem: itemUidToPayment[item.uid] }"
+                                                    v-slot="{ paymentItem }"
+                                                >
+                                                    <div
+                                                        class="cover darken fade"
+                                                        :class="darkenItem(item.uid) ? 'show' : ''"
+                                                    />
+
+                                                    <div
+                                                        v-if="paymentItem"
+                                                        class="cover d-flex align-center justify-center"
+                                                    >
+                                                        <div class="big-green-text">
+                                                            {{ paymentItem.costIndex + 1 }}
+                                                        </div>
+                                                    </div>
                                             
-                                            <v-sheet
-                                                v-if="paymentItem?.costIndex == selectedCostIndex"
-                                                class="position-absolute top-0 w-100 h-100 green-border"
-                                                rounded="md"
-                                            />
+                                                    <v-sheet
+                                                        v-if="paymentItem?.costIndex == selectedCostIndex"
+                                                        class="position-absolute top-0 w-100 h-100 green-border"
+                                                        rounded="md"
+                                                    />
 
-                                            <div
-                                                class="cover"
-                                                v-if="paymentItem !== undefined"
-                                            >
-                                                <v-btn
+                                                    <div
+                                                        class="cover"
+                                                        v-if="paymentItem !== undefined"
+                                                    >
+                                                        <v-btn
                                                 
-                                                    class="position-absolute close-btn-pos"
-                                                    @click.stop="removeItemPayment(item.uid)"
-                                                    color="error"
-                                                    density="compact"
-                                                    size="small"
-                                                    :icon="`mdi-cross`"
-                                                >
-                                                    x
-                                                </v-btn>
-                                            </div>
-                                        </local-scope>
-                                    </template>
-                                </inventory>
+                                                            class="position-absolute close-btn-pos"
+                                                            @click.stop="removeItemPayment(item.uid)"
+                                                            color="error"
+                                                            density="compact"
+                                                            size="small"
+                                                            :icon="`mdi-cross`"
+                                                        >
+                                                            x
+                                                        </v-btn>
+                                                    </div>
+                                                </local-scope>
+                                            </template>
+                                        </inventory>
 
-                                <div v-if="items.length == 0">
-                                    No available item :c
-                                </div>
+                                        <div v-if="items.length == 0">
+                                            No available item :c
+                                        </div>
+                                    </v-window-item>
+                                </v-window>
                             </v-sheet>
                         </v-sheet>
                     </template>

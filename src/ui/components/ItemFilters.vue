@@ -505,6 +505,7 @@ function temp_replace(url: string): string {
                             <v-btn-toggle
                                 v-model="energyModel"
                                 style="height: unset !important"
+                                class="w-100"
                                 color="primary"
                                 multiple
                             >
@@ -512,6 +513,7 @@ function temp_replace(url: string): string {
                                     <v-col
                                         v-for="t in Type.TYPE_COUNT"
                                         :key="t"
+                                        class="d-flex justify-center"
                                         cols="3"
                                     >
                                         <v-btn
@@ -548,12 +550,14 @@ function temp_replace(url: string): string {
                                 v-model="rarityModel"
                                 style="height: unset !important"
                                 color="primary"
+                                class="w-100"
                                 multiple
                             >
                                 <v-row gap="2">
                                     <v-col
                                         v-for="opt in rarityOptions"
                                         :key="opt.icon"
+                                        class="d-flex justify-center"
                                         cols="3"
                                     >
                                         <v-btn
