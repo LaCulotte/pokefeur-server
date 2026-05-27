@@ -71,7 +71,7 @@ const name = computed(() => {
 
 <style scoped>
 .icon {
-    background-image: url(/static/images/pokemonicons-large.png);
+    background-image: url(/static/images/pokemonicons-large.webp);
     z-index: 0;
 }
 </style>

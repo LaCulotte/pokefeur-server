@@ -34,9 +34,9 @@ const sets = computed(() => {
 });
 
 const trueItems = computed(() => {
-    if (input.value.length < 2) {
-        return [];
-    }
+    // if (input.value.length < 2) {
+    //     return [];
+    // }
 
     return sets.value.filter((set) => {
         return set.searchName.includes(sanatizedInput.value) && !props.selected?.has(set.value);

@@ -20,12 +20,13 @@ const sanatizedInput = computed(() => {
 });
 
 const trueItems = computed(() => {
-    if (input.value.length < 3) {
+    if (input.value.length < 1) {
         return [];
     }
 
     return searchPokemonItems.filter((item) => {
-        return item.searchName.includes(sanatizedInput.value) && !props.selected?.has(item.value);
+        return (item.searchId.startsWith(sanatizedInput.value) || item.searchName.includes(sanatizedInput.value)) 
+                    && !props.selected?.has(item.value);
     });
 });
 </script>
