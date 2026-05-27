@@ -159,6 +159,87 @@ export enum Rarity {
     RARITY_COUNT,
 }
 
+export interface RarityRank {
+    rank: Rarity,
+    associatedRarities: Rarity[]
+}
+
+export const RarityRanks: RarityRank[] = [
+    { 
+        rank: Rarity.COMMON, 
+        associatedRarities: [ Rarity.COMMON ] 
+    },
+    { 
+        rank: Rarity.UNCOMMON, 
+        associatedRarities: [ Rarity.UNCOMMON ] 
+    },
+    {
+        rank: Rarity.RARE, 
+        associatedRarities: [ 
+            Rarity.RARE,
+            Rarity.RARE_PRIME,
+            Rarity.SECRET_RARE
+        ] 
+    },
+    { 
+        rank: Rarity.DOUBLE_RARE, 
+        associatedRarities: [ Rarity.DOUBLE_RARE ] 
+    },
+    {
+        rank: Rarity.ILLUSTRATION_RARE, 
+        associatedRarities: [ Rarity.ILLUSTRATION_RARE ] 
+    },
+    {
+        rank: Rarity.SPECIAL_ILLUSTRATION_RARE, 
+        associatedRarities: [ Rarity.SPECIAL_ILLUSTRATION_RARE ] 
+    },
+    { 
+        rank: Rarity.HYPER_RARE, 
+        associatedRarities: [ Rarity.HYPER_RARE ] 
+    },
+    { 
+        rank: Rarity.ULTRA_RARE, 
+        associatedRarities: [ Rarity.ULTRA_RARE ] 
+    },
+    {
+        rank: Rarity.SHINY_RARE, 
+        associatedRarities: [ 
+            Rarity.SHINY_RARE,
+            Rarity.SHINY_RARE_V,
+            Rarity.SHINY_RARE_VMAX
+        ] 
+    },
+    { 
+        rank: Rarity.SHINY_ULTRA_RARE, 
+        associatedRarities: [ Rarity.SHINY_ULTRA_RARE ] 
+    },
+    { 
+        rank: Rarity.BLACK_WHITE_RARE, 
+        associatedRarities: [ Rarity.BLACK_WHITE_RARE ] 
+    },
+    { 
+        rank: Rarity.MEGA_HYPER_RARE, 
+        associatedRarities: [ Rarity.MEGA_HYPER_RARE ] 
+    },
+    {
+        rank: Rarity.HOLO_RARE, 
+        associatedRarities: [
+            Rarity.ACE_SPEC_RARE,
+            Rarity.HOLO_RARE,
+            Rarity.HOLO_RARE_V,
+            Rarity.HOLO_RARE_VMAX,
+            Rarity.HOLO_RARE_VSTAR,
+            Rarity.AMAZING_RARE,
+            Rarity.CLASSIC_COLLECTION,
+            Rarity.FULL_ART_TRAINER,
+            Rarity.LEGEND,
+            Rarity.RADIANT_RARE,    // TODO : with shiny ?
+            Rarity.NONE,
+            Rarity.UNDEFINED,
+        ] 
+    },
+];
+
 export const RarityMap: Record<Card["rarity"], Rarity> = {
     "ACE SPEC Rare": Rarity.ACE_SPEC_RARE,
     "Amazing Rare": Rarity.AMAZING_RARE,

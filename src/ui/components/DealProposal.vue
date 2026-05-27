@@ -609,8 +609,6 @@ const scrollElem = useTemplateRef("scroll-elem");
     top: 0;
 }
 
-
-
 :deep(.deal-proposal-anchor) {
     anchor-name: --deal-proposal-dialog;
 }

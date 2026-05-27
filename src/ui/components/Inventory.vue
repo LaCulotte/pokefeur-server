@@ -3,17 +3,17 @@ import ItemGrid from './ItemGrid.vue';
 import ItemFilters from './ItemFilters.vue';
 import BaseItemComponent from './item/BaseItemComponent.vue';
 
-import { ref, type Ref, watch, computed, watchEffect } from 'vue';
+import { ref, type Ref, watch, computed } from 'vue';
 import type { Card, Booster, InventoryItem, CardItem, BoosterItem } from '@/api/model/interfaces';
 import type { GroupedItems, GroupedCards, GroupedBoosters } from '@/ui/interfaces';
 import LocalScope from './LocalScope.vue';
 
 import GroupedItemsComponent from './GroupedItemsComponent.vue';
-import { Type } from '../../common/constants';
 import type { Filters } from '../interfaces';
 import { getCardLangData, getSetLangData } from '../controller/staticDataHelper';
 import type { CardStaticLangData, SetStaticLangData } from '../../api/staticData/interfaces';
 import { removeAccents } from '../../common/utils';
+import { Category, Rarity, RarityRanks } from '../../common/constants.ts';
 
 defineEmits(['item-click']);
 
@@ -162,7 +162,12 @@ const filteredItems = computed(() => {
 const itemsGroups: Ref<Record<string, GroupedItems<T>>> = computed(() => {
     const ret: Record<string, GroupedItems<T>> = {};
 
-    for (const item of filteredItems.value) {
+    const tempItems = [...filteredItems.value];
+    if (sortBy.value.by == SortMethod.OPTENTION_DATE && !asc.value) {
+        tempItems.reverse();
+    }
+
+    for (const item of tempItems) {
         if (item.type === 'card') {
             let group: GroupedCards<T> | undefined = ret[item.id] as GroupedCards<T>;
             
@@ -201,8 +206,177 @@ const itemsGroups: Ref<Record<string, GroupedItems<T>>> = computed(() => {
     return ret;
 });
 
+const rarityRankMap: Partial<Record<Rarity, number>> = {};
+RarityRanks.map((rank, i) => {
+    for (const rarity of rank.associatedRarities)
+        rarityRankMap[rarity] = i;
+});
+
+enum SortMethod {
+    OPTENTION_DATE,
+    COUNT,
+    SET,
+    RARITY,
+    SPECIES,
+    TYPE,
+}
+
+const sortByOptions = [
+    {
+        title: "Optention date",
+        by: SortMethod.OPTENTION_DATE,
+        props: { appendIcon: "mdi-update" },
+    },
+    {
+        title: "Count",
+        by: SortMethod.COUNT,
+        props: { appendIcon: "mdi-pound" },
+    },
+    {
+        title: "Set",
+        by: SortMethod.SET,
+        props: { appendIcon: "mdi-cards-outline" },
+    },
+    {
+        title: "Species",
+        by: SortMethod.SPECIES,
+        props: { appendIcon: "mdi-pokeball" },
+    },
+    {
+        title: "Type",
+        by: SortMethod.TYPE,
+        props: { appendIcon: "mdi-hexagram" },
+    },
+    // TODO : use rarity order from itemsFilter
+    {
+        title: "Rarity",
+        by: SortMethod.RARITY,
+        props: { appendIcon: "mdi-creation" },
+    },
+];
+
+const sortBy = ref(sortByOptions[0]!);
+const asc = ref<boolean>(false);
+
+function getSet(group: GroupedItems<T>) {
+    if (group.base.type == 'booster') {
+        return getSetLangData(group.base.id);
+    } else {
+        const cardData = getCardLangData(group.base.id);
+        return getSetLangData(cardData.value.setId);
+    }
+}
+
 // To be sorted ?
-const itemsGroupsList = computed(() => Object.values(itemsGroups.value));
+// const itemsGroupsList = computed(() => Object.values(itemsGroups.value));
+const itemsGroupsList = computed(() => {
+    const ret = Object.values(itemsGroups.value);
+
+    const by = sortBy.value.by;
+    const sortRet = asc.value ? 1 : -1;
+
+    // if (by == SortMethod.OPTENTION_DATE && !asc.value) {
+    //     ret.reverse();
+    // } else if (by == SortMethod.COUNT) {
+    if (by == SortMethod.COUNT) {
+        ret.sort((grpA, grpB) => grpA.items.length > grpB.items.length ? sortRet : -sortRet);
+    } else if (by == SortMethod.SET) {
+        ret.sort((grpA, grpB) => {
+            const aSet = getSet(grpA);
+            const bSet = getSet(grpB);
+
+            if (aSet.value.id == bSet.value.id) {
+                if (grpB.base.type == 'booster') {
+                    return -1;
+                } else if (grpA.base.type == 'booster') {
+                    return 1;
+                } else {
+                    return parseInt(grpA.base.id) > parseInt(grpB.base.id) ? 1 : -1;
+                }
+            }
+
+            return aSet.value.releaseDateTs > bSet.value.releaseDateTs ? sortRet : -sortRet;
+        });
+    } else if (by == SortMethod.SPECIES) {
+        ret.sort((grpA, grpB) => {
+            if (grpB.base.type == 'booster') {
+                return sortRet;
+            } else if (grpA.base.type == 'booster') {
+                return -sortRet;
+            }
+
+            const aCard = getCardLangData(grpA.base.id);
+            const bCard = getCardLangData(grpB.base.id);
+
+            if (bCard.value.category != Category.POKEMON) {
+                return sortRet;
+            } else if (aCard.value.category != Category.POKEMON) {
+                return -sortRet;
+            }
+
+            if (!bCard.value.dexId?.length) {
+                return sortRet;
+            } else if (!aCard.value.dexId?.length) {
+                return -sortRet;
+            }
+
+            return aCard.value.dexId[0]! > bCard.value.dexId[0]! ? -sortRet : sortRet;
+        });
+    } else if (by == SortMethod.TYPE) {
+        ret.sort((grpA, grpB) => {
+            if (grpB.base.type == 'booster') {
+                return -1;
+            } else if (grpA.base.type == 'booster') {
+                return 1;
+            }
+
+            const aCard = getCardLangData(grpA.base.id);
+            const bCard = getCardLangData(grpB.base.id);
+
+            if (bCard.value.category != Category.POKEMON) {
+                if (aCard.value.category == Category.POKEMON) {
+                    return -1;
+                }
+
+                return aCard.value.category > bCard.value.category ? -sortRet : sortRet;
+
+            } else if (aCard.value.category != Category.POKEMON) {
+                return 1;
+            }
+
+            if (!bCard.value.types?.length) {
+                return -1;
+            } else if (!aCard.value.types?.length) {
+                return 1;
+            }
+
+            return aCard.value.types[0]! > bCard.value.types[0]! ? -sortRet : sortRet;
+        });
+    } else if (by == SortMethod.RARITY) {
+        ret.sort((grpA, grpB) => {
+            if (grpB.base.type == 'booster') {
+                return -1;
+            } else if (grpA.base.type == 'booster') {
+                return 1;
+            }
+
+            const aCard = getCardLangData(grpA.base.id);
+            const bCard = getCardLangData(grpB.base.id);
+
+            const aRarity = rarityRankMap[aCard.value.rarity];
+            const bRarity = rarityRankMap[bCard.value.rarity];
+
+            if (bRarity == undefined) {
+                return -1;
+            } else if (aRarity == undefined) {
+                return 1;
+            }
+
+            return aRarity > bRarity ? -sortRet : sortRet;
+        });
+    }
+    return ret;
+});
 
 // const focusItemIndex: Ref<number | undefined> = ref(undefined);
 const globalFocusItemIndex: Ref<number | undefined> = ref(undefined);
@@ -293,10 +467,66 @@ const compactGrid = ref(false);
                             </v-card>
                         </v-col>
                         <v-divider vertical />
-                        <v-col
-                            class="pa-2 d-flex align-center justify-center"
-                        >
-                            {{ filteredItems.length }} items
+                        <v-col>
+                            <v-menu
+                                transition="slide-y-transition"
+                                :close-on-content-click="false"
+                            >
+                                <template v-slot:activator="{props: menuActProps}">
+                                    <v-card 
+                                        v-bind="menuActProps"
+                                        class="pa-2 h-100 d-flex align-center justify-center elevation-0 rounded-0"
+                                    >
+                                        <v-row>
+                                            <v-col cols="auto">
+                                                <v-icon
+                                                    :icon="asc ? 'mdi-sort-ascending' : 'mdi-sort-descending'"
+                                                    density="compact"
+                                                    variant="text"
+                                                    color="grey"
+                                                />
+                                            </v-col>
+                                            <v-col class="h-100 d-flex align-center justify-center">
+                                                {{ filteredItems.length }} items
+                                            </v-col>
+                                            <v-col cols="auto">
+                                                <v-icon
+                                                    :icon="sortBy.props.appendIcon"
+                                                    density="compact"
+                                                    variant="text"
+                                                    color="grey"
+                                                />
+                                            </v-col>
+                                        </v-row>
+                                    </v-card>
+                                </template>
+                                <v-card>
+                                    <v-container fluid>
+                                        <v-row gap="10">
+                                            <v-col
+                                                cols="auto"
+                                                class="d-flex align-center"
+                                            >
+                                                <v-btn
+                                                    :icon="asc ? 'mdi-sort-ascending' : 'mdi-sort-descending'"
+                                                    density="compact"
+                                                    variant="text"
+                                                    @click="asc = !asc"
+                                                />
+                                            </v-col>
+                                            <v-select
+                                                v-model="sortBy"
+                                                :items="sortByOptions"
+                                                :append-inner-icon="sortBy.props.appendIcon"
+                                                menu-icon=""
+                                                density="compact"
+                                                hide-details
+                                                return-object
+                                            />
+                                        </v-row>
+                                    </v-container>
+                                </v-card>
+                            </v-menu>
                         </v-col>
                         <v-divider vertical />
                         <v-col

@@ -124,7 +124,10 @@ const scrollElem = useTemplateRef("scrollElem");
                         {{ userData.value().description ?? '...' }}
                     </v-container>
                     <div class="w-100 pa-3" />
-                    <v-dialog content-class="profile-anchor">
+                    <v-dialog
+                        content-class="profile-anchor"
+                        class="on-top"
+                    >
                         <template v-slot:activator="{ props }">
                             <v-btn v-bind="props">
                                 VIEW INVENTORY
@@ -168,5 +171,10 @@ const scrollElem = useTemplateRef("scrollElem");
 <style scoped>
 :deep(.profile-anchor) {
     anchor-name: --profile-dialog;
+}
+
+.on-top > :deep(.v-overlay__content) {
+    position: absolute;
+    top: 0;
 }
 </style>

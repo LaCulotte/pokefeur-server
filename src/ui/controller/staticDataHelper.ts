@@ -88,7 +88,7 @@ export function getLangString<T extends keyof LangDictionnary>(key: T, subKey: k
     });
 }
 
-export let searchPokemonItems: {title: string, value: number, searchName: string}[] = [];
+export let searchPokemonItems: {title: string, value: number, searchName: string, searchId: string}[] = [];
 
 watch([pokemonData, lang], () => {
     const data = pokemonData[lang.value];
@@ -96,7 +96,8 @@ watch([pokemonData, lang], () => {
         return {
             title: data?.id_to_name[id] ?? '',
             value: id,
-            searchName: name
+            searchName: name,
+            searchId: String(id)
         }; 
     });
 });

@@ -5,7 +5,7 @@ import PokemonFilter from './filters/PokemonFilter.vue';
 import { getLangString, getPokemonName, getSetLangData } from '../controller/staticDataHelper';
 import PokemonIcon from './PokemonIcon.vue';
 import { removeAccents } from '../../common/utils';
-import { Rarity, Type } from '../../common/constants';
+import { Rarity, RarityRanks, Type } from '../../common/constants';
 import Energy from './Energy.vue';
 import RarityIcon from './RarityIcon.vue';
 import SetFilter from './filters/SetFilter.vue';
@@ -76,87 +76,12 @@ interface RarityOption {
     icon: Rarity,
     associatedRarities: Rarity[]
 }
-const rarityOptions: RarityOption[] = [
-    { 
-        icon: Rarity.COMMON, 
-        associatedRarities: [ Rarity.COMMON ] 
-    },
-    { 
-        icon: Rarity.UNCOMMON, 
-        associatedRarities: [ Rarity.UNCOMMON ] 
-    },
-    {
-        icon: Rarity.RARE, 
-        associatedRarities: [ 
-            Rarity.RARE,
-            Rarity.RARE_PRIME,
-            Rarity.SECRET_RARE
-        ] 
-    },
-    { 
-        icon: Rarity.DOUBLE_RARE, 
-        associatedRarities: [ Rarity.DOUBLE_RARE ] 
-    },
-    {
-        icon: Rarity.ILLUSTRATION_RARE, 
-        associatedRarities: [ Rarity.ILLUSTRATION_RARE ] 
-    },
-    {
-        icon: Rarity.SPECIAL_ILLUSTRATION_RARE, 
-        associatedRarities: [ Rarity.SPECIAL_ILLUSTRATION_RARE ] 
-    },
-    { 
-        icon: Rarity.HYPER_RARE, 
-        associatedRarities: [ Rarity.HYPER_RARE ] 
-    },
-    { 
-        icon: Rarity.ULTRA_RARE, 
-        associatedRarities: [ Rarity.ULTRA_RARE ] 
-    },
-    {
-        icon: Rarity.SHINY_RARE, 
-        associatedRarities: [ 
-            Rarity.SHINY_RARE,
-            Rarity.SHINY_RARE_V,
-            Rarity.SHINY_RARE_VMAX
-        ] 
-    },
-    { 
-        icon: Rarity.SHINY_ULTRA_RARE, 
-        associatedRarities: [ Rarity.SHINY_ULTRA_RARE ] 
-    },
-    { 
-        icon: Rarity.BLACK_WHITE_RARE, 
-        associatedRarities: [ Rarity.BLACK_WHITE_RARE ] 
-    },
-    { 
-        icon: Rarity.MEGA_HYPER_RARE, 
-        associatedRarities: [ Rarity.MEGA_HYPER_RARE ] 
-    },
-    {
-        icon: Rarity.HOLO_RARE, 
-        associatedRarities: [
-            Rarity.ACE_SPEC_RARE,
-            Rarity.HOLO_RARE,
-            Rarity.HOLO_RARE_V,
-            Rarity.HOLO_RARE_VMAX,
-            Rarity.HOLO_RARE_VSTAR,
-            Rarity.AMAZING_RARE,
-            Rarity.CLASSIC_COLLECTION,
-            Rarity.FULL_ART_TRAINER,
-            Rarity.LEGEND,
-            Rarity.RADIANT_RARE,    // TODO : with shiny ?
-            Rarity.NONE,
-            Rarity.UNDEFINED,
-        ] 
-    },
-];
 
 const rarityModel = ref<number[]>([]);
 
 if (props.defaultFilters?.rarity) {
     for (const i of props.defaultFilters?.rarity) {
-        const opt = rarityOptions.findIndex((opt) => opt.associatedRarities.includes(i));
+        const opt = RarityRanks.findIndex((opt) => opt.associatedRarities.includes(i));
 
         if (opt != -1 && !rarityModel.value.includes(opt)) {
             rarityModel.value.push(opt);
@@ -167,15 +92,15 @@ if (props.defaultFilters?.rarity) {
 watch(rarityModel, () => {
     let ret: Rarity[] = [];
     for (const i of rarityModel.value) {
-        ret = ret.concat(rarityOptions[i]!.associatedRarities);
+        ret = ret.concat(RarityRanks[i]!.associatedRarities);
     }
 
     currVal.value.rarity = new Set(ret);
 });
 
 function toggleAllRarities() {
-    if (rarityModel.value.length < rarityOptions.length) {
-        rarityModel.value = Array.from({ length: rarityOptions.length }, (v, i) => i);
+    if (rarityModel.value.length < RarityRanks.length) {
+        rarityModel.value = Array.from({ length: RarityRanks.length }, (v, i) => i);
     } else {
         rarityModel.value = [];
     }
@@ -199,6 +124,8 @@ function clear() {
     
     if (!props.defaultFilters?.rarity)
         rarityModel.value = [];
+
+    cardName.value = '';
 }
 
 function reset() {
@@ -229,7 +156,7 @@ function reset() {
         rarityModel.value = [];
 
         for (const i of model.value.rarity) {
-            const opt = rarityOptions.findIndex((opt) => opt.associatedRarities.includes(i));
+            const opt = RarityRanks.findIndex((opt) => opt.associatedRarities.includes(i));
 
             if (opt != -1 && !rarityModel.value.includes(opt)) {
                 rarityModel.value.push(opt);
@@ -240,6 +167,8 @@ function reset() {
     if (!props.defaultFilters?.energyType) {
         energyModel.value = Array.from(model.value.energyType);
     }
+
+    cardName.value = model.value.name;
 }
 
 function leave(isActive: Ref<boolean>) {
@@ -479,30 +408,6 @@ function temp_replace(url: string): string {
                                 >
                                     ALL
                                 </v-btn>
-
-                            <!-- <v-dialog
-                                class="on-top"
-                                :transition="false"
-                            >
-                                <template v-slot:activator="{ props: activatorProps }">
-                                    <v-btn
-                                        icon
-                                        density="compact"
-                                        variant="text"
-                                        :disabled="!!defaultFilters?.pokemon?.size"
-                                        v-bind="activatorProps"
-                                    >
-                                        <v-icon>mdi-plus</v-icon>
-                                    </v-btn>
-                                </template>
-                                <template v-slot="{ isActive }">
-                                    <v-sheet>
-                                        <pokemon-filter 
-                                            @select="(id: number) => { model.pokemon.add(id); isActive.value = false }"
-                                        />
-                                    </v-sheet>
-                                </template>
-                            </v-dialog> -->
                             </div>
                             <v-btn-toggle
                                 v-model="energyModel"
@@ -557,8 +462,8 @@ function temp_replace(url: string): string {
                             >
                                 <v-row gap="2">
                                     <v-col
-                                        v-for="opt in rarityOptions"
-                                        :key="opt.icon"
+                                        v-for="opt in RarityRanks"
+                                        :key="opt.rank"
                                         class="d-flex justify-center"
                                         cols="3"
                                     >
@@ -569,57 +474,12 @@ function temp_replace(url: string): string {
                                         >
                                             <rarity-icon
                                                 style="height: 25px; width: 25px"
-                                                :rarity="opt.icon"
+                                                :rarity="opt.rank"
                                             />
                                         </v-btn>
                                     </v-col>
                                 </v-row>
                             </v-btn-toggle>
-                        <!-- <v-sheet
-                            v-for="(pokemon, index) in showPokemon"
-                            :key="index"
-                            class="d-flex align-center justify-space-between px-3 py-1 item-sheet"
-                        >
-                            <v-row
-                                gap="12"
-                                style="min-height: 30px;"
-                            >
-                                <v-col
-                                    cols="3"
-                                    class="center-content"
-                                >
-                                    #{{ pokemon }}
-                                </v-col>
-
-                                <v-col class="center-content">
-                                    {{ getPokemonName(pokemon) }}
-                                </v-col>
-                                <v-col
-                                    style="max-width: 40px;"
-                                >
-                                    <pokemon-icon
-                                        :id="pokemon"
-                                    />
-                                </v-col>
-                                <v-divider vertical />
-                                <v-col
-                                    cols="auto"
-                                    class="center-content"
-                                >
-                                    <v-btn
-                                        icon
-                                        density="compact"
-                                        size="small"
-                                        variant="text"
-                                        color="error"
-                                        :disabled="!!defaultFilters?.pokemon?.size"
-                                        @click="model.pokemon.delete(pokemon)"
-                                    >
-                                        <v-icon>mdi-close</v-icon>
-                                    </v-btn>
-                                </v-col>
-                            </v-row>
-                        </v-sheet> -->
                         </v-tabs-window-item>
 
                         <v-tabs-window-item value="both" />
