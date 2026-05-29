@@ -72,11 +72,6 @@ function toggleAllEnergies() {
     }
 }
 
-interface RarityOption {
-    icon: Rarity,
-    associatedRarities: Rarity[]
-}
-
 const rarityModel = ref<number[]>([]);
 
 if (props.defaultFilters?.rarity) {
@@ -446,7 +441,7 @@ function temp_replace(url: string): string {
                                     rounded="xl"
                                     variant="outlined"
                                     active-color="primary"
-                                    :active="currVal.rarity.size == Rarity.RARITY_COUNT"
+                                    :active="rarityModel.length == RarityRanks.length"
                                     :disabled="!!defaultFilters?.rarity?.size"
                                     @click="toggleAllRarities"
                                 >
