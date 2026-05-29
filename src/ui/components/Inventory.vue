@@ -34,12 +34,25 @@ const filters: Ref<Filters> = ref({
     rarity: new Set()
 });
 
+const mergedFilters = computed<Filters>(() => {
+    return {
+        itemTypes: props.defaultFilters?.itemTypes ?? filters.value.itemTypes,
+        itemId: props.defaultFilters?.itemId ?? filters.value.itemId,
+        name: props.defaultFilters?.name ?? filters.value.name,
+
+        pokemon: props.defaultFilters?.pokemon?.size ? props.defaultFilters?.pokemon : filters.value.pokemon,
+        sets: props.defaultFilters?.sets?.size ? props.defaultFilters?.sets : filters.value.sets,
+        energyType: props.defaultFilters?.energyType?.size ? props.defaultFilters?.energyType : filters.value.energyType,
+        rarity: props.defaultFilters?.rarity?.size ? props.defaultFilters?.rarity : filters.value.rarity,
+    };
+});
+
 function checkPokemon(data: CardStaticLangData) {
     if (!data.dexId)
         return false;
     
     for (const id of data.dexId) {
-        if ((props.defaultFilters?.pokemon ?? filters.value.pokemon).has(id)) {
+        if ((mergedFilters.value.pokemon).has(id)) {
             return true;
         }
     }
@@ -52,7 +65,7 @@ function checkType(data: CardStaticLangData) {
         return false;
     
     for (const type of data.types) {
-        if ((props.defaultFilters?.energyType ?? filters.value.energyType).has(type)) {
+        if ((mergedFilters.value.energyType).has(type)) {
             return true;
         }
     }
@@ -61,23 +74,23 @@ function checkType(data: CardStaticLangData) {
 }
 
 function checkRarity(data: CardStaticLangData) {
-    return (props.defaultFilters?.rarity ?? filters.value.rarity).has(data.rarity);
+    return (mergedFilters.value.rarity).has(data.rarity);
 }
 
 function checkName(data: SetStaticLangData | CardStaticLangData) {
-    return removeAccents(data.name).includes(props.defaultFilters?.name ?? filters.value.name ?? '');
+    return removeAccents(data.name).includes(mergedFilters.value.name ?? '');
 }
 
 function checkItem(data: SetStaticLangData | CardStaticLangData) {
-    return (props.defaultFilters?.itemId ?? filters.value.itemId) == data.id;
+    return (mergedFilters.value.itemId) == data.id;
 }
 
 function checkCardSet(data: CardStaticLangData) {
-    return (props.defaultFilters?.sets ?? filters.value.sets).has(data.setId);
+    return (mergedFilters.value.sets).has(data.setId);
 }
 
 function checkBoosterSet(data: SetStaticLangData) {
-    return (props.defaultFilters?.sets ?? filters.value.sets).has(data.id);
+    return (mergedFilters.value.sets).has(data.id);
 }
 
 // To be sorted ?
@@ -88,36 +101,36 @@ const filteredItems = computed(() => {
     const boosterFilters: ((data: SetStaticLangData) => boolean)[] = [];
     const bothFilters: ((data: SetStaticLangData | CardStaticLangData) => boolean)[] = [];
 
-    if ((props.defaultFilters?.itemTypes ?? filters.value.itemTypes) == 'booster') {
+    if ((mergedFilters.value.itemTypes) == 'booster') {
         ret = ret.filter((item) => item.type == 'booster');
 
-    } else if ((props.defaultFilters?.itemTypes ?? filters.value.itemTypes) == 'card') {
+    } else if ((mergedFilters.value.itemTypes) == 'card') {
         ret = ret.filter((item) => item.type == 'card');
 
-        if (filters.value.pokemon.size || props.defaultFilters?.pokemon?.size) {
+        if (mergedFilters.value.pokemon.size > 0) {
             cardFilters.push(checkPokemon);
         }
 
-        if (filters.value.energyType.size || props.defaultFilters?.energyType?.size) {
+        if (mergedFilters.value.energyType.size > 0) {
             cardFilters.push(checkType);
         }
 
-        if (filters.value.rarity.size || props.defaultFilters?.rarity?.size) {
+        if (mergedFilters.value.rarity.size > 0) {
             cardFilters.push(checkRarity);
         }
     }
 
-    if (filters.value.sets.size || props.defaultFilters?.sets?.size) {
+    if (mergedFilters.value.sets.size > 0) {
         cardFilters.push(checkCardSet);
         boosterFilters.push(checkBoosterSet);
     }
 
 
-    if (filters.value.name?.length || props.defaultFilters?.name?.length) {
+    if (mergedFilters.value.name?.length) {
         bothFilters.push(checkName);
     }
 
-    if (filters.value.itemId || props.defaultFilters?.itemId) {
+    if (mergedFilters.value.itemId?.length) {
         bothFilters.push(checkItem);
     }
 
@@ -156,6 +169,25 @@ const filteredItems = computed(() => {
     });
 
     return ret;
+});
+
+const filterCount = computed(() => {
+    let count = 0;
+
+    const val = mergedFilters.value;
+
+    count += val.itemTypes ? 1 : 0;
+    count += val.itemId ? 1 : 0;
+    count += val.name ? 1 : 0;
+
+    count += val.sets.size;
+    if (val.itemTypes == 'card') {
+        count += val.pokemon.size;
+        count += val.energyType.size > 0 ? 1 : 0;
+        count += val.rarity.size > 0 ? 1 : 0;
+    }
+
+    return count;
 });
 
 // Regroup the items per type & id
@@ -441,9 +473,7 @@ const compactGrid = ref(false);
             :default-filters="defaultFilters"
         >
             <template v-slot:activator="{ props: activatorProps }">
-                <v-card
-                    class="sticky-header"
-                >
+                <v-card class="sticky-header">
                     <v-row gap="0">
                         <v-col
                             cols="auto"
@@ -536,9 +566,28 @@ const compactGrid = ref(false);
                                 v-bind="activatorProps"
                                 class="pa-2 elevation-0 rounded-0"
                             >
-                                <v-icon size="large">
+                                <!-- <v-badge
+                                    color="primary"
+                                    dot
+                                > -->
+                                <v-icon
+                                    v-if="filterCount > 0"
+                                    size="large"
+                                >
                                     mdi-filter
                                 </v-icon>
+                                <v-icon
+                                    v-else
+                                    size="large"
+                                >
+                                    mdi-filter-outline
+                                </v-icon>
+                                <div
+                                    v-if="filterCount > 0"
+                                    class="text-label-small my-badge px-1"
+                                >
+                                    {{ filterCount > 9 ? '9+' : filterCount }}
+                                </div>
                             </v-card>
                         </v-col>
                     </v-row>
@@ -710,5 +759,20 @@ const compactGrid = ref(false);
     top: anchor(top, 0);
     width: calc(anchor-size(width, calc(100% - 24px)) - 24px) !important;
     max-height: calc(100% - 48px - (anchor-size(width, 0px) / anchor-size(width, 1px) * 24px))!important;
+}
+
+/* because vuetify badge sucks */
+.my-badge {
+    position: absolute;
+    
+    padding-right: 4px;
+    padding-left: 4px;
+    
+    background-color: rgb(var(--v-theme-primary));
+    color: rgb(var(--v-theme-on-primary));
+    top: 2px;
+    right: 2px;
+    border: solid 1px rgb(var(--v-theme-on-surface-variant));
+    border-radius: 24px;
 }
 </style>
