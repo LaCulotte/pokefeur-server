@@ -30,6 +30,16 @@ export default defineConfig({
     },
     host: "0.0.0.0"
   },
-
+  
+  build: {
+    rollupOptions: {
+      external: [
+        '/src/compiler',
+        /^\/src\/compiler\//,
+        '/src/api',
+        /^\/src\/api\//
+      ]
+    },
+  },
   root: "src/ui"
 });

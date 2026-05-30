@@ -47,3 +47,4 @@ __screenshots__/
 /resources/generated/*
 
 *.lock
+package-lock.json
