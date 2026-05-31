@@ -3,7 +3,7 @@ import ItemGrid from './ItemGrid.vue';
 import ItemFilters from './ItemFilters.vue';
 import BaseItemComponent from './item/BaseItemComponent.vue';
 
-import { ref, type Ref, watch, computed } from 'vue';
+import { ref, type Ref, watch, computed, withModifiers } from 'vue';
 import type { Card, Booster, InventoryItem, CardItem, BoosterItem } from '@/api/model/interfaces';
 import type { GroupedItems, GroupedCards, GroupedBoosters } from '@/ui/interfaces';
 import LocalScope from './LocalScope.vue';
@@ -289,6 +289,12 @@ const sortByOptions = [
 
 const sortBy = ref(sortByOptions[0]!);
 const asc = ref<boolean>(false);
+const menuSortByActive = ref<boolean>(false);
+
+function selectSortBy(val: unknown, isActive: Ref<boolean>) {
+    sortBy.value = val as typeof sortBy.value;
+    // isActive.value = false;
+}
 
 function getSet(group: GroupedItems<T>) {
     if (group.base.type == 'booster') {
@@ -323,7 +329,9 @@ const itemsGroupsList = computed(() => {
                 } else if (grpA.base.type == 'booster') {
                     return 1;
                 } else {
-                    return parseInt(grpA.base.id) > parseInt(grpB.base.id) ? 1 : -1;
+                    const aCard = getCardLangData(grpA.base.id);
+                    const bCard = getCardLangData(grpB.base.id);
+                    return parseInt(aCard.value.localId) > parseInt(bCard.value.localId) ? 1 : -1;
                 }
             }
 
@@ -501,6 +509,7 @@ const compactGrid = ref(false);
                             <v-menu
                                 transition="slide-y-transition"
                                 :close-on-content-click="false"
+                                v-model="menuSortByActive"
                             >
                                 <template v-slot:activator="{props: menuActProps}">
                                     <v-card 
@@ -530,12 +539,12 @@ const compactGrid = ref(false);
                                         </v-row>
                                     </v-card>
                                 </template>
-                                <v-card>
-                                    <v-container fluid>
-                                        <v-row gap="10">
+                                <template v-slot="{isActive: menuIsActive}">
+                                    <v-card>
+                                        <v-row gap="0">
                                             <v-col
                                                 cols="auto"
-                                                class="d-flex align-center"
+                                                class="d-flex justify-center pl-4 py-4"
                                             >
                                                 <v-btn
                                                     :icon="asc ? 'mdi-sort-ascending' : 'mdi-sort-descending'"
@@ -544,18 +553,42 @@ const compactGrid = ref(false);
                                                     @click="asc = !asc"
                                                 />
                                             </v-col>
-                                            <v-select
-                                                v-model="sortBy"
-                                                :items="sortByOptions"
-                                                :append-inner-icon="sortBy.props.appendIcon"
-                                                menu-icon=""
-                                                density="compact"
-                                                hide-details
-                                                return-object
-                                            />
+                                            <v-col>
+                                                <v-list
+                                                    :items="sortByOptions"
+                                                    return-object
+                                                    @click:select="(elem) => selectSortBy(elem.id, menuIsActive)"
+                                                />
+                                            </v-col>
                                         </v-row>
-                                    </v-container>
-                                </v-card>
+                                    </v-card>
+                                    <!-- <v-card>
+                                        <v-container fluid>
+                                            <v-row gap="10">
+                                                <v-col
+                                                    cols="auto"
+                                                    class="d-flex align-center"
+                                                >
+                                                    <v-btn
+                                                        :icon="asc ? 'mdi-sort-ascending' : 'mdi-sort-descending'"
+                                                        density="compact"
+                                                        variant="text"
+                                                        @click="asc = !asc"
+                                                    />
+                                                </v-col>
+                                                <v-select
+                                                    v-model="sortBy"
+                                                    :items="sortByOptions"
+                                                    :append-inner-icon="sortBy.props.appendIcon"
+                                                    menu-icon=""
+                                                    density="compact"
+                                                    hide-details
+                                                    return-object
+                                                />
+                                            </v-row>
+                                        </v-container>
+                                    </v-card> -->
+                                </template>
                             </v-menu>
                         </v-col>
                         <v-divider vertical />
@@ -604,6 +637,7 @@ const compactGrid = ref(false);
             :scroll-elem="scrollElem"
             :focus-item-index="globalFocusItemIndex"
             class="mt-2"
+            :="menuSortByActive ? {onClickCapture: withModifiers(() => {}, ['stop'])} : {}"
         >
             <template v-slot="{ i }">
                 <local-scope
