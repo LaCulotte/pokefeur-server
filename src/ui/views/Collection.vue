@@ -167,7 +167,7 @@ onUnmounted(() => {
             <!-- {{ scroll }} -->
         </div>
 
-        <div class="position-absolute top-0 w-100 h-screen">
+        <!-- <div class="position-absolute top-0 w-100 h-screen">
             <v-btn
                 class="position-absolute d-flex" 
                 style="bottom: var(--btn-offset); left: var(--btn-offset); z-index: 20;"
@@ -175,7 +175,7 @@ onUnmounted(() => {
                 icon="mdi-home"
                 to="/"
             />
-        </div>
+        </div> -->
 
         <div
             class="position-absolute d-flex flex-column top-0 w-100 h-100 inventory-scroll"
@@ -234,39 +234,33 @@ onUnmounted(() => {
                             />
                         </template>
                         <template v-slot:item-common-content="{ item }">
-                            <v-btn
-                                class="position-absolute close-btn-pos"
+                            <button
+                                class="position-absolute bg-error v-btn v-btn--icon v-btn--density-compact v-btn--size-small"
                                 @click="removeItem(item.uid)"
-                                color="error"
-                                density="compact"
-                                size="small"
-                                :icon="`mdi-cross`"
                             >
-                                x
-                            </v-btn>
+                                X
+                            </button>
                         </template>
 
                         <template v-slot:item-booster-content="{ booster }">
-                            <v-btn
-                                class="pa-2 position-absolute"
-                                style="top: 75%; left: 50%; transform: translate(-50%, -50%); max-width: 75%;"
-                                size="small"
+                            <button
+                                class="position-absolute bg-white px-1 v-btn v-btn--density-comfortable v-btn--size-default"
+                                style="top: 75%; left: 50%; transform: translate(-50%, -50%); max-width: 90%;"
                                 @click="user.openBooster(booster.uid)"
                             >
-                                Open
-                            </v-btn>
+                                OPEN
+                            </button>
                         </template>
 
                         <template v-slot:item-card-content="{ card }">
-                            <v-btn
+                            <button
                                 v-if="isCardRecyclable(card)"
-                                class="pa-2 position-absolute"
-                                style="top: 75%; left: 50%; transform: translate(-50%, -50%); max-width: 75%;"
-                                size="small"
+                                class="position-absolute bg-white px-1 v-btn v-btn--density-default v-btn--size-default"
+                                style="top: 75%; left: 50%; transform: translate(-50%, -50%); max-width: 90%;"
                                 @click="user.recycleCard(card.uid)"
                             >
-                                Recycle
-                            </v-btn>
+                                RECYCLE
+                            </button>
                         </template>
                     </inventory>
                     <v-divider />
@@ -292,6 +286,13 @@ onUnmounted(() => {
                 </div>
             </div>
             <div ref="last-elem" />
+            <v-btn
+                class="position-fixed d-flex" 
+                style="bottom: var(--btn-offset); left: var(--btn-offset); z-index: 20;"
+                rounded="xl"
+                icon="mdi-home"
+                to="/"
+            />
         </div>
     </div>
 </template>
@@ -343,5 +344,4 @@ onUnmounted(() => {
 .scroll-container::-webkit-scrollbar {
   display: none;
 }
-
 </style>
