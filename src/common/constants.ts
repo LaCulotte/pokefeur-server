@@ -105,6 +105,7 @@ export enum Suffix {
 }
 
 export const SuffixMap: Record<NonNullable<Card["suffix"]>, Suffix> = {
+    "ex": Suffix.EX,
     "EX": Suffix.EX,
     "GX": Suffix.GX,
     "Legend": Suffix.LEGEND,
@@ -156,6 +157,15 @@ export enum Rarity {
     THREE_SHINY,
     BLACK_WHITE_RARE,
     MEGA_HYPER_RARE,
+    PROMO,  // TODO : ranks from here + Name in data/lang/...
+    PRISM_STAR,
+    PIKACHU_RARE,
+    RGB_RARE,
+    FUTURISTIC_RARE,
+    MEGA_ATTACK_RARE,
+    TRIPLE_RARE,
+    CHARACTER_RARE,
+    CHARACTER_SUPER_RARE,
     RARITY_COUNT,
 }
 
@@ -281,6 +291,15 @@ export const RarityMap: Record<Card["rarity"], Rarity> = {
     // "Three Shiny": Rarity.THREE_SHINY,
     "Black White Rare": Rarity.BLACK_WHITE_RARE,
     "Mega Hyper Rare": Rarity.MEGA_HYPER_RARE,
+    "Mega Attack Rare": Rarity.MEGA_ATTACK_RARE,
+    "Triple Rare": Rarity.TRIPLE_RARE,
+    "Promo": Rarity.PROMO,
+    "Prism Star": Rarity.PIKACHU_RARE,
+    "Pikachu Rare": Rarity.PIKACHU_RARE,
+    "Futuristic Rare": Rarity.RGB_RARE,
+    "RGB Rare": Rarity.FUTURISTIC_RARE,
+    "Character Rare": Rarity.CHARACTER_RARE,
+    "Character Super Rare": Rarity.CHARACTER_SUPER_RARE,
 };
 
 export enum TrainerType {

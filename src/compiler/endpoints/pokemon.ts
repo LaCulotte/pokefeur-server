@@ -12,13 +12,14 @@ const ID_TO_LANG: Record<number, Array<SupportedLanguages>> = {
     4: ["zh-tw"],
     5: ["fr"],
     6: ["de"],
-    7: ["es", "es-mx"],
+    7: ["es"],
     8: ["it"],
     9: ["en", "nl", "pl", "ru", "id", "th"],
     10: [],
     11: ["ja"],
     12: ["zh-cn"],
-    13: ["pt", "pt-pt", "pt-br"]
+    13: ["pt", "pt-pt", "pt-br"],
+    14: ["es-mx"]
 };
 
 const POKEMON_ID_INDEX = 0;
