@@ -1,4 +1,4 @@
-import type { CardItem, InventoryItem, ItemType, FullUser, User, Payment } from "@/api/model/interfaces";
+import type { CardItem, InventoryItem, ItemType, FullUser, User, Payment, TradeProposal } from "@/api/model/interfaces";
 import type { Type } from "../../../common/constants";
 import type { AcceptDealSummary, RedeemDealSummary } from "@/api/controller/interfaces.dealership";
 import { expected, unexpected, type Expected } from "../../../common/utils";
@@ -337,6 +337,151 @@ export class UserData {
             return expected(data);
         }).catch((err) => {
             return unexpected(`Cannot redeem deal : ${err}`, true);
+        });
+    }
+
+    createTradeProposal(toUserUid: string, offeredItemUids: string[], requestedItemUids: string[]): Promise<Expected<TradeProposal>> {
+        return fetch("/api/createTradeProposal",
+            {
+                method: "POST",
+                body: JSON.stringify({
+                    toUserUid,
+                    offeredItemUids,
+                    requestedItemUids
+                }),
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            }
+        ).then((res) => {
+            if (res.status == 200) {
+                return res.json();
+            } else if (res.status == 400) {
+                return res.json().then((err) => { throw JSON.stringify(err["errors"]); });
+            } else if (res.status == 401) {
+                return res.json().then((err) => { throw err["message"]; });
+            }
+        }).then((data: TradeProposal) => {
+            for (const itemUid of offeredItemUids) {
+                if (this.data.inventory.items[itemUid]) {
+                    this.data.inventory.inTradeItems[itemUid] = this.data.inventory.items[itemUid]!;
+                    delete this.data.inventory.items[itemUid];
+                }
+            }
+
+            this.data.trades.proposals[data.uid] = data;
+
+            return expected(data);
+        }).catch((err) => {
+            return unexpected(`Cannot make trade proposal : ${err}`, true);
+        });
+    }
+
+    refuseTradeProposal(proposalUid: string): Promise<Expected<TradeProposal>> {
+        if (!(proposalUid in this.data.trades.proposals)) {
+            return (async () => unexpected("Why are you running ?", true))();
+        }
+
+        return fetch("/api/refuseTradeProposal",
+            {
+                method: "POST",
+                body: JSON.stringify({ proposalUid }),
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            }
+        ).then((res) => {
+            if (res.status == 200) {
+                return res.json();
+            } else if (res.status == 400) {
+                return res.json().then((err) => { throw JSON.stringify(err["errors"]); });
+            } else if (res.status == 401) {
+                return res.json().then((err) => { throw err["message"]; });
+            }
+        }).then((data: TradeProposal) => {
+            const items = this.data.uid == data.from.uid ? data.from.items : data.to.items;
+            for (const item of items) {
+                if (this.data.inventory.inTradeItems[item.uid]) {
+                    this.data.inventory.items[item.uid] = this.data.inventory.inTradeItems[item.uid]!;
+                    delete this.data.inventory.inTradeItems[item.uid];
+                }
+            }
+
+            this.data.trades.proposals[data.uid] = data;
+
+            return expected(data);
+        }).catch((err) => {
+            return unexpected(`Cannot refuse trade proposal : ${err}`, true);
+        });
+    }
+
+    acceptTradeProposal(proposalUid: string): Promise<Expected<TradeProposal>> {
+        if (!(proposalUid in this.data.trades.proposals)) {
+            return (async () => unexpected("Why are you running ?", true))();
+        }
+
+        return fetch("/api/acceptTradeProposal",
+            {
+                method: "POST",
+                body: JSON.stringify({ proposalUid }),
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            }
+        ).then((res) => {
+            if (res.status == 200) {
+                return res.json();
+            } else if (res.status == 400) {
+                return res.json().then((err) => { throw JSON.stringify(err["errors"]); });
+            } else if (res.status == 401) {
+                return res.json().then((err) => { throw err["message"]; });
+            }
+        }).then((data: TradeProposal) => {
+            const items = this.data.uid == data.from.uid ? data.from.items : data.to.items;
+            for (const item of items) {
+                delete this.data.inventory.inTradeItems[item.uid];
+            }
+
+            this.data.trades.proposals[data.uid] = data;
+
+            return expected(data);
+        }).catch((err) => {
+            return unexpected(`Cannot refuse trade proposal : ${err}`, true);
+        });
+    }
+
+    completeTradeProposal(proposalUid: string): Promise<Expected<TradeProposal>> {
+        if (!(proposalUid in this.data.trades.proposals)) {
+            return (async () => unexpected("Why are you running ?", true))();
+        }
+
+        return fetch("/api/completeTradeProposal",
+            {
+                method: "POST",
+                body: JSON.stringify({ proposalUid }),
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            }
+        ).then((res) => {
+            if (res.status == 200) {
+                return res.json();
+            } else if (res.status == 400) {
+                return res.json().then((err) => { throw JSON.stringify(err["errors"]); });
+            } else if (res.status == 401) {
+                return res.json().then((err) => { throw err["message"]; });
+            }
+        }).then((data: TradeProposal) => {
+            const items = this.data.uid == data.from.uid ? data.to.items : data.from.items;
+            for (const item of items) {
+                this.data.inventory.items[item.uid] = item;
+            }
+
+            this.data.trades.proposals[data.uid] = data;
+
+            return expected(data);
+        }).catch((err) => {
+            return unexpected(`Cannot refuse trade proposal : ${err}`, true);
         });
     }
 }

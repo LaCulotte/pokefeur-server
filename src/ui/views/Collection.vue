@@ -145,7 +145,7 @@ onUnmounted(() => {
 <template>
     <div>
         <div class="sticky-header pa-2">
-            <!-- <v-expansion-panels style="background: none;">
+            <v-expansion-panels style="background: none;">
                 <v-expansion-panel
                     title="Admin"
                 >
@@ -153,7 +153,7 @@ onUnmounted(() => {
                         <admin-dashboard />
                     </v-expansion-panel-text>
                 </v-expansion-panel>
-            </v-expansion-panels> -->
+            </v-expansion-panels>
             <!-- <v-btn @click="scroll -= 1">
                 v
             </v-btn>

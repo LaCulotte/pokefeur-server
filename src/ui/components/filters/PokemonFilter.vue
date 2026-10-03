@@ -20,7 +20,7 @@ const sanatizedInput = computed(() => {
 });
 
 const trueItems = computed(() => {
-    if (input.value.length < 1) {
+    if (input.value.length < 3) {
         return [];
     }
 

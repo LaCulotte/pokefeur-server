@@ -49,7 +49,7 @@ function temp_replace(url: string): string {
                     Booster
                 </div>
                 <div class="text-title-medium">
-                    {{ setLangData.name }} 
+                    {{ setLangData.name }}
                 </div>
             </div>
             <v-divider />

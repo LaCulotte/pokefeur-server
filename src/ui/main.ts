@@ -7,6 +7,10 @@ import Dealership from './views/Dealership.vue';
 import Profile from './views/Profile.vue';
 import ProfileEdit from './views/ProfileEdit.vue';
 import UserSearch from './views/UserSearch.vue';
+import Trades from './views/Trades.vue';
+import TradeShow from './views/TradeShow.vue';
+import TradeCreate from './views/TradeCreate.vue';
+import TradeCounter from './views/TradeCounter.vue';
 
 // Vuetify
 import '@mdi/font/css/materialdesignicons.css';
@@ -28,6 +32,11 @@ const routes = [
     { path: '/profile', component: Profile },
     { path: '/profile-edit', component: ProfileEdit },
     { path: '/user-search', component: UserSearch },
+    { path: '/trade-user-search', component: UserSearch, props: { forTrade: true } },
+    { path: '/trades', component: Trades },
+    { path: '/view-trade-proposal/:proposalUid', component: TradeShow, props: true, name: 'view-trade-proposal' },
+    { path: '/create-trade-proposal/:userUid', component: TradeCreate, props: true, name: 'create-trade-proposal' },
+    { path: '/counter-trade-proposal/:proposalUid', component: TradeCounter, props: true, name: 'counter-trade-proposal' },
 ];
 
 export const router = createRouter({

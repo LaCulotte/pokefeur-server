@@ -11,6 +11,10 @@ import UserShortDisplay from '../components/users/UserShortDisplay.vue';
 document.title = "Search Users";
 const router = useRouter();
 
+const { forTrade = false } = defineProps<{
+    forTrade?: boolean
+}>();
+
 const searchResult: Ref<Expected<UserSearchResult[]> | undefined> = ref(undefined);
 const loading: Ref<boolean> = ref(false);
 
@@ -127,8 +131,8 @@ function showUserProfile(userUid: string) {
             class="position-absolute d-flex" 
             style="bottom: var(--btn-offset); left: var(--btn-offset); z-index: 20;"
             rounded="xl"
-            icon="mdi-home"
-            to="/"
+            :icon="forTrade ? 'mdi-arrow-left' : 'mdi-home'"
+            :to="forTrade ? '/trades' : '/'"
         />
     </div>
 </template>

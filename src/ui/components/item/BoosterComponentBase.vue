@@ -14,16 +14,20 @@ const props = defineProps<{
             class="booster-contained"
             style="aspect-ratio: 245/337;"
         >
-            <v-responsive
-                class="w-100 h-100"
+            <div
+                class="w-100 h-100 position-relative"
                 style="overflow: visible;"
             >
+                <!-- <v-responsive
+                class="w-100 h-100"
+                style="overflow: visible;"
+            > -->
                 <v-sheet
                     class="position-absolute top-0 w-100 h-100 pa-1"
                     elevation="2"
                     border="opacity-50 xl"
                     color="grey"
-                    rounded="lg"
+                    rounded
                     :title="name"
                 >
                     <v-img
@@ -33,7 +37,8 @@ const props = defineProps<{
                     />
                 </v-sheet>
                 <slot />
-            </v-responsive>
+            </div>
+            <!-- </v-responsive> -->
         </div>
     </div>
 </template>

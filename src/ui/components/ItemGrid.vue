@@ -10,6 +10,7 @@ const {
     itemCount,
     minItemHeightRatio,
     maxItemHeightRatio,
+    maxRow = undefined,
     scrollElem = undefined,
     compact = false,    // TODO: change padding ?
     focusItemIndex = undefined,
@@ -17,12 +18,15 @@ const {
     itemCount: number,
     minItemHeightRatio: number,
     maxItemHeightRatio: number,
+    maxRow?: number,
     scrollElem?: HTMLDivElement | null,
     compact?: boolean,
     focusItemIndex?: number,
 }>();
 
 defineEmits(['item-click']);
+
+const numItemsDisplayed = defineModel<number>('numItemsDisplayed');
 
 const ASPECT_RATIO = 245/337;
 
@@ -66,8 +70,20 @@ const itemSize = computed(() => {
     return { width: calcWidth, height: calcHeight };
 });
 
+const processedItemCount = computed(() => {
+    if (maxRow == undefined) {
+        return itemCount;
+    }
+
+    return Math.min(maxRow * numCols.value, itemCount);
+});
+
+watch(processedItemCount, (val) => {
+    numItemsDisplayed.value = val;
+});
+
 const numRows = computed(() => {
-    return Math.ceil(itemCount / numCols.value);
+    return Math.ceil(processedItemCount.value / numCols.value);
 });
 
 const ROW_MARGIN = 2;
@@ -89,23 +105,23 @@ const numElems = computed(() => {
 });
 
 const maxFirstElem = computed(() => {
-    if (itemCount < numElems.value) {
+    if (processedItemCount.value < numElems.value) {
         return 0;
     }
 
     let itemsInView = numCols.value * (numVirtRows.value + ROW_MARGIN);
-    if (itemCount % numCols.value != 0)  {
-        itemsInView += (itemCount % numCols.value) - numCols.value;
+    if (processedItemCount.value % numCols.value != 0)  {
+        itemsInView += (processedItemCount.value % numCols.value) - numCols.value;
     }
 
-    return itemCount - itemsInView;
+    return processedItemCount.value - itemsInView;
 });
 
 const currNumElems = computed(() => {
-    if (itemCount < firstElem.value) {
+    if (processedItemCount.value < firstElem.value) {
         return 0;
-    } else if (firstElem.value + numElems.value >= itemCount) {
-        return itemCount - firstElem.value;
+    } else if (firstElem.value + numElems.value >= processedItemCount.value) {
+        return processedItemCount.value - firstElem.value;
     } else {
         return numElems.value;
     }
@@ -160,7 +176,7 @@ const gridStyle = computed(() => {
 });
 
 async function focusItem(itemIndex: number | undefined) {
-    if (itemIndex === undefined || itemIndex < 0 || itemIndex > itemCount) {
+    if (itemIndex === undefined || itemIndex < 0 || itemIndex > processedItemCount.value) {
         return;
     }
 
@@ -207,6 +223,8 @@ onMounted(async () => {
     });
 
     nextTick(() => {focusItem(focusItemIndex);});
+
+    numItemsDisplayed.value = processedItemCount.value;
 });
 
 onUnmounted(() => {
@@ -226,7 +244,7 @@ onUnmounted(() => {
         <div
             class="w-100 align-content-start ma-0"
             :style="gridStyle"
-            v-if="itemCount > 0"
+            v-if="processedItemCount > 0"
         >
             <div
                 v-for="i in currNumElems"
@@ -234,7 +252,11 @@ onUnmounted(() => {
                 :style="itemStyle"
                 :key="i + firstElem"
             >
-                <slot :i="i + firstElem - 1" />
+                <slot
+                    :i="i + firstElem - 1"
+                    :is-last-of-row="i % numCols == 0"
+                    :is-last-displayed="i + firstElem == processedItemCount"
+                />
             </div>
         </div>
     </div>

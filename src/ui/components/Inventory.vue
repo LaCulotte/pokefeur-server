@@ -14,6 +14,7 @@ import { getCardLangData, getSetLangData } from '../controller/staticDataHelper'
 import type { CardStaticLangData, SetStaticLangData } from '../../api/staticData/interfaces';
 import { removeAccents } from '../../common/utils';
 import { Category, Rarity, RarityRanks } from '../../common/constants.ts';
+import Badge from './Badge.vue';
 
 defineEmits(['item-click']);
 
@@ -472,96 +473,100 @@ const compactGrid = ref(false);
 </script>
 
 <template>
-    <slot
-        name="filter"
-        :filters="filters"
+    <div
+        style="position: relative"
+        class="main"
     >
-        <item-filters
-            v-model="filters"
-            :default-filters="defaultFilters"
+        <slot
+            name="filter"
+            :filters="filters"
         >
-            <template v-slot:activator="{ props: activatorProps }">
-                <v-card class="sticky-header">
-                    <v-row gap="0">
-                        <v-col
-                            cols="auto"
-                        >
-                            <v-card
-                                class="pa-2 elevation-0 rounded-0"
-                                @click="compactGrid = !compactGrid"
+            <item-filters
+                v-model="filters"
+                :default-filters="defaultFilters"
+            >
+                <template v-slot:activator="{ props: activatorProps }">
+                    <v-card class="sticky-header">
+                        <v-row gap="0">
+                            <v-col
+                                cols="auto"
                             >
-                                <v-icon
-                                    v-if="compactGrid"
-                                    size="large"
+                                <v-card
+                                    class="pa-2 elevation-0 rounded-0"
+                                    @click="compactGrid = !compactGrid"
                                 >
-                                    mdi-grid
-                                </v-icon>
-                                <v-icon
-                                    v-else
-                                    size="large"
-                                >
-                                    mdi-grid-large
-                                </v-icon>
-                            </v-card>
-                        </v-col>
-                        <v-divider vertical />
-                        <v-col>
-                            <v-menu
-                                transition="slide-y-transition"
-                                :close-on-content-click="false"
-                                v-model="menuSortByActive"
-                            >
-                                <template v-slot:activator="{props: menuActProps}">
-                                    <v-card 
-                                        v-bind="menuActProps"
-                                        class="pa-2 h-100 d-flex align-center justify-center elevation-0 rounded-0"
+                                    <v-icon
+                                        v-if="compactGrid"
+                                        size="large"
                                     >
-                                        <v-row>
-                                            <v-col cols="auto">
-                                                <v-icon
-                                                    :icon="asc ? 'mdi-sort-ascending' : 'mdi-sort-descending'"
-                                                    density="compact"
-                                                    variant="text"
-                                                    color="grey"
-                                                />
-                                            </v-col>
-                                            <v-col class="h-100 d-flex align-center justify-center">
-                                                {{ filteredItems.length }} items
-                                            </v-col>
-                                            <v-col cols="auto">
-                                                <v-icon
-                                                    :icon="sortBy.props.appendIcon"
-                                                    density="compact"
-                                                    variant="text"
-                                                    color="grey"
-                                                />
-                                            </v-col>
-                                        </v-row>
-                                    </v-card>
-                                </template>
-                                <template v-slot="{isActive: menuIsActive}">
-                                    <v-card>
-                                        <v-row gap="0">
-                                            <v-col
-                                                cols="auto"
-                                                class="d-flex justify-center pl-4 py-4"
-                                            >
-                                                <v-btn
-                                                    :icon="asc ? 'mdi-sort-ascending' : 'mdi-sort-descending'"
-                                                    density="compact"
-                                                    variant="text"
-                                                    @click="asc = !asc"
-                                                />
-                                            </v-col>
-                                            <v-col>
-                                                <v-list
-                                                    :items="sortByOptions"
-                                                    return-object
-                                                    @click:select="(elem) => selectSortBy(elem.id, menuIsActive)"
-                                                />
-                                            </v-col>
-                                        </v-row>
-                                    </v-card>
+                                        mdi-grid
+                                    </v-icon>
+                                    <v-icon
+                                        v-else
+                                        size="large"
+                                    >
+                                        mdi-grid-large
+                                    </v-icon>
+                                </v-card>
+                            </v-col>
+                            <v-divider vertical />
+                            <v-col>
+                                <v-menu
+                                    transition="slide-y-transition"
+                                    :close-on-content-click="false"
+                                    v-model="menuSortByActive"
+                                >
+                                    <template v-slot:activator="{props: menuActProps}">
+                                        <v-card 
+                                            v-bind="menuActProps"
+                                            class="pa-2 h-100 d-flex align-center justify-center elevation-0 rounded-0"
+                                        >
+                                            <v-row>
+                                                <v-col cols="auto">
+                                                    <v-icon
+                                                        :icon="asc ? 'mdi-sort-ascending' : 'mdi-sort-descending'"
+                                                        density="compact"
+                                                        variant="text"
+                                                        color="grey"
+                                                    />
+                                                </v-col>
+                                                <v-col class="h-100 d-flex align-center justify-center">
+                                                    {{ filteredItems.length }} items
+                                                </v-col>
+                                                <v-col cols="auto">
+                                                    <v-icon
+                                                        :icon="sortBy.props.appendIcon"
+                                                        density="compact"
+                                                        variant="text"
+                                                        color="grey"
+                                                    />
+                                                </v-col>
+                                            </v-row>
+                                        </v-card>
+                                    </template>
+                                    <template v-slot="{isActive: menuIsActive}">
+                                        <v-card>
+                                            <v-row gap="0">
+                                                <v-col
+                                                    cols="auto"
+                                                    class="d-flex justify-center pl-4 py-4"
+                                                >
+                                                    <v-btn
+                                                        :icon="asc ? 'mdi-sort-ascending' : 'mdi-sort-descending'"
+                                                        density="compact"
+                                                        variant="text"
+                                                        @click="asc = !asc"
+                                                    />
+                                                </v-col>
+                                                <v-col>
+                                                    <v-list
+                                                        :items="sortByOptions"
+                                                        return-object
+                                                        @click:select="(elem) => selectSortBy(elem.id, menuIsActive)"
+                                                    />
+                                                </v-col>
+                                            </v-row>
+                                        </v-card>
                                     <!-- <v-card>
                                         <v-container fluid>
                                             <v-row gap="10">
@@ -588,48 +593,46 @@ const compactGrid = ref(false);
                                             </v-row>
                                         </v-container>
                                     </v-card> -->
-                                </template>
-                            </v-menu>
-                        </v-col>
-                        <v-divider vertical />
-                        <v-col
-                            cols="auto"
-                        >
-                            <v-card
-                                v-bind="activatorProps"
-                                class="pa-2 elevation-0 rounded-0"
+                                    </template>
+                                </v-menu>
+                            </v-col>
+                            <v-divider vertical />
+                            <v-col
+                                cols="auto"
                             >
-                                <!-- <v-badge
+                                <v-card
+                                    v-bind="activatorProps"
+                                    class="pa-2 elevation-0 rounded-0"
+                                >
+                                    <!-- <v-badge
                                     color="primary"
                                     dot
                                 > -->
-                                <v-icon
-                                    v-if="filterCount > 0"
-                                    size="large"
-                                >
-                                    mdi-filter
-                                </v-icon>
-                                <v-icon
-                                    v-else
-                                    size="large"
-                                >
-                                    mdi-filter-outline
-                                </v-icon>
-                                <div
-                                    v-if="filterCount > 0"
-                                    class="text-label-small my-badge px-1"
-                                >
-                                    {{ filterCount > 9 ? '9+' : filterCount }}
-                                </div>
-                            </v-card>
-                        </v-col>
-                    </v-row>
-                </v-card>
-            </template>
-        </item-filters>
-    </slot>
-
-    <div style="position: relative">
+                                    <v-icon
+                                        v-if="filterCount > 0"
+                                        size="large"
+                                    >
+                                        mdi-filter
+                                    </v-icon>
+                                    <v-icon
+                                        v-else
+                                        size="large"
+                                    >
+                                        mdi-filter-outline
+                                    </v-icon>
+                                    <badge
+                                        v-if="filterCount > 0"
+                                        class="text-label-small"
+                                    >
+                                        {{ filterCount > 9 ? '9+' : filterCount }}
+                                    </badge>
+                                </v-card>
+                            </v-col>
+                        </v-row>
+                    </v-card>
+                </template>
+            </item-filters>
+        </slot>
         <item-grid
             :item-count="itemsGroupsList.length"
             :max-item-height-ratio="compactGrid ? 0.15 : 0.25"
@@ -770,14 +773,14 @@ const compactGrid = ref(false);
     z-index: 10;
 }
 
-.sticky-header:first-child {
+.main:first-child .sticky-header {
     top: 0px;
     margin-top: 0px;
     border-top-left-radius: 0px;
     border-top-right-radius: 0px;
 }
 
-.sticky-header:not(:first-child) {
+.main:not(:first-child) .sticky-header {
     margin-top: 4px;
 }
 

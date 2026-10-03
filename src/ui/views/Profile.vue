@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { expected, unexpected, type Expected } from '../../common/utils';
-import type { InventoryItem, PublicUser } from '../../api/model/interfaces';
+import type { PublicUser } from '../../api/model/interfaces';
 import { computed, onMounted, ref, useTemplateRef, type ComputedRef, type Ref } from 'vue';
 import { useRouter } from 'vue-router';
 import Inventory from '../components/Inventory.vue';
 import UserAvatar from '../components/users/UserAvatar.vue';
+import { user } from '../data/user/vueUserData.ts';
 
 document.title = "Profile";
 
@@ -35,6 +36,7 @@ async function init() {
         return;
     }
 
+    // TODO : dedicated function
     const response = await fetch("/api/getPublicUser?" + new URLSearchParams({ userUid: userUid }).toString());
 
     if (!response.ok) {
@@ -85,6 +87,19 @@ const scrollElem = useTemplateRef("scrollElem");
 
 //     return ret;
 // });
+
+function createProposal() {
+    if (typeof userUid != typeof '') {
+        return;
+    }
+    
+    router.push({
+        name: "create-trade-proposal",
+        params: {
+            "userUid": userUid as string
+        }
+    });
+}
 </script>
 
 <template>
@@ -149,6 +164,9 @@ const scrollElem = useTemplateRef("scrollElem");
                     
                     <v-btn
                         class="mt-2"
+                        color="primary"
+                        :disabled="user.data.uid == userData.value().uid"
+                        @click="createProposal"
                     >
                         PROPOSE TRADE
                     </v-btn>
@@ -158,13 +176,13 @@ const scrollElem = useTemplateRef("scrollElem");
         <v-container v-else>
             Error on load : {{ userData.error() }}
         </v-container>
-        <v-btn
+        <!-- <v-btn
             class="position-absolute" 
             style="bottom: var(--btn-offset); left: var(--btn-offset); z-index: 20;"
             rounded="xl"
             icon="mdi-home"
             to="/"
-        />
+        /> -->
     </div>
 </template>
 

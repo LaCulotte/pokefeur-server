@@ -45,6 +45,16 @@ const router = useRouter();
             icon="mdi-account"
             to="/user-search"
         />
+        <div
+            class="position-absolute w-100 d-flex justify-center"
+            style="bottom: calc(var(--btn-offset) * 2);"
+        >
+            <v-btn
+                rounded="xl"
+                icon="mdi-cards"
+                to="/trades"
+            />
+        </div>
         <v-btn
             class="position-absolute"
             style="bottom: var(--btn-offset); left: var(--btn-offset);"
