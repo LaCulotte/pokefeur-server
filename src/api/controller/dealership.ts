@@ -187,7 +187,7 @@ class DealController {
 
         const staticDataInstance = StaticDataSingleton.getInstance();
 
-               for (let i = 0; this.schema.cost["cards-of-pokemon"] !== undefined && i < this.schema.cost["cards-of-pokemon"].count; i++) {
+        for (let i = 0; this.schema.cost["cards-of-pokemon"] !== undefined && i < this.schema.cost["cards-of-pokemon"].count; i++) {
             const sets = this.schema.cost["cards-of-pokemon"].sets;
             if (sets.length === 0) {
                 throw new Error(`Error on generateCost for dealType ${this.type} : 'cost.cards-of-pokemon.count != 0' while 'cost.cards-of-pokemon.sets.length == 0' !`);

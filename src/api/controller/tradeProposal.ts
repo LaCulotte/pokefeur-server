@@ -13,6 +13,10 @@ export async function makeTradeProposal(fromUserUid: string,
     requestedItemUids: Array<string>) 
 : Promise<Expected<TradeProposal>> 
 {
+    if (toUserUid == fromUserUid) {
+        return unexpected(`Cannot create a trade with the 'toUserUid' == 'fromUserUid'`, true);
+    }
+
     const dataInstance = DataModel.getInstance();
 
     const fromUser = dataInstance.getUser(fromUserUid);
@@ -185,7 +189,7 @@ export async function completeTradeProposal(userUid: string, proposalUid: string
 
     const { opposite: oppositeSide } = completeProposalExp.value();
     for (const item of oppositeSide.items) {
-        const exp = await user.inventory.addItemToInventory(item.type, item.id);
+        const exp = await user.inventory.addItemToInventory(item.type, item.id, item.uid);
         if (!exp.has_value) {
             console.error(`Error while adding item ${JSON.stringify(item)} to inventory of user ${userUid} during completion of trade proposal ${proposalUid} : ${exp.error()}`);
         }

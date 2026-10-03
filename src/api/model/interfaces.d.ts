@@ -127,7 +127,7 @@ export interface FullUser extends User {
 }
 
 export type PublicUser = UserSearchResult & Pick<FullUser, 'inventory'> & {
-    trades: Pick<FullUser['trades'], 'listings'>
+    // trades: Pick<FullUser['trades'], 'listings'>
 };
 
 // TODO !

@@ -1,8 +1,10 @@
-import { Type } from "../../src/common/constants"
+// Why is it located here ??
+
+import { Type } from "../../src/common/constants";
 
 interface DealSchema {
     timeout: number,
-    waittime: number,
+    waittime: number, // TODO : remove
     cost: Partial<{
         cards: {
             count: number,
@@ -35,4 +37,4 @@ interface DealSchema {
     }
 }
 
-type DealershipSchema = Record<string, DealSchema>
+type DealershipSchema = Record<string, DealSchema>;

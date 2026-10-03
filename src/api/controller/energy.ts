@@ -22,7 +22,7 @@ export async function recycleCards(userUid: string, cardUids: Array<string>) : P
         const item = user.inventory.data.items[cardUid];
 
         if (item === undefined || item.type !== "card") {
-            return unexpected(`No booster of uid ${cardUid} for user of uid ${userUid}`, true);
+            return unexpected(`No card of uid ${cardUid} for user of uid ${userUid}`, true);
         }
 
         const cardData = staticDataInstance.staticData.cards[item.id];

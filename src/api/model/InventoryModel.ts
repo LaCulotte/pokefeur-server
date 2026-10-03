@@ -55,7 +55,7 @@ export class InventoryModel {
         await fs.writeFile(`./data/inventories/${this.user.uid}.json`, JSON.stringify(this.data ?? {}), "utf-8");
     }
 
-    async addItemToInventory<T extends ItemType>(type: T, id: string) : Promise<Expected<InventoryItemT<T>>> {
+    async addItemToInventory<T extends ItemType>(type: T, id: string, uid?: string) : Promise<Expected<InventoryItemT<T>>> {
         const staticData = StaticDataSingleton.getInstance();
 
         if (type == "booster") {
@@ -70,7 +70,7 @@ export class InventoryModel {
             return unexpected(`Unkown type of item : ${type}`, true);
         }
 
-        let itemUid = uuidv4();
+        let itemUid = uid ?? uuidv4();
 
         while (itemUid in this.data.items || itemUid in this.data.inTradeItems) {
             itemUid = uuidv4();
