@@ -3,7 +3,7 @@ import ItemGrid from './ItemGrid.vue';
 import ItemFilters from './ItemFilters.vue';
 import BaseItemComponent from './item/BaseItemComponent.vue';
 
-import { ref, type Ref, watch, computed, withModifiers } from 'vue';
+import { ref, type Ref, watch, computed, withModifiers, nextTick } from 'vue';
 import type { Card, Booster, InventoryItem, CardItem, BoosterItem } from '@/api/model/interfaces';
 import type { GroupedItems, GroupedCards, GroupedBoosters } from '@/ui/interfaces';
 import LocalScope from './LocalScope.vue';
@@ -15,6 +15,8 @@ import type { CardStaticLangData, SetStaticLangData } from '../../api/staticData
 import { removeAccents } from '../../common/utils';
 import { Category, Rarity, RarityRanks } from '../../common/constants.ts';
 import Badge from './Badge.vue';
+
+const ENABLE_LEGACY = false;
 
 defineEmits(['item-click']);
 
@@ -29,31 +31,36 @@ const props = defineProps<{
 const isActive = defineModel<boolean>('dialogActive', { default: false });
 
 const filters: Ref<Filters> = ref({
+    name: "",
     pokemon: new Set(),
     sets: new Set(),
     energyType: new Set(),
     rarity: new Set()
 });
 
-const mergedFilters = computed<Filters>(() => {
-    return {
-        itemTypes: props.defaultFilters?.itemTypes ?? filters.value.itemTypes,
-        itemId: props.defaultFilters?.itemId ?? filters.value.itemId,
-        name: props.defaultFilters?.name ?? filters.value.name,
-
-        pokemon: props.defaultFilters?.pokemon?.size ? props.defaultFilters?.pokemon : filters.value.pokemon,
-        sets: props.defaultFilters?.sets?.size ? props.defaultFilters?.sets : filters.value.sets,
-        energyType: props.defaultFilters?.energyType?.size ? props.defaultFilters?.energyType : filters.value.energyType,
-        rarity: props.defaultFilters?.rarity?.size ? props.defaultFilters?.rarity : filters.value.rarity,
-    };
+const mergedFilters: Ref<Filters> = ref({
+    name: "",
+    pokemon: new Set(),
+    sets: new Set(),
+    energyType: new Set(),
+    rarity: new Set(),
+    ...props.defaultFilters,
 });
+const filterCount: Ref<number | undefined> = ref(undefined);
+
+const normalizedName = computed<string>(() => removeAccents(mergedFilters.value?.name ?? ''));
+
+function onUpdate(f: Filters, count: number) {
+    mergedFilters.value = f;
+    filterCount.value = count;
+}
 
 function checkPokemon(data: CardStaticLangData) {
     if (!data.dexId)
         return false;
     
     for (const id of data.dexId) {
-        if ((mergedFilters.value.pokemon).has(id)) {
+        if (mergedFilters.value.pokemon.has(id)) {
             return true;
         }
     }
@@ -78,8 +85,9 @@ function checkRarity(data: CardStaticLangData) {
     return (mergedFilters.value.rarity).has(data.rarity);
 }
 
+// TODO : add a 'searchName' field to land data: name that was already normalized
 function checkName(data: SetStaticLangData | CardStaticLangData) {
-    return removeAccents(data.name).includes(mergedFilters.value.name ?? '');
+    return removeAccents(data.name).includes(normalizedName.value);
 }
 
 function checkItem(data: SetStaticLangData | CardStaticLangData) {
@@ -96,6 +104,10 @@ function checkBoosterSet(data: SetStaticLangData) {
 
 // To be sorted ?
 const filteredItems = computed(() => {
+    // if (!mergedFilters.value) {
+    //     return [];
+    // }
+
     let ret = props.items;
 
     const cardFilters: ((data: CardStaticLangData) => boolean)[] = [];
@@ -172,24 +184,6 @@ const filteredItems = computed(() => {
     return ret;
 });
 
-const filterCount = computed(() => {
-    let count = 0;
-
-    const val = mergedFilters.value;
-
-    count += val.itemTypes ? 1 : 0;
-    count += val.itemId ? 1 : 0;
-    count += val.name ? 1 : 0;
-
-    count += val.sets.size;
-    if (val.itemTypes == 'card') {
-        count += val.pokemon.size;
-        count += val.energyType.size > 0 ? 1 : 0;
-        count += val.rarity.size > 0 ? 1 : 0;
-    }
-
-    return count;
-});
 
 // Regroup the items per type & id
 const itemsGroups: Ref<Record<string, GroupedItems<T>>> = computed(() => {
@@ -482,11 +476,16 @@ const compactGrid = ref(false);
             :filters="filters"
         >
             <item-filters
-                v-model="filters"
+                v-model:base-filters="filters"
                 :default-filters="defaultFilters"
+                @update="onUpdate"
             >
-                <template v-slot:activator="{ props: activatorProps }">
-                    <v-card class="sticky-header">
+                <template v-slot:activator="{ props: activatorProps, clear: clearFilters }">
+                    <!-- TODO : remove legacy -->
+                    <v-card
+                        v-if="ENABLE_LEGACY"
+                        class="sticky-header"
+                    >
                         <v-row gap="0">
                             <v-col
                                 cols="auto"
@@ -496,7 +495,7 @@ const compactGrid = ref(false);
                                     @click="compactGrid = !compactGrid"
                                 >
                                     <v-icon
-                                        v-if="compactGrid"
+                                        v-if="compactGrid" 
                                         size="large"
                                     >
                                         mdi-grid
@@ -567,32 +566,6 @@ const compactGrid = ref(false);
                                                 </v-col>
                                             </v-row>
                                         </v-card>
-                                    <!-- <v-card>
-                                        <v-container fluid>
-                                            <v-row gap="10">
-                                                <v-col
-                                                    cols="auto"
-                                                    class="d-flex align-center"
-                                                >
-                                                    <v-btn
-                                                        :icon="asc ? 'mdi-sort-ascending' : 'mdi-sort-descending'"
-                                                        density="compact"
-                                                        variant="text"
-                                                        @click="asc = !asc"
-                                                    />
-                                                </v-col>
-                                                <v-select
-                                                    v-model="sortBy"
-                                                    :items="sortByOptions"
-                                                    :append-inner-icon="sortBy.props.appendIcon"
-                                                    menu-icon=""
-                                                    density="compact"
-                                                    hide-details
-                                                    return-object
-                                                />
-                                            </v-row>
-                                        </v-container>
-                                    </v-card> -->
                                     </template>
                                 </v-menu>
                             </v-col>
@@ -609,7 +582,7 @@ const compactGrid = ref(false);
                                     dot
                                 > -->
                                     <v-icon
-                                        v-if="filterCount > 0"
+                                        v-if="(filterCount ?? 0) > 0"
                                         size="large"
                                     >
                                         mdi-filter
@@ -621,12 +594,146 @@ const compactGrid = ref(false);
                                         mdi-filter-outline
                                     </v-icon>
                                     <badge
-                                        v-if="filterCount > 0"
+                                        v-if="(filterCount ?? 0) > 0"
                                         class="text-label-small"
                                     >
-                                        {{ filterCount > 9 ? '9+' : filterCount }}
+                                        {{ (filterCount ?? 0) > 9 ? '9+' : filterCount }}
                                     </badge>
                                 </v-card>
+                            </v-col>
+                        </v-row>
+                    </v-card>
+                    <v-card
+                        v-else
+                        :rounded="false"
+                    >
+                        <v-row gap="0">
+                            <v-col
+                                cols="auto"
+                            >
+                                <v-card
+                                    class="pa-2 elevation-0 rounded-0"
+                                    @click="compactGrid = !compactGrid"
+                                >
+                                    <v-icon
+                                        v-if="compactGrid" 
+                                        size="large"
+                                    >
+                                        mdi-grid
+                                    </v-icon>
+                                    <v-icon
+                                        v-else
+                                        size="large"
+                                    >
+                                        mdi-grid-large
+                                    </v-icon>
+                                </v-card>
+                            </v-col>
+                            <v-divider vertical />
+                            <v-col
+                                cols="auto"
+                            >
+                                <v-menu
+                                    :close-on-content-click="false"
+                                    v-model="menuSortByActive"
+                                    location="bottom center"
+                                    :viewport-margin="0"
+                                >
+                                    <template v-slot:activator="{props: menuActProps}">
+                                        <v-card 
+                                            v-bind="menuActProps"
+                                            class="pa-2 h-100 d-flex align-center justify-center elevation-0 rounded-0"
+                                        >
+                                            <v-icon
+                                                :icon="sortBy.props.appendIcon"
+                                                density="compact"
+                                                variant="text"
+                                                size="large"
+                                            />
+                                        </v-card>
+                                    </template>
+                                    <template v-slot="{isActive: menuIsActive}">
+                                        <v-card class="rounded-b-md rounded-t-0">
+                                            <v-row gap="0">
+                                                <v-col
+                                                    cols="auto"
+                                                    class="d-flex justify-center pl-4 py-4"
+                                                >
+                                                    <v-btn
+                                                        :icon="asc ? 'mdi-sort-ascending' : 'mdi-sort-descending'"
+                                                        density="compact"
+                                                        variant="text"
+                                                        @click="asc = !asc"
+                                                    />
+                                                </v-col>
+                                                <v-col>
+                                                    <v-list
+                                                        :items="sortByOptions"
+                                                        return-object
+                                                        @click:select="(elem) => selectSortBy(elem.id, menuIsActive)"
+                                                    />
+                                                </v-col>
+                                            </v-row>
+                                        </v-card>
+                                    </template>
+                                </v-menu>
+                            </v-col>
+                            <v-divider vertical />                            
+                            <v-col
+                                cols="auto"
+                            >
+                                <v-card
+                                    v-bind="activatorProps"
+                                    class="pa-2 elevation-0 rounded-0"
+                                >
+                                    <v-icon
+                                        v-if="filterCount && filterCount> 0"
+                                        size="large"
+                                    >
+                                        mdi-filter
+                                    </v-icon>
+                                    <v-icon
+                                        v-else
+                                        size="large"
+                                    >
+                                        mdi-filter-outline
+                                    </v-icon>
+                                    <badge
+                                        v-if="filterCount && filterCount > 0"
+                                        class="text-label-small"
+                                    >
+                                        {{ (filterCount ?? 0) > 9 ? '9+' : filterCount }}
+                                    </badge>
+                                </v-card>
+                            </v-col>
+                            <v-col class="">
+                                <v-text-field
+                                    hide-details
+                                    density="comfortable"
+                                    variant="underlined"
+                                    clearable
+                                    v-model="filters.name"
+                                />
+                            </v-col>
+                            <v-col
+                                cols="auto"
+                            >
+                                <v-card
+                                    class="pa-2 elevation-0 rounded-0"
+                                    @click="clearFilters"
+                                >
+                                    <v-icon
+                                        size="large"
+                                    >
+                                        mdi-trash-can-outline
+                                    </v-icon>
+                                </v-card>
+                            </v-col>
+                        </v-row>
+                        <v-divider />
+                        <v-row gap="1">
+                            <v-col class="w-100 d-flex justify-center">
+                                {{ filteredItems.length }} items
                             </v-col>
                         </v-row>
                     </v-card>

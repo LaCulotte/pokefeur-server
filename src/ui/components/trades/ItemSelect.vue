@@ -52,7 +52,7 @@ function getSelectedCount(items: GroupedItems<InventoryItem>) {
 }
 
 const scrollElem = useTemplateRef('scrollElem');
-const selectedScrollElem = useTemplateRef('selectedScrollElem');
+// const selectedScrollElem = useTemplateRef('selectedScrollElem');
 </script>
 
 <template>
@@ -86,7 +86,10 @@ const selectedScrollElem = useTemplateRef('selectedScrollElem');
                 </div>
             </v-row>
             <v-row gap="10">
-                <v-menu
+                <v-col class="ma-1 w-100 d-flex justify-center">
+                    {{ selectedItems.length }} item{{ selectedItems.length > 1 ? 's' : '' }} selected
+                </v-col>
+                <!-- <v-menu
                     v-model="menuSelectedActive"
                     location="bottom"
                     class="left-0"
@@ -130,7 +133,7 @@ const selectedScrollElem = useTemplateRef('selectedScrollElem');
                             </item-grid>
                         </div>
                     </v-sheet>
-                </v-menu>
+                </v-menu> -->
             </v-row>
         </v-sheet>
 
@@ -140,7 +143,7 @@ const selectedScrollElem = useTemplateRef('selectedScrollElem');
         >
             <v-container
                 fluid
-                class="pt-0"
+                class="pa-0"
             >
                 <inventory
                     :items="Object.values(sideUser.inventory.items)"

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, type Ref, unref } from 'vue';
+import { ref, computed, watch, onMounted, type Ref, unref, watchEffect } from 'vue';
 import type { Filters } from '../interfaces';
 import PokemonFilter from './filters/PokemonFilter.vue';
 import { getLangString, getPokemonName, getSetLangData } from '../controller/staticDataHelper';
@@ -9,100 +9,140 @@ import { Rarity, RarityRanks, Type } from '../../common/constants';
 import Energy from './Energy.vue';
 import RarityIcon from './RarityIcon.vue';
 import SetFilter from './filters/SetFilter.vue';
+import LocalScope from './LocalScope.vue';
 
 const props = defineProps<{
     defaultFilters?: Partial<Filters>,
 }>();
 
-const model = defineModel<Filters>({ required: true });
-const currVal = ref<Filters>({
-    itemTypes: undefined,
-    itemId: undefined,
-    name: undefined,
-    pokemon: new Set(),
-    sets: new Set(),
-    energyType: new Set(),
-    rarity: new Set()
+const emit = defineEmits<{
+  update: [fullFilters: Filters, count: number]
+}>();
+
+const baseFilters = defineModel<Filters>('baseFilters', 
+    { 
+        default: {
+            pokemon: new Set(),
+            sets: new Set(),
+            energyType: new Set(),
+            rarity: new Set()
+        } 
+    });
+
+const fullFilters = computed<Filters>(() => {
+    return {
+        itemTypes: props.defaultFilters?.itemTypes ?? baseFilters.value.itemTypes,
+        itemId: props.defaultFilters?.itemId ?? baseFilters.value.itemId,
+        name: props.defaultFilters?.name ?? baseFilters.value.name ?? '',
+        
+        pokemon: props.defaultFilters?.pokemon?.size ? props.defaultFilters?.pokemon : baseFilters.value.pokemon,
+        sets: props.defaultFilters?.sets?.size ? props.defaultFilters?.sets : baseFilters.value.sets,
+        energyType: props.defaultFilters?.energyType?.size ? props.defaultFilters?.energyType : baseFilters.value.energyType,
+        rarity: props.defaultFilters?.rarity?.size ? props.defaultFilters?.rarity : baseFilters.value.rarity,
+    };
 });
 
-const showPokemon = computed(() => {
-    return props.defaultFilters?.pokemon?.size ? props.defaultFilters.pokemon : currVal.value.pokemon;
+const filtersCount = computed<number>(() => {
+    let val = 0;
+
+    val = 0;
+    val += fullFilters.value.itemTypes ? 1 : 0;
+    val += fullFilters.value.itemId ? 1 : 0;
+    val += fullFilters.value.name ? 1 : 0;
+
+    val += fullFilters.value.sets.size;
+    if (fullFilters.value.itemTypes == 'card') {
+        val += fullFilters.value.pokemon.size;
+        val += fullFilters.value.energyType.size > 0 ? 1 : 0;
+        val += fullFilters.value.rarity.size > 0 ? 1 : 0;
+    }
+
+    return val;
 });
 
-const showSets = computed(() => {
-    return props.defaultFilters?.sets?.size ? props.defaultFilters.sets : currVal.value.sets;
+watchEffect(() => {
+    emit("update", fullFilters.value, filtersCount.value);
 });
-
 
 const toggle = ref<number | undefined>(undefined);
     
-const activeTab = ref(props.defaultFilters?.itemTypes ?? currVal.value.itemTypes ?? 'both');
-if (activeTab.value == 'card') {
-    toggle.value = 0;
-} else if (activeTab.value == 'booster') {
-    toggle.value = 1;
-}
+const activeTab = computed(() => props.defaultFilters?.itemTypes ?? baseFilters.value.itemTypes ?? 'both');
 
+watch(activeTab, (val) => {
+    switch(val) {
+    case 'card':
+        toggle.value = 0;
+        break;
+    case 'booster':
+        toggle.value = 1;
+        break;
+    case 'both':
+        toggle.value = undefined;
+        break;
+    }
+});
+
+// TODO : check if it loops ??
 watch(toggle, () => {
     if (toggle.value !== undefined) {
         const ret = toggle.value == 0 ? 'card' : 'booster';
-        activeTab.value = ret;
-        currVal.value.itemTypes = ret;
+        // activeTab.value = ret;
+        baseFilters.value.itemTypes = ret;
     } else {
-        activeTab.value = 'both';
-        currVal.value.itemTypes = undefined;
+        // activeTab.value = 'both';
+        baseFilters.value.itemTypes = undefined;
     }
 });
 
-const cardName = ref<string | undefined>(undefined);
-watch(cardName, (val) => {
-    currVal.value.name = val ? removeAccents(val) : undefined;
-});
-
-const energyModel = ref(Array.from(props.defaultFilters?.energyType?.values() ?? []));
-watch(energyModel, () => {
-    currVal.value.energyType = new Set(energyModel.value);
-});
+function updateEnergies(val: unknown) {
+    if (!!props.defaultFilters?.energyType?.size) {
+        return;
+    }
+    
+    baseFilters.value.energyType = new Set(val as Type[]);
+}
 
 function toggleAllEnergies() {
-    if (energyModel.value.length < Type.TYPE_COUNT) {
-        energyModel.value = Array.from({ length: Type.TYPE_COUNT }, (v, i) => i);
+    if (fullFilters.value.energyType.size < Type.TYPE_COUNT) {
+        updateEnergies(Array.from({ length: Type.TYPE_COUNT }, (v, i) => i));
     } else {
-        energyModel.value = [];
+        updateEnergies([]);
     }
 }
 
-const rarityModel = ref<number[]>([]);
+const rarityModel = computed(() => {
+    const ret: number[] = [];
 
-if (props.defaultFilters?.rarity) {
-    for (const i of props.defaultFilters?.rarity) {
-        const opt = RarityRanks.findIndex((opt) => opt.associatedRarities.includes(i));
+    for (const i of fullFilters.value.rarity) {
+        const opt = RarityRanks.findIndex((rank) => rank.associatedRarities.includes(i));
 
-        if (opt != -1 && !rarityModel.value.includes(opt)) {
-            rarityModel.value.push(opt);
+        if (opt != -1 && !ret.includes(opt)) {
+            ret.push(opt);
         }
     }
-}
 
-watch(rarityModel, () => {
+    return ret;
+});
+
+function updateRarities(val: unknown) {
     let ret: Rarity[] = [];
-    for (const i of rarityModel.value) {
+    for (const i of val as number[]) {
         ret = ret.concat(RarityRanks[i]!.associatedRarities);
     }
 
-    currVal.value.rarity = new Set(ret);
-});
+    baseFilters.value.rarity = new Set(ret);
+}
 
 function toggleAllRarities() {
     if (rarityModel.value.length < RarityRanks.length) {
-        rarityModel.value = Array.from({ length: RarityRanks.length }, (v, i) => i);
+        updateRarities(Array.from({ length: RarityRanks.length }, (v, i) => i));
     } else {
-        rarityModel.value = [];
+        updateRarities([]);
     }
 }
 
 function clear() {
-    currVal.value = {
+    baseFilters.value = {
         itemTypes: undefined,
         name: '',
         pokemon: new Set(),
@@ -110,80 +150,6 @@ function clear() {
         energyType: new Set(),
         rarity: new Set(),
     };
-
-    if (!props.defaultFilters?.itemTypes)
-        toggle.value = undefined;
-
-    if (!props.defaultFilters?.energyType)
-        energyModel.value = [];
-    
-    if (!props.defaultFilters?.rarity)
-        rarityModel.value = [];
-
-    cardName.value = '';
-}
-
-function reset() {
-    currVal.value = {
-        itemTypes: model.value.itemTypes,
-        itemId: model.value.itemId,
-        name: model.value.name,
-        pokemon: new Set(model.value.pokemon),
-        sets: new Set(model.value.sets),
-        energyType: new Set(model.value.energyType),
-        rarity: new Set(model.value.rarity),
-    };
-
-    if (!props.defaultFilters?.itemTypes) {
-        if (model.value.itemTypes == 'card') {
-            toggle.value = 0;
-            activeTab.value = 'card';
-        } else if (model.value.itemTypes == 'booster') {
-            toggle.value = 1;
-            activeTab.value = 'booster';
-        } else {
-            toggle.value = undefined;
-            activeTab.value = 'both';
-        }
-    }
-
-    if (!props.defaultFilters?.rarity) {
-        rarityModel.value = [];
-
-        for (const i of model.value.rarity) {
-            const opt = RarityRanks.findIndex((opt) => opt.associatedRarities.includes(i));
-
-            if (opt != -1 && !rarityModel.value.includes(opt)) {
-                rarityModel.value.push(opt);
-            }
-        }
-    }
-
-    if (!props.defaultFilters?.energyType) {
-        energyModel.value = Array.from(model.value.energyType);
-    }
-
-    cardName.value = model.value.name;
-}
-
-function leave(isActive: Ref<boolean>) {
-    reset();
-
-    isActive.value = false;
-}
-
-function save(isActive: Ref<boolean>) {    
-    model.value = {
-        itemTypes: currVal.value.itemTypes,
-        itemId: currVal.value.itemId,
-        name: currVal.value.name,
-        pokemon: new Set(currVal.value.pokemon),
-        sets: new Set(currVal.value.sets),
-        energyType: new Set(currVal.value.energyType),
-        rarity: new Set(currVal.value.rarity),
-    };
-    
-    isActive.value = false;
 }
 
 function temp_replace(url: string): string {
@@ -192,14 +158,12 @@ function temp_replace(url: string): string {
 </script>
 
 <template>
-    <v-dialog
-        class="on-top"
-        persistent
-    >
+    <v-dialog>
         <template v-slot:activator="activatorProps">
             <slot
                 name="activator"
                 v-bind="activatorProps"
+                :clear="clear"
             />
         </template>
         <template v-slot="{ isActive: globalIsActive }">
@@ -208,8 +172,8 @@ function temp_replace(url: string): string {
                     <v-text-field
                         variant="outlined"
                         label="Name"
-                        v-model="cardName"
                         clearable
+                        v-model="baseFilters.name"
                     />
 
                     <div class="d-flex align-center justify-space-between">
@@ -234,15 +198,15 @@ function temp_replace(url: string): string {
                             <template v-slot="{ isActive }">
                                 <v-sheet>
                                     <set-filter 
-                                        :selected="currVal.sets"
-                                        @select="(id: string) => { currVal.sets.add(id); isActive.value = false }"
+                                        :selected="fullFilters.sets"
+                                        @select="(id: string) => { baseFilters.sets.add(id); isActive.value = false }"
                                     />
                                 </v-sheet>
                             </template>
                         </v-dialog>
                     </div>
                     <v-sheet
-                        v-for="(set, index) in showSets"
+                        v-for="(set, index) in fullFilters.sets"
                         :key="index"
                         class="d-flex align-center justify-space-between px-3 py-1 item-sheet"
                     >
@@ -250,29 +214,26 @@ function temp_replace(url: string): string {
                             gap="12"
                             style="min-height: 30px;"
                         >
-                            <!-- <v-col
-                            cols="3"
-                            class="center-content"
-                        >
-                            {{ set }}
-                        </v-col> -->
-
-                            <v-col
-                                class="center-content text-overflow"
+                            <local-scope 
+                                :scope="{ setData: getSetLangData(set).value }"
+                                v-slot="{ setData }"
                             >
-                                <!-- TODO : gets 3 times the set lang data !! -->
-                                {{ getSetLangData(set).value.name }}
-                            </v-col>
-                            <v-col
-                                class="d-flex flex-align align-center justify-center"
-                                style="max-width: 40px;"
-                            >
-                                <img
-                                    v-if="getSetLangData(set).value.symbol"
-                                    style="max-width: 20px; max-height: 20px;"
-                                    :src="temp_replace(`${getSetLangData(set).value.symbol}.webp`)"
+                                <v-col
+                                    class="center-content text-overflow"
                                 >
-                            </v-col>
+                                    {{ setData.name }}
+                                </v-col>
+                                <v-col
+                                    class="d-flex flex-align align-center justify-center"
+                                    style="max-width: 40px;"
+                                >
+                                    <img
+                                        v-if="setData.symbol"
+                                        style="max-width: 20px; max-height: 20px;"
+                                        :src="temp_replace(`${setData.symbol}.webp`)"
+                                    >
+                                </v-col>
+                            </local-scope>
                             <v-divider vertical />
                             <v-col
                                 cols="auto"
@@ -285,7 +246,7 @@ function temp_replace(url: string): string {
                                     variant="text"
                                     color="error"
                                     :disabled="!!defaultFilters?.sets?.size"
-                                    @click="currVal.sets.delete(set)"
+                                    @click="baseFilters.sets.delete(set)"
                                 >
                                     <v-icon>mdi-close</v-icon>
                                 </v-btn>
@@ -335,15 +296,15 @@ function temp_replace(url: string): string {
                                     <template v-slot="{ isActive }">
                                         <v-sheet>
                                             <pokemon-filter 
-                                                :selected="currVal.pokemon"
-                                                @select="(id: number) => { currVal.pokemon.add(id); isActive.value = false }"
+                                                :selected="fullFilters.pokemon"
+                                                @select="(id: number) => { baseFilters.pokemon.add(id); isActive.value = false }"
                                             />
                                         </v-sheet>
                                     </template>
                                 </v-dialog>
                             </div>
                             <v-sheet
-                                v-for="(pokemon, index) in showPokemon"
+                                v-for="(pokemon, index) in fullFilters.pokemon"
                                 :key="index"
                                 class="d-flex align-center justify-space-between px-3 py-1 item-sheet"
                             >
@@ -380,7 +341,7 @@ function temp_replace(url: string): string {
                                             variant="text"
                                             color="error"
                                             :disabled="!!defaultFilters?.pokemon?.size"
-                                            @click="currVal.pokemon.delete(pokemon)"
+                                            @click="baseFilters.pokemon.delete(pokemon)"
                                         >
                                             <v-icon>mdi-close</v-icon>
                                         </v-btn>
@@ -397,7 +358,7 @@ function temp_replace(url: string): string {
                                     rounded="xl"
                                     variant="outlined"
                                     active-color="primary"
-                                    :active="currVal.energyType.size == Type.TYPE_COUNT"
+                                    :active="fullFilters.energyType.size == Type.TYPE_COUNT"
                                     :disabled="!!defaultFilters?.energyType?.size"
                                     @click="toggleAllEnergies"
                                 >
@@ -405,7 +366,8 @@ function temp_replace(url: string): string {
                                 </v-btn>
                             </div>
                             <v-btn-toggle
-                                v-model="energyModel"
+                                :model-value="Array.from(fullFilters.energyType.values())"
+                                @update:model-value="updateEnergies"
                                 style="height: unset !important"
                                 class="w-100"
                                 color="primary"
@@ -449,7 +411,8 @@ function temp_replace(url: string): string {
                                 </v-btn>
                             </div>
                             <v-btn-toggle
-                                v-model="rarityModel"
+                                :model-value="rarityModel"
+                                @update:model-value="updateRarities"
                                 style="height: unset !important"
                                 color="primary"
                                 class="w-100"
@@ -503,15 +466,8 @@ function temp_replace(url: string): string {
                         </div>
                         <v-btn
                             variant="text"
-                            color="error"
-                            @click="leave(globalIsActive)"
-                        >
-                            CANCEL
-                        </v-btn>
-                        <v-btn
-                            variant="text"
                             color="primary"
-                            @click="save(globalIsActive)"
+                            @click="globalIsActive.value = false"
                         >
                             OK
                         </v-btn>
