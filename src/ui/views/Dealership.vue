@@ -100,6 +100,8 @@ async function testRedeem() {
     };
     showRedeemed.value = true;
 }
+
+const logoUrl = "https://upload.wikimedia.org/wikipedia/commons/5/5a/Black_question_mark.png";
 </script>
 
 <template>
@@ -147,7 +149,7 @@ async function testRedeem() {
                         >
                             <booster-component-base 
                                 ref="booster"
-                                logo="https://upload.wikimedia.org/wikipedia/commons/5/5a/Black_question_mark.png" 
+                                :logo="logoUrl"
                                 name=""
                                 @contextmenu.prevent
                                 @dragstart.prevent
@@ -170,11 +172,11 @@ async function testRedeem() {
                         <div
                             class="box-child w-100 h-100"
                             style="
-                            box-shadow: inset 0 0 2px; position: absolute;
-                            pointer-events: none;
-                            top: 0;
-                            left: 0;
-                        "
+                                box-shadow: inset 0 0 2px; position: absolute;
+                                pointer-events: none;
+                                top: 0;
+                                left: 0;
+                            "
                         />
                         <strong class="loading-text">Booster en cours; {{ (deal.startDate ?? 0) + deal.totalWaitTime - now }}s restantes ...</strong>
                     </v-progress-linear>
