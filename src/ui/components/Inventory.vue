@@ -3,9 +3,9 @@ import ItemGrid from './ItemGrid.vue';
 import ItemFilters from './ItemFilters.vue';
 import BaseItemComponent from './item/BaseItemComponent.vue';
 
-import { ref, type Ref, watch, computed, withModifiers, nextTick } from 'vue';
-import type { Card, Booster, InventoryItem, CardItem, BoosterItem } from '@/api/model/interfaces';
-import type { GroupedItems, GroupedCards, GroupedBoosters } from '@/ui/interfaces';
+import { ref, type Ref, watch, computed, withModifiers } from 'vue';
+import type { Card, Booster, InventoryItem, BaseItem } from '@/api/model/interfaces';
+import type { GroupedItemsT, GroupedItems } from '@/ui/interfaces';
 import LocalScope from './LocalScope.vue';
 
 import GroupedItemsComponent from './GroupedItemsComponent.vue';
@@ -25,7 +25,8 @@ const props = defineProps<{
     items: T[],
     focusItemUid?: string,
     dialogAnchor?: string,
-    defaultFilters?: Partial<Filters>
+    defaultFilters?: Partial<Filters>,
+    groupKeyFactory?: (item: BaseItem) => string
 }>();
 
 const isActive = defineModel<boolean>('dialogActive', { default: false });
@@ -104,10 +105,6 @@ function checkBoosterSet(data: SetStaticLangData) {
 
 // To be sorted ?
 const filteredItems = computed(() => {
-    // if (!mergedFilters.value) {
-    //     return [];
-    // }
-
     let ret = props.items;
 
     const cardFilters: ((data: CardStaticLangData) => boolean)[] = [];
@@ -184,6 +181,15 @@ const filteredItems = computed(() => {
     return ret;
 });
 
+const groupKeyFactory: Ref<(item: BaseItem) => string> = computed(() => {
+    if (props.groupKeyFactory) {
+        return props.groupKeyFactory;
+    }
+
+    return (item: BaseItem) => {
+        return item.id;
+    };
+});
 
 // Regroup the items per type & id
 const itemsGroups: Ref<Record<string, GroupedItems<T>>> = computed(() => {
@@ -195,38 +201,19 @@ const itemsGroups: Ref<Record<string, GroupedItems<T>>> = computed(() => {
     }
 
     for (const item of tempItems) {
-        if (item.type === 'card') {
-            let group: GroupedCards<T> | undefined = ret[item.id] as GroupedCards<T>;
-            
-            if (group === undefined) {
-                const { uid, ...base } = item;
+        const groupKey = groupKeyFactory.value(item);
 
-                group = {
-                    base: base as Omit<T, 'uid'> & Card,
-                    items: []
-                };
-                ret[item.id] = group;
+        if (groupKey in ret) {
+            const group = ret[groupKey] as GroupedItemsT<Card | Booster, T>;
+            group.items.push(item);
+        } else {
+            const { uid, ...base } = item;
+            const group = {
+                base,
+                items: [item]
+            } as GroupedItemsT<Card | Booster, T>;
 
-                // ret.push(groupedCards[item.id]!);
-            }
-
-            group.items.push(item as T & CardItem);
-        } else if (item.type === 'booster') {
-            let group: GroupedBoosters<T> | undefined = ret[item.id] as GroupedBoosters<T>;
-
-            if (group === undefined) {
-                const { uid, ...base } = item;
-
-                group = {
-                    base: base as Omit<T, 'uid'> & Booster,
-                    items: []
-                };
-                ret[item.id] = group;
-
-                // ret.push(groupedBoosters[item.id]!);
-            }
-
-            group.items.push(item as T & BoosterItem);
+            ret[groupKey] = group;
         }
     }
 
