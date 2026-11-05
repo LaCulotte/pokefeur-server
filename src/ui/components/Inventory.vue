@@ -20,14 +20,20 @@ const ENABLE_LEGACY = false;
 
 defineEmits(['item-click']);
 
+type OnEventBehavior = 'group' | 'item-zoom' | 'none' | ((item: GroupedItems<T>) => void);
+
 const props = defineProps<{
     scrollElem?: HTMLDivElement | null,
     items: T[],
     focusItemUid?: string,
     dialogAnchor?: string,
     defaultFilters?: Partial<Filters>,
-    groupKeyFactory?: (item: BaseItem) => string
+    groupKeyFactory?: (item: BaseItem) => string,
+    showOnClick?: OnEventBehavior,
+    showOnHold?: OnEventBehavior
 }>();
+
+const { showOnClick = 'group', showOnHold = 'item-zoom' } = props;
 
 const isActive = defineModel<boolean>('dialogActive', { default: false });
 
@@ -438,9 +444,23 @@ watch(() => props.focusItemUid, () => {
 // const isActive = ref(false);
 const shownGroupedItemsId: Ref<string | undefined> = ref(undefined);
 
-function showGroupedItems(groupedItem: GroupedItems<T>) {
-    shownGroupedItemsId.value = groupedItem.base.id;
-    isActive.value = true;
+function showGroupedItems(behavior: OnEventBehavior, groupedItem: GroupedItems<T>) {
+    if (typeof behavior == 'function') {
+        behavior(groupedItem);
+        return;
+    }
+    
+    switch (behavior) {
+        case 'group':
+            shownGroupedItemsId.value = groupedItem.base.id;
+            isActive.value = true;
+            break;
+        case 'item-zoom':
+            console.warn("Item zoom not yet implemented");
+            break;
+        case 'none':
+            break;
+    } 
 }
 
 watch(itemsGroups, (val) => {
@@ -564,10 +584,6 @@ const compactGrid = ref(false);
                                     v-bind="activatorProps"
                                     class="pa-2 elevation-0 rounded-0"
                                 >
-                                    <!-- <v-badge
-                                    color="primary"
-                                    dot
-                                > -->
                                     <v-icon
                                         v-if="(filterCount ?? 0) > 0"
                                         size="large"
@@ -744,12 +760,14 @@ const compactGrid = ref(false);
                     <slot
                         name="activator"
                         :grouped-item="groupedItems"
-                        :activate="() => showGroupedItems(groupedItems)"
+                        :activate="(behavior: OnEventBehavior) => showGroupedItems(behavior, groupedItems)"
                     >
                         <base-item-component
                             :item="groupedItems.base"
                             :key="i"
-                            @click="showGroupedItems(groupedItems)"
+                            v-hold="() => { showGroupedItems(showOnHold, groupedItems) }"
+                            @click="() => { showGroupedItems(showOnClick, groupedItems) }"
+                            @contextmenu.prevent
                         >
                             <template v-slot:common-content="{ item }">
                                 <slot

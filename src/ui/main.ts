@@ -12,6 +12,8 @@ import TradeShow from './views/TradeShow.vue';
 import TradeCreate from './views/TradeCreate.vue';
 import TradeCounter from './views/TradeCounter.vue';
 
+import { vHold } from './directives/vHold.ts';
+
 // Vuetify
 import '@mdi/font/css/materialdesignicons.css';
 
@@ -70,5 +72,7 @@ const collectionApp = createApp(App);
 
 collectionApp.use(vuetify);
 collectionApp.use(router);
+
+collectionApp.directive('hold', vHold);
 
 collectionApp.mount('#app');

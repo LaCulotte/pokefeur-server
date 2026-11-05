@@ -169,10 +169,10 @@ function groupClick(itemId: string) {
 
     if (selectedCostCompleted.value) {
         const paymentItems = itemBaseToPayments.value[itemId];
-
+        
         const itemToFocus = paymentItems?.find((p) => p.costIndex == selectedCostIndex.value)?.itemUid;
         if (itemToFocus) {
-            focusedItem.value = itemToFocus;
+            focusedItem.value = undefined;
         }
     }
 }
@@ -461,6 +461,8 @@ const scrollElem = useTemplateRef("scroll-elem");
                                             dialog-anchor="deal-proposal-dialog"
                                             @item-click="itemClick"
                                             v-model:dialog-active="dialogActive[i - 1]"
+                                            show-on-click="none"
+                                            show-on-hold="group"
                                         >
                                             <template v-slot:activator-common-content="{ item, groupedItems }">
                                                 <local-scope

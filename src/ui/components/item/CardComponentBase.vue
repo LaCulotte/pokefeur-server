@@ -3,6 +3,7 @@ const props = defineProps<{
     image: string,
     name: string
 }>();
+
 </script>
 
 <template>
@@ -16,9 +17,10 @@ const props = defineProps<{
         >
             <div
                 class="w-100 h-100 position-relative"
+                @contextmenu.stop.prevent
             >
                 <img
-                    class="position-absolute top-0 w-100 h-100"
+                    class="position-absolute top-0 w-100 h-100 no-native-touch"
                     :src="image"
                     :title="name"
                 >
@@ -43,5 +45,11 @@ const props = defineProps<{
         width: auto !important;
         height: 100% !important; 
     }
+}
+
+.no-native-touch {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 </style>

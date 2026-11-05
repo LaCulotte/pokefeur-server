@@ -17,6 +17,7 @@ const props = defineProps<{
             <div
                 class="w-100 h-100 position-relative"
                 style="overflow: visible;"
+                @contextmenu.stop.prevent
             >
                 <!-- <v-responsive
                 class="w-100 h-100"
@@ -31,7 +32,7 @@ const props = defineProps<{
                     :title="name"
                 >
                     <v-img
-                        class="w-100 h-100"
+                        class="w-100 h-100 no-native-touch"
                         style="overflow: visible;"
                         :src="logo"
                     />
@@ -58,5 +59,11 @@ const props = defineProps<{
         width: auto !important;
         height: 100% !important; 
     }
+}
+
+.no-native-touch {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 </style>
